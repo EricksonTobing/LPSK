@@ -10,7 +10,7 @@ return [
     'label' => 'Data Permohonan Kasus',
     'pk' => 'no_reg_medan',
     'columns' => [
-      'no_reg_medan'=> 'Nomor Registrasi Medan',
+      'no_reg_medan' => 'Nomor Registrasi Medan',
       'nama_pemohon' => 'Nama Pemohon',
       'jenis_kelamin' => 'Jenis Kelamin',
       'status_hukum' => 'Status Hukum',
@@ -22,13 +22,16 @@ return [
       'media_pengajuan' => 'Media Pengajuan',
       'link_berkas_permohonan' => 'Link Berkas Permohonan',
       'jenis_perlindungan' => 'Jenis Perlindungan',
-      'kab_kot_locus' => 'Kabupaten/Kota Locus',
-      'provinsi' => 'Provinsi',
+      'kab_kot_locus' => 'Kab/Kota Locus',
+      'kab/kota_pemohon' => 'Kab/Kota Pemohon',
+      'provinsi_pemohon' => 'Provinsi Pemohon',
       'tempat_permohonan' => 'Tempat Permohonan'
     ],
-    'searchable' => ['no_reg_medan','nama_pemohon','provinsi','tindak_pidana','media_pengajuan','tempat_permohonan'],
-    'filters' => ['jenis_kelamin','media_pengajuan','provinsi','tempat_permohonan','tindak_pidana','status_hukum','pihak_perwakilan'],
+    'searchable' => ['no_reg_medan','nama_pemohon','provinsi_pemohon','tindak_pidana','media_pengajuan','tempat_permohonan'],
+    'filters' => ['jenis_kelamin','media_pengajuan','provinsi_pemohon','tempat_permohonan','tindak_pidana','status_hukum','pihak_perwakilan'],
   ],
+  
+  
   'penelaahan' => [
     'label' => 'Data Penelaahan Permohonan',
     'pk' => 'no_registrasi',
@@ -37,7 +40,11 @@ return [
       'no_reg_medan' => 'Nomor Registrasi Medan',
       'nama_pemohon' => 'Nama Pemohon',
       'jenis_kelamin' => 'Jenis Kelamin',
+      'kab/kota_pemohon' => 'Kab/Kota Pemohon',
+      'provinsi_pemohon' => 'Provinsi Pemohon',
+      'tindak_pidana' => 'Tindak Pidana',
       'status_hukum' => 'Status Hukum',
+      'proses_hukum' => 'Proses Hukum',
       'tanggal_dispo' => 'Tanggal Disposisi',
       'proses_penalaahan' => 'Proses Penelaahan',
       'wilayah_perkara' => 'Wilayah Perkara',
@@ -49,9 +56,12 @@ return [
       'risalah_laporan' => 'Risalah Laporan'
     ],
     'searchable' => ['no_registrasi','no_reg_medan','wilayah_perkara','case_manager','nama_pemohon'],
-    'filters' => ['risalah_laporan','nama_ta_penalaahan'],
+    'filters' => ['risalah_laporan','nama_ta_penalaahan','proses_hukum'],
     'joins' => [
-      'permohonan' => ['no_reg_medan', 'no_reg_medan', ['nama_pemohon', 'jenis_kelamin', 'status_hukum']]
+      'permohonan' => ['no_reg_medan', 'no_reg_medan', [
+        'nama_pemohon', 'jenis_kelamin', 'kab/kota_pemohon', 'provinsi_pemohon', 
+        'tindak_pidana', 'status_hukum', 'jenis_perlindungan'
+      ]]
     ]
   ],
   'layanan' => [
@@ -62,9 +72,12 @@ return [
       'no_reg_medan' => 'Nomor Registrasi Medan',
       'no_registrasi' => 'Nomor Registrasi',
       'no_spk' => 'Nomor SPK',
+      'tgl_no_kep_smpl' => 'Tgl No Kep SMPL',
       'status_spk' => 'Status SPK',
       'status_hukum' => 'Status Hukum',
       'nama_terlindung' => 'Nama Terlindung',
+      'kab/kota_pemohon' => 'Kab/Kota Terlindung',
+      'provinsi_pemohon' => 'Provinsi Terlindung',
       'jenis_tindak_pidana' => 'Jenis Tindak Pidana',
       'tanggal_disposisi' => 'Tanggal Disposisi',
       'case_manager' => 'Case Manager',
@@ -80,8 +93,12 @@ return [
     'searchable' => ['no_kep_smpl','no_spk','nama_terlindung','wilayah_hukum','jenis_tindak_pidana','status'],
     'filters' => ['status','jenis_tindak_pidana','wilayah_hukum','status_spk','nama_ta_layanan'],
     'joins' => [
-      'permohonan' => ['no_reg_medan', 'no_reg_medan', ['status_hukum']],
-      'penelaahan' => ['no_registrasi', 'no_registrasi', ['case_manager']]
+      'permohonan' => ['no_reg_medan', 'no_reg_medan', [
+        'status_hukum', 'kab/kota_pemohon', 'provinsi_pemohon'
+      ]],
+      'penelaahan' => ['no_registrasi', 'no_registrasi', [
+        'case_manager', 'tindak_pidana'
+      ]]
     ]
   ],
   'anggaran' => [
@@ -90,10 +107,11 @@ return [
     'columns' => [
       'kode_anggaran' => 'Kode Anggaran',
       'nama_anggaran' => 'Nama Anggaran',
-      'total_anggaran' => 'Total Anggaran'
+      'total_anggaran' => 'Total Anggaran',
+      'tahun' => 'Tahun'
     ],
     'searchable' => ['kode_anggaran','nama_anggaran'],
-    'filters' => [],
+    'filters' => ['tahun'],
   ],
   'pengeluaran' => [
     'label' => 'Data Pengeluaran',
