@@ -1,0 +1,8 @@
+/* Penyesuaian kecil */
+table td,
+table th {
+  white-space: nowrap;
+}
+details summary {
+  list-style: none;
+}
