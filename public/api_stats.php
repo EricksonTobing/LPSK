@@ -151,73 +151,78 @@ foreach ($anggarans as $a) {
 
 // --- Data untuk Peta Provinsi (3 Provinsi) ---
 $stmt = $pdo->prepare("
-    SELECT provinsi, COUNT(*) c
+    SELECT provinsi_pemohon, COUNT(*) c
     FROM permohonan
-    WHERE provinsi IN ('DI. ACEH', 'SUMATERA UTARA', 'SUMATERA BARAT') 
+    WHERE provinsi_pemohon IN ('DI. ACEH', 'SUMATERA UTARA', 'SUMATERA BARAT') 
     AND YEAR(tgl_pengajuan) = ?
-    GROUP BY provinsi
+    GROUP BY provinsi_pemohon
 ");
 $stmt->execute([$selectedYear]);
-$prov = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+$provData = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$map = [
-    'DI. ACEH' => 'Aceh',
-    'SUMATERA UTARA' => 'Sumatera Utara',
-    'SUMATERA BARAT' => 'Sumatera Barat'
-];
+$provMap = [];
+foreach ($provData as $r) {
+    $provMap[$r['provinsi_pemohon']] = (int)$r['c'];
+}
 
+$provLabels = ['DI. ACEH', 'SUMATERA UTARA', 'SUMATERA BARAT'];
 $provCounts = [];
-foreach ($prov as $k => $v) {
-    $key = isset($map[$k]) ? $map[$k] : $k;
-    $provCounts[$key] = (int)$v;
+foreach ($provLabels as $p) {
+    $provCounts[] = $provMap[$p] ?? 0;
 }
 
-$allProvinces = array_values($map);
-foreach ($allProvinces as $province) {
-    if (!isset($provCounts[$province])) $provCounts[$province] = 0;
+// --- Data untuk Pie Chart ---
+$stmt = $pdo->prepare("
+    SELECT jenis_tindak_pidana, COUNT(*) c
+    FROM layanan
+    WHERE jenis_tindak_pidana IS NOT NULL AND jenis_tindak_pidana != ''
+    AND YEAR(tanggal_disposisi) = ?
+    GROUP BY jenis_tindak_pidana
+    ORDER BY c DESC
+    LIMIT 5
+");
+$stmt->execute([$selectedYear]);
+$pieData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$pieLabels = [];
+$pieValues = [];
+foreach ($pieData as $r) {
+    $pieLabels[] = $r['jenis_tindak_pidana'];
+    $pieValues[] = (int)$r['c'];
 }
 
-// --- FillKey untuk Peta ---
-$maxCount = !empty($provCounts) ? max($provCounts) : 0;
-$fillKeys = [];
-foreach ($allProvinces as $province) {
-    $count = $provCounts[$province] ?? 0;
-    if ($maxCount > 0) {
-        $ratio = $count / $maxCount;
-        if ($ratio > 0.7)      $fillKeys[$province] = 'high';
-        elseif ($ratio > 0.3)  $fillKeys[$province] = 'medium';
-        else                   $fillKeys[$province] = 'low';
-    } else {
-        $fillKeys[$province] = 'low';
-    }
-}
-
-// --- Output JSON ---
+// --- Response ---
 header('Content-Type: application/json');
 echo json_encode([
-    'selectedYear' => $selectedYear,
     'counts' => $counts,
     'charts' => [
-        'permohonan_line' => [
-            'labels'     => $labelsPerm,
-            'permohonan' => $dataPerm,
-            'penelaahan' => $dataPenel,
-            'layanan'    => $dataLayan,
+        'permohonan' => [
+            'labels' => $labelsPerm,
+            'data'   => $dataPerm
         ],
-        'keuangan' => [
-            'labels'   => $labelsKeu,
-            'datasets' => $datasetsKeu,
+        'penelaahan' => [
+            'labels' => $labelsPerm, // same months
+            'data'   => $dataPenel
+        ],
+        'layanan' => [
+            'labels' => $labelsPerm, // same months
+            'data'   => $dataLayan
         ],
         'pengeluaran' => [
             'labels' => $labelsPeng,
-            'data'   => $dataPeng,
+            'data'   => $dataPeng
         ],
-    ],
-    'map' => [
-        'provinsi_counts'    => $provCounts,
-        'provinsi_fillkeys' => $fillKeys
+        'keuangan' => [
+            'labels'   => $labelsKeu,
+            'datasets' => $datasetsKeu
+        ],
+        'provinsi' => [
+            'labels' => $provLabels,
+            'data'   => $provCounts
+        ],
+        'tindak_pidana' => [
+            'labels' => $pieLabels,
+            'data'   => $pieValues
+        ]
     ]
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-
-exit;
-?>
+]);
