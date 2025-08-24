@@ -23,14 +23,13 @@ return [
       'link_berkas_permohonan' => 'Link Berkas Permohonan',
       'jenis_perlindungan' => 'Jenis Perlindungan',
       'kab_kot_locus' => 'Kab/Kota Locus',
-      'kab/kota_pemohon' => 'Kab/Kota Pemohon',
+      'kab_kota_pemohon' => 'Kab/Kota Pemohon', // Diperbaiki dari 'kab/kota_pemohon'
       'provinsi_pemohon' => 'Provinsi Pemohon',
       'tempat_permohonan' => 'Tempat Permohonan'
     ],
     'searchable' => ['no_reg_medan','nama_pemohon','provinsi_pemohon','tindak_pidana','media_pengajuan','tempat_permohonan'],
     'filters' => ['jenis_kelamin','media_pengajuan','provinsi_pemohon','tempat_permohonan','tindak_pidana','status_hukum','pihak_perwakilan'],
   ],
-  
   
   'penelaahan' => [
     'label' => 'Data Penelaahan Permohonan',
@@ -40,7 +39,7 @@ return [
       'no_reg_medan' => 'Nomor Registrasi Medan',
       'nama_pemohon' => 'Nama Pemohon',
       'jenis_kelamin' => 'Jenis Kelamin',
-      'kab/kota_pemohon' => 'Kab/Kota Pemohon',
+      'kab_kota_pemohon' => 'Kab/Kota Pemohon', // Diperbaiki dari 'kab/kota_pemohon'
       'provinsi_pemohon' => 'Provinsi Pemohon',
       'tindak_pidana' => 'Tindak Pidana',
       'status_hukum' => 'Status Hukum',
@@ -59,48 +58,44 @@ return [
     'filters' => ['risalah_laporan','nama_ta_penalaahan','proses_hukum'],
     'joins' => [
       'permohonan' => ['no_reg_medan', 'no_reg_medan', [
-        'nama_pemohon', 'jenis_kelamin', 'kab/kota_pemohon', 'provinsi_pemohon', 
+        'nama_pemohon', 'jenis_kelamin', 'kab_kota_pemohon', 'provinsi_pemohon', 
         'tindak_pidana', 'status_hukum', 'jenis_perlindungan'
       ]]
     ]
   ],
-  'layanan' => [
-    'label' => 'Data Layanan Kasus',
-    'pk' => 'no_kep_smpl',
-    'columns' => [
-      'no_kep_smpl' => 'Nomor Keputusan SMPL',
-      'no_reg_medan' => 'Nomor Registrasi Medan',
-      'no_registrasi' => 'Nomor Registrasi',
-      'no_spk' => 'Nomor SPK',
-      'tgl_no_kep_smpl' => 'Tgl No Kep SMPL',
-      'status_spk' => 'Status SPK',
-      'status_hukum' => 'Status Hukum',
-      'nama_terlindung' => 'Nama Terlindung',
-      'kab/kota_pemohon' => 'Kab/Kota Terlindung',
-      'provinsi_pemohon' => 'Provinsi Terlindung',
-      'jenis_tindak_pidana' => 'Jenis Tindak Pidana',
-      'tanggal_disposisi' => 'Tanggal Disposisi',
-      'case_manager' => 'Case Manager',
-      'tgl_mulai_layanan' => 'Tanggal Mulai Layanan',
-      'masa_layanan' => 'Masa Layanan',
-      'tambahan_masa_layanan' => 'Tambahan Masa Layanan',
-      'tgl_berakhir_layanan' => 'Tanggal Berakhir Layanan',
-      'jenis_perlindungan' => 'Jenis Perlindungan',
-      'wilayah_hukum' => 'Wilayah Hukum',
-      'nama_ta_layanan' => 'Nama TA Layanan',
-      'status' => 'Status'
-    ],
-    'searchable' => ['no_kep_smpl','no_spk','nama_terlindung','wilayah_hukum','jenis_tindak_pidana','status'],
-    'filters' => ['status','jenis_tindak_pidana','wilayah_hukum','status_spk','nama_ta_layanan'],
-    'joins' => [
-      'permohonan' => ['no_reg_medan', 'no_reg_medan', [
-        'status_hukum', 'kab/kota_pemohon', 'provinsi_pemohon'
-      ]],
-      'penelaahan' => ['no_registrasi', 'no_registrasi', [
-        'case_manager', 'tindak_pidana'
-      ]]
-    ]
+'layanan' => [
+  'label' => 'Data Layanan Kasus',
+  'pk' => 'no_kep_smpl',
+  'columns' => [
+    'no_kep_smpl' => 'Nomor Kep SMPL',
+    'no_reg_medan' => 'Nomor Registrasi Medan',
+    'no_registrasi' => 'Nomor Registrasi',
+    'no_spk' => 'Nomor SPK',
+    'tgl_no_kep_smpl' => 'Tanggal No Kep SMPL',
+    'status_spk' => 'Status SPK',
+    'status_hukum' => 'Status Hukum',
+    'nama_terlindung' => 'Nama Terlindung',
+    'kab_kota_terlindung' => 'Kab/Kota Terlindung',
+    'provinsi_terlindung' => 'Provinsi Terlindung',
+    'jenis_tindak_pidana' => 'Jenis Tindak Pidana',
+    'tanggal_disposisi' => 'Tanggal Disposisi',
+    'case_manager' => 'Case Manager',
+    'tgl_mulai_layanan' => 'Tanggal Mulai Layanan',
+    'masa_layanan' => 'Masa Layanan',
+    'tambahan_masa_layanan' => 'Tambahan Masa Layanan',
+    'tgl_berakhir_layanan' => 'Tanggal Berakhir Layanan',
+    'jenis_perlindungan' => 'Jenis Perlindungan',
+    'wilayah_hukum' => 'Wilayah Hukum',
+    'nama_ta_layanan' => 'Nama TA Layanan',
+    'status' => 'Status'
   ],
+  'searchable' => ['no_kep_smpl','nama_terlindung','status','wilayah_hukum'],
+  'filters' => ['status','masa_layanan','tambahan_masa_layanan','status_spk'],
+  'joins' => [
+    'permohonan' => ['no_reg_medan','no_reg_medan',['status_hukum']]
+  ]
+],
+
   'anggaran' => [
     'label' => 'Data Anggaran',
     'pk' => 'kode_anggaran',
@@ -131,6 +126,7 @@ return [
     'label' => 'Data Pengguna',
     'pk' => 'id_user',
     'columns' => [
+      'id_user' => 'ID User', // Ditambahkan
       'username' => 'Username',
       'password'  => 'Password',
       'nama_lengkap' => 'Nama Lengkap',
