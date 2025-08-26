@@ -201,12 +201,18 @@ require __DIR__ . '/../inc/layout_nav.php';
 <script src="datamaps.indonesia.min.js" onerror="console.error('Gagal memuat library peta Indonesia')"></script>
 
 <script>
+  
 // Variabel global untuk menyimpan instance chart
 let permohonanChart = null;
 let pengeluaranChart = null;
 
 // Fungsi utama untuk memuat data dashboard
 async function loadDashboardData() {
+  // Tambahkan di awal fungsi loadDashboardData
+document.getElementById('stats-cards').classList.add('opacity-50');
+document.querySelectorAll('#stats-cards .text-2xl').forEach(el => {
+  el.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+});
   try {
     const selectedYear = document.getElementById('yearFilter').value;
     const res = await fetch(`api_stats.php?year=${selectedYear}`);
@@ -217,22 +223,28 @@ async function loadDashboardData() {
     
     const data = await res.json();
     
-    // Update card values
-    document.getElementById('permohonan-count').textContent = data.counts.permohonan.toLocaleString();
-    document.getElementById('penelaahan-count').textContent = data.counts.penelaahan.toLocaleString();
-    document.getElementById('layanan-count').textContent = data.counts.layanan.toLocaleString();
-    document.getElementById('pengeluaran-count').textContent = 'Rp ' + data.counts.pengeluaran_fmt;
+    // Update card values dengan format yang benar
+    document.getElementById('permohonan-count').textContent = data.counts.permohonan.toLocaleString('id-ID');
+    document.getElementById('penelaahan-count').textContent = data.counts.penelaahan.toLocaleString('id-ID');
+    document.getElementById('layanan-count').textContent = data.counts.layanan.toLocaleString('id-ID');
+    document.getElementById('pengeluaran-count').textContent = 'Rp ' + data.counts.pengeluaran.toLocaleString('id-ID');
     
     // Render charts
     renderCharts(data);
     
-    // Render map
-    renderMap(data.map.provinsi_counts, data.map.provinsi_fillkeys);
+    // Render map jika data tersedia
+    if (data.map && data.map.provinsi_counts) {
+      renderMap(data.map.provinsi_counts, data.map.provinsi_fillkeys);
+    }
     
   } catch (error) {
     console.error('Error loading dashboard data:', error);
     alert('Gagal memuat data dashboard. Silakan refresh halaman.');
   }
+  // Dan di akhir (dalam finally)
+finally {
+  document.getElementById('stats-cards').classList.remove('opacity-50');
+}
 }
 
 // Fungsi untuk merender chart
@@ -245,43 +257,41 @@ function renderCharts(data) {
     pengeluaranChart.destroy();
   }
 
-  // Chart 1: Multi-line (permohonan, penelaahan, layanan)
-  const permohonanCtx = document.getElementById('chartPermohonan');
-  if (permohonanCtx) {
-    permohonanChart = new Chart(permohonanCtx, {
-      type: 'line',
-      data: {
-        labels: data.charts.permohonan_line.labels,
-        datasets: [
-          {
-            label: 'Permohonan',
-            data: data.charts.permohonan_line.permohonan,
-            borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            tension: 0.4,
-            fill: true,
-            borderWidth: 2
-          },
-          {
-            label: 'Penelaahan',
-            data: data.charts.permohonan_line.penelaahan,
-            borderColor: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            tension: 0.4,
-            fill: true,
-            borderWidth: 2
-          },
-          {
-            label: 'Layanan',
-            data: data.charts.permohonan_line.layanan,
-            borderColor: '#f59e0b',
-            backgroundColor: 'rgba(245, 158, 11, 0.1)',
-            tension: 0.4,
-            fill: true,
-            borderWidth: 2
-          }
-        ]
+// Chart 1: Multi-line (permohonan, penelaahan, layanan)
+permohonanChart = new Chart(permohonanCtx, {
+  type: 'line',
+  data: {
+    labels: data.charts.permohonan_line.labels,
+    datasets: [
+      {
+        label: 'Permohonan',
+        data: data.charts.permohonan_line.permohonan_data,
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        tension: 0.4,
+        fill: true,
+        borderWidth: 2
       },
+      {
+        label: 'Penelaahan', 
+        data: data.charts.permohonan_line.penelaahan_data,
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        tension: 0.4,
+        fill: true,
+        borderWidth: 2
+      },
+      {
+        label: 'Layanan',
+        data: data.charts.permohonan_line.layanan_data,
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+        tension: 0.4,
+        fill: true,
+        borderWidth: 2
+      }
+    ]
+  },
       options: {
         responsive: true,
         maintainAspectRatio: true,

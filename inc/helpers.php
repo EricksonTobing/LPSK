@@ -19,4 +19,12 @@ function build_query(array $params, array $omit=[]): string {
     return http_build_query(array_filter($params, fn($v)=>$v!=='' && $v!==null));
 }
 
+function truncate_text(string $text, int $length = 50): string
+{
+    if (mb_strlen($text) <= $length) {
+        return $text;
+    }
+    return mb_substr($text, 0, $length) . '...';
+}
+
 function redirect(string $url): void { header("Location: $url"); exit; }

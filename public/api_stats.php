@@ -19,19 +19,22 @@ $startDate = $selectedYear . '-01-01';
 $endDate = $selectedYear . '-12-31';
 
 // --- Summary Counts ---
-// Gunakan prepared statement untuk keamanan
+// Permohonan - menggunakan tgl_pengajuan
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM permohonan WHERE YEAR(tgl_pengajuan) = ?");
 $stmt->execute([$selectedYear]);
 $permohonanCount = (int)$stmt->fetchColumn();
 
+// Penelaahan - menggunakan tanggal_dispo  
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM penelaahan WHERE YEAR(tanggal_dispo) = ?");
 $stmt->execute([$selectedYear]);
 $penelaahanCount = (int)$stmt->fetchColumn();
 
+// Layanan - menggunakan tanggal_disposisi
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM layanan WHERE YEAR(tanggal_disposisi) = ?");
 $stmt->execute([$selectedYear]);
 $layananCount = (int)$stmt->fetchColumn();
 
+// Pengeluaran - menggunakan tanggal
 $stmt = $pdo->prepare("SELECT COALESCE(SUM(jumlah),0) FROM pengeluaran WHERE YEAR(tanggal) = ?");
 $stmt->execute([$selectedYear]);
 $pengeluaranCount = (float)$stmt->fetchColumn();
@@ -148,6 +151,12 @@ foreach ($anggarans as $a) {
         'data'  => $vals
     ];
 }
+
+// Pastikan semua array memiliki data default
+if (empty($dataPerm)) $dataPerm = array_fill(0, 12, 0);
+if (empty($dataPenel)) $dataPenel = array_fill(0, 12, 0); 
+if (empty($dataLayan)) $dataLayan = array_fill(0, 12, 0);
+if (empty($dataPeng)) $dataPeng = array_fill(0, 12, 0);
 
 // --- Data untuk Peta Provinsi (3 Provinsi) ---
 $stmt = $pdo->prepare("

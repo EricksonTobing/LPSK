@@ -1,4 +1,4 @@
-<?php $u = auth_user(); ?>
+<?php $u = auth_user(); $role = $u['role'] ?? 'user'; ?>
 <header class="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-30">
   <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
     <div class="flex items-center">
@@ -7,8 +7,7 @@
       </button>
       <a href="index.php" class="text-xl font-bold text-primary-600 dark:text-primary-400 flex items-center">
         <i class="fas fa-shield-alt mr-2"></i>
-        <!-- <img src="/img/logo.png" alt="LPSK Logo" class="h-8 mr-2"> -->
-         MEDAN MELINDUNGI
+        MEDAN MELINDUNGI
       </a>
     </div>
     
@@ -28,10 +27,14 @@
       <a href="keuangan.php" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors flex items-center py-1">
         <i class="fas fa-coins mr-1"></i> Keuangan
       </a>
-      <?php if ($u && $u['role']==='admin'): ?>
-        <a href="admin_users.php" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors flex items-center py-1">
-          <i class="fas fa-gears mr-1"></i> Admin
-        </a>
+      
+      <?php if ($role === 'admin'): ?>
+      <a href="admin_users.php" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors flex items-center py-1">
+        <i class="fas fa-users mr-1"></i> Manajemen User
+      </a>
+      <a href="admin_pegawai.php" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors flex items-center py-1">
+        <i class="fas fa-user-tie mr-1"></i> Manajemen Pegawai
+      </a>
       <?php endif; ?>
     </nav>
     
@@ -100,10 +103,14 @@
       <a href="keuangan.php" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
         <i class="fas fa-coins mr-2"></i> Keuangan
       </a>
-      <?php if ($u && $u['role']==='admin'): ?>
-        <a href="admin_users.php" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-          <i class="fas fa-gears mr-2"></i> Admin
-        </a>
+      
+      <?php if ($role === 'admin'): ?>
+      <a href="admin_users.php" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+        <i class="fas fa-users mr-2"></i> Manajemen User
+      </a>
+      <a href="admin_pegawai.php" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+        <i class="fas fa-user-tie mr-2"></i> Manajemen Pegawai
+      </a>
       <?php endif; ?>
     </nav>
   </div>
