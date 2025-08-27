@@ -1,4 +1,3 @@
-
 <?php
 require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/../inc/auth.php';
@@ -27,8 +26,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('Nama pegawai wajib diisi');
             }
             
-            db()->prepare("INSERT INTO pegawai(nama_pegawai) VALUES(?)")
-                ->execute([trim($_POST['nama_pegawai'])]);
+            // Prepare data untuk insert
+            $data = [
+                'nama_pegawai' => trim($_POST['nama_pegawai']),
+                'jabatan' => !empty($_POST['jabatan']) ? trim($_POST['jabatan']) : null,
+                'unit_kerja' => !empty($_POST['unit_kerja']) ? trim($_POST['unit_kerja']) : null,
+                'email' => !empty($_POST['email']) ? trim($_POST['email']) : null,
+                'no_telp' => !empty($_POST['no_telp']) ? trim($_POST['no_telp']) : null,
+                'aktif' => isset($_POST['aktif']) ? 1 : 0
+            ];
+            
+            db()->prepare("INSERT INTO pegawai(nama_pegawai, jabatan, unit_kerja, email, no_telp, aktif) 
+                          VALUES(:nama_pegawai, :jabatan, :unit_kerja, :email, :no_telp, :aktif)")
+                ->execute($data);
                 
             redirect('admin_pegawai.php?success=Pegawai berhasil ditambahkan');
             
@@ -40,8 +50,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('Nama pegawai wajib diisi');
             }
             
-            db()->prepare("UPDATE pegawai SET nama_pegawai=? WHERE id_pegawai=?")
-                ->execute([trim($_POST['nama_pegawai']), $id]);
+            // Prepare data untuk update
+            $data = [
+                'nama_pegawai' => trim($_POST['nama_pegawai']),
+                'jabatan' => !empty($_POST['jabatan']) ? trim($_POST['jabatan']) : null,
+                'unit_kerja' => !empty($_POST['unit_kerja']) ? trim($_POST['unit_kerja']) : null,
+                'email' => !empty($_POST['email']) ? trim($_POST['email']) : null,
+                'no_telp' => !empty($_POST['no_telp']) ? trim($_POST['no_telp']) : null,
+                'aktif' => isset($_POST['aktif']) ? 1 : 0,
+                'id_pegawai' => $id
+            ];
+            
+            db()->prepare("UPDATE pegawai SET 
+                          nama_pegawai = :nama_pegawai, 
+                          jabatan = :jabatan, 
+                          unit_kerja = :unit_kerja, 
+                          email = :email, 
+                          no_telp = :no_telp, 
+                          aktif = :aktif 
+                          WHERE id_pegawai = :id_pegawai")
+                ->execute($data);
                 
             redirect('admin_pegawai.php?success=Pegawai berhasil diperbarui');
             
@@ -76,9 +104,9 @@ $q = trim((string) ($_GET['q'] ?? ''));
 $where = '';
 $params = [];
 if ($q !== '') {
-    $where = "WHERE nama_pegawai LIKE ?";
+    $where = "WHERE (nama_pegawai LIKE ? OR jabatan LIKE ? OR unit_kerja LIKE ? OR email LIKE ?)";
     $like = "%$q%";
-    $params = [$like];
+    $params = [$like, $like, $like, $like];
 }
 $totalStmt = db()->prepare("SELECT COUNT(*) FROM pegawai $where");
 $totalStmt->execute($params);
@@ -139,7 +167,7 @@ $rows = $stmt->fetchAll();
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                 </svg>
             </div>
-            <input type="text" name="q" value="<?= e($q) ?>" placeholder="Cari nama pegawai..."
+            <input type="text" name="q" value="<?= e($q) ?>" placeholder="Cari nama, jabatan, unit kerja, atau email..."
                    class="w-full pl-10 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-transparent focus:ring-2 focus:ring-indigo-500 focus:outline-none">
         </div>
         <button type="submit" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm flex items-center justify-center">
@@ -163,6 +191,11 @@ $rows = $stmt->fetchAll();
             <tr>
                 <th class="p-3 text-left font-semibold text-gray-700 dark:text-gray-200">ID</th>
                 <th class="p-3 text-left font-semibold text-gray-700 dark:text-gray-200">Nama Pegawai</th>
+                <th class="p-3 text-left font-semibold text-gray-700 dark:text-gray-200">Jabatan</th>
+                <th class="p-3 text-left font-semibold text-gray-700 dark:text-gray-200">Unit Kerja</th>
+                <th class="p-3 text-left font-semibold text-gray-700 dark:text-gray-200">Email</th>
+                <th class="p-3 text-left font-semibold text-gray-700 dark:text-gray-200">No. Telp</th>
+                <th class="p-3 text-center font-semibold text-gray-700 dark:text-gray-200">Status</th>
                 <th class="p-3 text-center font-semibold text-gray-700 dark:text-gray-200">Aksi</th>
             </tr>
         </thead>
@@ -172,9 +205,18 @@ $rows = $stmt->fetchAll();
                     <tr class="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
                         <td class="p-3 text-gray-800 dark:text-gray-200"><?= e($r['id_pegawai']) ?></td>
                         <td class="p-3 text-gray-800 dark:text-gray-200 font-medium"><?= e($r['nama_pegawai']) ?></td>
+                        <td class="p-3 text-gray-800 dark:text-gray-200"><?= e($r['jabatan'] ?? '-') ?></td>
+                        <td class="p-3 text-gray-800 dark:text-gray-200"><?= e($r['unit_kerja'] ?? '-') ?></td>
+                        <td class="p-3 text-gray-800 dark:text-gray-200"><?= e($r['email'] ?? '-') ?></td>
+                        <td class="p-3 text-gray-800 dark:text-gray-200"><?= e($r['no_telp'] ?? '-') ?></td>
+                        <td class="p-3 text-center">
+                            <span class="px-2 py-1 text-xs rounded-full <?= $r['aktif'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
+                                <?= $r['aktif'] ? 'Aktif' : 'Non-Aktif' ?>
+                            </span>
+                        </td>
                         <td class="p-3 text-center">
                             <div class="flex justify-center space-x-2">
-                                <button onclick="openEditModal(<?= $r['id_pegawai'] ?>, '<?= e($r['nama_pegawai']) ?>')" 
+                                <button onclick="openEditModal(<?= $r['id_pegawai'] ?>, '<?= e($r['nama_pegawai']) ?>', '<?= e($r['jabatan'] ?? '') ?>', '<?= e($r['unit_kerja'] ?? '') ?>', '<?= e($r['email'] ?? '') ?>', '<?= e($r['no_telp'] ?? '') ?>', <?= $r['aktif'] ? 1 : 0 ?>)" 
                                         class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -196,7 +238,7 @@ $rows = $stmt->fetchAll();
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="3" class="p-4 text-center text-gray-500 dark:text-gray-400">
+                    <td colspan="8" class="p-4 text-center text-gray-500 dark:text-gray-400">
                         <?= $q !== '' ? 'Tidak ada hasil pencarian' : 'Belum ada data pegawai' ?>
                     </td>
                 </tr>
@@ -265,9 +307,39 @@ $rows = $stmt->fetchAll();
                 <input type="hidden" name="action" value="create">
                 
                 <div>
-                    <label for="create_nama_pegawai" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Pegawai</label>
+                    <label for="create_nama_pegawai" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Pegawai *</label>
                     <input type="text" id="create_nama_pegawai" name="nama_pegawai" required 
                            class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                
+                <div>
+                    <label for="create_jabatan" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jabatan</label>
+                    <input type="text" id="create_jabatan" name="jabatan" 
+                           class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                
+                <div>
+                    <label for="create_unit_kerja" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit Kerja</label>
+                    <input type="text" id="create_unit_kerja" name="unit_kerja" 
+                           class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                
+                <div>
+                    <label for="create_email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                    <input type="email" id="create_email" name="email" 
+                           class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                
+                <div>
+                    <label for="create_no_telp" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">No. Telepon</label>
+                    <input type="text" id="create_no_telp" name="no_telp" 
+                           class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                
+                <div class="flex items-center">
+                    <input type="checkbox" id="create_aktif" name="aktif" value="1" checked
+                           class="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                    <label for="create_aktif" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Aktif</label>
                 </div>
                 
                 <div class="flex justify-end gap-3 pt-4 border-t">
@@ -302,9 +374,39 @@ $rows = $stmt->fetchAll();
                 <input type="hidden" id="edit_id_pegawai" name="id_pegawai" value="">
                 
                 <div>
-                    <label for="edit_nama_pegawai" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Pegawai</label>
+                    <label for="edit_nama_pegawai" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Pegawai *</label>
                     <input type="text" id="edit_nama_pegawai" name="nama_pegawai" required 
                            class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                
+                <div>
+                    <label for="edit_jabatan" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jabatan</label>
+                    <input type="text" id="edit_jabatan" name="jabatan" 
+                           class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                
+                <div>
+                    <label for="edit_unit_kerja" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit Kerja</label>
+                    <input type="text" id="edit_unit_kerja" name="unit_kerja" 
+                           class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                
+                <div>
+                    <label for="edit_email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                    <input type="email" id="edit_email" name="email" 
+                           class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                
+                <div>
+                    <label for="edit_no_telp" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">No. Telepon</label>
+                    <input type="text" id="edit_no_telp" name="no_telp" 
+                           class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                
+                <div class="flex items-center">
+                    <input type="checkbox" id="edit_aktif" name="aktif" value="1"
+                           class="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                    <label for="edit_aktif" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Aktif</label>
                 </div>
                 
                 <div class="flex justify-end gap-3 pt-4 border-t">
@@ -332,9 +434,14 @@ function closeModal(modalId) {
 }
 
 // Fungsi untuk membuka modal edit dengan data yang sudah diisi
-function openEditModal(id, nama_pegawai) {
+function openEditModal(id, nama_pegawai, jabatan, unit_kerja, email, no_telp, aktif) {
     document.getElementById('edit_id_pegawai').value = id;
     document.getElementById('edit_nama_pegawai').value = nama_pegawai;
+    document.getElementById('edit_jabatan').value = jabatan;
+    document.getElementById('edit_unit_kerja').value = unit_kerja;
+    document.getElementById('edit_email').value = email;
+    document.getElementById('edit_no_telp').value = no_telp;
+    document.getElementById('edit_aktif').checked = aktif === 1;
     
     openModal('editPegawaiModal');
 }

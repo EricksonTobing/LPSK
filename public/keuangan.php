@@ -3,6 +3,7 @@ require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/../inc/auth.php';
 require_once __DIR__ . '/../inc/db.php';
 require_once __DIR__ . '/../inc/helpers.php';
+require_once __DIR__ . '/../inc/csrf.php';
 require_login();
 $title = 'Keuangan';
 require __DIR__ . '/../inc/layout_header.php';
@@ -16,6 +17,55 @@ $tabs = [
     'pengeluaran' => 'Data Pengeluaran'
 ];
 
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify();
+    
+    if ($active_tab === 'anggaran' && isset($_POST['tambah_anggaran'])) {
+        // Handle tambah anggaran
+        $kode_anggaran = $_POST['kode_anggaran'] ?? '';
+        $nama_anggaran = $_POST['nama_anggaran'] ?? '';
+        $total_anggaran = $_POST['total_anggaran'] ?? '';
+        $tahun = $_POST['tahun'] ?? '';
+        
+        if (!empty($kode_anggaran) && !empty($nama_anggaran) && !empty($total_anggaran) && !empty($tahun)) {
+            try {
+                $stmt = db()->prepare("INSERT INTO anggaran (kode_anggaran, nama_anggaran, total_anggaran, tahun) VALUES (?, ?, ?, ?)");
+                $stmt->execute([$kode_anggaran, $nama_anggaran, $total_anggaran, $tahun]);
+                $_SESSION['success'] = "Data anggaran berhasil ditambahkan";
+            } catch (PDOException $e) {
+                $_SESSION['error'] = "Gagal menambahkan data: " . $e->getMessage();
+            }
+        } else {
+            $_SESSION['error'] = "Semua field harus diisi";
+        }
+    } 
+    elseif ($active_tab === 'pengeluaran' && isset($_POST['tambah_pengeluaran'])) {
+        // Handle tambah pengeluaran
+        $nomor_kuintasi = $_POST['nomor_kuintasi'] ?? '';
+        $kode_anggaran = $_POST['kode_anggaran'] ?? '';
+        $jumlah = $_POST['jumlah'] ?? '';
+        $tanggal = $_POST['tanggal'] ?? '';
+        $kode_mak = $_POST['kode_mak'] ?? '';
+        $keterangan = $_POST['keterangan'] ?? '';
+        
+        if (!empty($nomor_kuintasi) && !empty($kode_anggaran) && !empty($jumlah) && !empty($tanggal) && !empty($kode_mak)) {
+            try {
+                $stmt = db()->prepare("INSERT INTO pengeluaran (nomor_kuintasi, kode_anggaran, jumlah, tanggal, kode_mak, keterangan) VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$nomor_kuintasi, $kode_anggaran, $jumlah, $tanggal, $kode_mak, $keterangan]);
+                $_SESSION['success'] = "Data pengeluaran berhasil ditambahkan";
+            } catch (PDOException $e) {
+                $_SESSION['error'] = "Gagal menambahkan data: " . $e->getMessage();
+            }
+        } else {
+            $_SESSION['error'] = "Semua field wajib harus diisi";
+        }
+    }
+    
+    // Redirect untuk menghindari resubmission
+    redirect("keuangan.php?tab=" . $active_tab);
+}
+
 list($page, $per, $offset) = paginate_params();
 $q = trim((string)($_GET['q'] ?? ''));
 $where = '';
@@ -23,21 +73,24 @@ $params = [];
 
 // Query berdasarkan tab aktif
 if ($active_tab === 'pengeluaran') {
-    // Query untuk pengeluaran (seperti sebelumnya)
-    $sql = "SELECT p.*, a.nama_anggaran, a.total_anggaran
+    // Query untuk pengeluaran
+    $sql = "SELECT p.*, a.nama_anggaran, a.total_anggaran, m.nama_mak
             FROM pengeluaran p
-            LEFT JOIN anggaran a ON a.kode_anggaran = p.kode_anggaran";
+            LEFT JOIN anggaran a ON a.kode_anggaran = p.kode_anggaran
+            LEFT JOIN mak m ON m.kode_mak = p.kode_mak";
 
-    $count_sql = "SELECT COUNT(*) FROM pengeluaran p LEFT JOIN anggaran a ON a.kode_anggaran = p.kode_anggaran";
+    $count_sql = "SELECT COUNT(*) FROM pengeluaran p 
+                  LEFT JOIN anggaran a ON a.kode_anggaran = p.kode_anggaran
+                  LEFT JOIN mak m ON m.kode_mak = p.kode_mak";
     
     $params = [];
     $where_clauses = [];
 
     // Handle pencarian untuk pengeluaran
     if ($q) {
-        $where_clauses[] = "(p.nomor_kuintasi LIKE ? OR p.kode_anggaran LIKE ? OR a.nama_anggaran LIKE ? OR p.keterangan LIKE ?)";
+        $where_clauses[] = "(p.nomor_kuintasi LIKE ? OR p.kode_anggaran LIKE ? OR a.nama_anggaran LIKE ? OR p.keterangan LIKE ? OR m.nama_mak LIKE ?)";
         $search_param = "%$q%";
-        $params = array_fill(0, 4, $search_param);
+        $params = array_fill(0, 5, $search_param);
     }
 
 } elseif ($active_tab === 'anggaran') {
@@ -57,19 +110,22 @@ if ($active_tab === 'pengeluaran') {
 
 } else {
     // Query default (keuangan) - tetap menggunakan pengeluaran untuk ringkasan
-    $sql = "SELECT p.*, a.nama_anggaran, a.total_anggaran
+    $sql = "SELECT p.*, a.nama_anggaran, a.total_anggaran, m.nama_mak
             FROM pengeluaran p
-            LEFT JOIN anggaran a ON a.kode_anggaran = p.kode_anggaran";
+            LEFT JOIN anggaran a ON a.kode_anggaran = p.kode_anggaran
+            LEFT JOIN mak m ON m.kode_mak = p.kode_mak";
 
-    $count_sql = "SELECT COUNT(*) FROM pengeluaran p LEFT JOIN anggaran a ON a.kode_anggaran = p.kode_anggaran";
+    $count_sql = "SELECT COUNT(*) FROM pengeluaran p 
+                  LEFT JOIN anggaran a ON a.kode_anggaran = p.kode_anggaran
+                  LEFT JOIN mak m ON m.kode_mak = p.kode_mak";
     
     $params = [];
     $where_clauses = [];
 
     if ($q) {
-        $where_clauses[] = "(p.nomor_kuintasi LIKE ? OR p.kode_anggaran LIKE ? OR a.nama_anggaran LIKE ? OR p.keterangan LIKE ?)";
+        $where_clauses[] = "(p.nomor_kuintasi LIKE ? OR p.kode_anggaran LIKE ? OR a.nama_anggaran LIKE ? OR p.keterangan LIKE ? OR m.nama_mak LIKE ?)";
         $search_param = "%$q%";
-        $params = array_fill(0, 4, $search_param);
+        $params = array_fill(0, 5, $search_param);
     }
 }
 
@@ -89,7 +145,7 @@ if ($q) {
     if ($active_tab === 'anggaran') {
         $count_stmt->execute(array_fill(0, 2, "%$q%"));
     } else {
-        $count_stmt->execute(array_fill(0, 4, "%$q%"));
+        $count_stmt->execute(array_fill(0, 5, "%$q%"));
     }
 } else {
     $count_stmt->execute();
@@ -102,7 +158,7 @@ $param_index = 0;
 
 // Bind search parameters jika ada
 if ($q) {
-    $param_count = ($active_tab === 'anggaran') ? 2 : 4;
+    $param_count = ($active_tab === 'anggaran') ? 2 : 5;
     for ($i = 0; $i < $param_count; $i++) {
         $stmt->bindValue(++$param_index, "%$q%", PDO::PARAM_STR);
     }
@@ -129,6 +185,18 @@ if ($active_tab === 'keuangan') {
     
     $sisa_anggaran = $total_anggaran - $total_pengeluaran;
 }
+
+// Ambil data untuk dropdown
+$anggaran_options = [];
+$mak_options = [];
+
+if ($active_tab === 'pengeluaran' || (auth_user()['role'] ?? '') === 'admin') {
+    $anggaran_stmt = db()->query("SELECT kode_anggaran, nama_anggaran FROM anggaran ORDER BY nama_anggaran");
+    $anggaran_options = $anggaran_stmt->fetchAll();
+    
+    $mak_stmt = db()->query("SELECT kode_mak, nama_mak FROM mak ORDER BY nama_mak");
+    $mak_options = $mak_stmt->fetchAll();
+}
 ?>
 
 <h1 class="text-2xl font-semibold mb-4">Manajemen Keuangan</h1>
@@ -142,6 +210,34 @@ if ($active_tab === 'keuangan') {
         </a>
     <?php endforeach; ?>
 </div>
+
+<?php if (isset($_SESSION['error'])): ?>
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded shadow-sm">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-circle text-red-400"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-red-700"><?= e($_SESSION['error']) ?></p>
+            </div>
+        </div>
+        <?php unset($_SESSION['error']) ?>
+    </div>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['success'])): ?>
+    <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded shadow-sm">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-check-circle text-green-400"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-green-700"><?= e($_SESSION['success']) ?></p>
+            </div>
+        </div>
+        <?php unset($_SESSION['success']) ?>
+    </div>
+<?php endif; ?>
 
 <?php if ($active_tab === 'keuangan'): ?>
     <!-- Ringkasan Keuangan -->
@@ -166,19 +262,121 @@ if ($active_tab === 'keuangan') {
 <?php if ((auth_user()['role'] ?? '') === 'admin'): ?>
 <div class="mb-4 flex gap-2">
     <?php if ($active_tab === 'anggaran'): ?>
-        <a href="table.php?t=anggaran" 
+        <button onclick="toggleForm('anggaranForm')" 
            class="bg-green-600 text-white px-3 py-2 rounded-lg text-sm shadow hover:bg-green-700 transition-colors duration-150"
-           title="Kelola Data Anggaran">
-           Kelola Anggaran
-        </a>
+           title="Tambah Data Anggaran">
+           + Tambah Anggaran
+        </button>
     <?php elseif ($active_tab === 'pengeluaran'): ?>
-        <a href="table.php?t=pengeluaran" 
+        <button onclick="toggleForm('pengeluaranForm')" 
            class="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm shadow hover:bg-blue-700 transition-colors duration-150"
-           title="Kelola Data Pengeluaran">
-           Kelola Pengeluaran
-        </a>
+           title="Tambah Data Pengeluaran">
+           + Tambah Pengeluaran
+        </button>
     <?php endif; ?>
 </div>
+
+<!-- Form Tambah Anggaran -->
+<?php if ($active_tab === 'anggaran'): ?>
+<div id="anggaranForm" class="bg-white rounded-lg shadow p-4 mb-6 hidden">
+    <h3 class="text-lg font-semibold mb-3">Tambah Data Anggaran</h3>
+    <form method="POST">
+        <?= csrf_field() ?>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Kode Anggaran</label>
+                <input type="text" name="kode_anggaran" required 
+                       class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Anggaran</label>
+                <input type="text" name="nama_anggaran" required 
+                       class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Total Anggaran (Rp)</label>
+                <input type="number" name="total_anggaran" step="0.01" required 
+                       class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
+                <select name="tahun" required class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">- Pilih Tahun -</option>
+                    <?php for ($y = date('Y'); $y >= date('Y') - 10; $y--): ?>
+                        <option value="<?= $y ?>"><?= $y ?></option>
+                    <?php endfor; ?>
+                </select>
+            </div>
+        </div>
+        <div class="mt-4 flex justify-end gap-2">
+            <button type="button" onclick="toggleForm('anggaranForm')" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg transition-colors">
+                Batal
+            </button>
+            <button type="submit" name="tambah_anggaran" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors">
+                Simpan
+            </button>
+        </div>
+    </form>
+</div>
+<?php endif; ?>
+
+<!-- Form Tambah Pengeluaran -->
+<?php if ($active_tab === 'pengeluaran'): ?>
+<div id="pengeluaranForm" class="bg-white rounded-lg shadow p-4 mb-6 hidden">
+    <h3 class="text-lg font-semibold mb-3">Tambah Data Pengeluaran</h3>
+    <form method="POST">
+        <?= csrf_field() ?>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Kuitansi</label>
+                <input type="text" name="nomor_kuintasi" required 
+                       class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                <input type="date" name="tanggal" required 
+                       class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Kode Anggaran</label>
+                <select name="kode_anggaran" required class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">- Pilih Anggaran -</option>
+                    <?php foreach ($anggaran_options as $option): ?>
+                        <option value="<?= e($option['kode_anggaran']) ?>"><?= e($option['kode_anggaran'] . ' - ' . $option['nama_anggaran']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Kode MAK</label>
+                <select name="kode_mak" required class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">- Pilih MAK -</option>
+                    <?php foreach ($mak_options as $option): ?>
+                        <option value="<?= e($option['kode_mak']) ?>"><?= e($option['kode_mak'] . ' - ' . $option['nama_mak']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah (Rp)</label>
+                <input type="number" name="jumlah" step="0.01" required 
+                       class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Keterangan</label>
+                <textarea name="keterangan" 
+                       class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+            </div>
+        </div>
+        <div class="mt-4 flex justify-end gap-2">
+            <button type="button" onclick="toggleForm('pengeluaranForm')" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg transition-colors">
+                Batal
+            </button>
+            <button type="submit" name="tambah_pengeluaran" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                Simpan
+            </button>
+        </div>
+    </form>
+</div>
+<?php endif; ?>
 <?php endif; ?>
 
 <div class="bg-white rounded-2xl shadow p-4">
@@ -208,17 +406,22 @@ if ($active_tab === 'keuangan') {
                         <th class="p-2 text-left">No Kuintasi</th>
                         <th class="p-2 text-left">Kode Anggaran</th>
                         <th class="p-2 text-left">Nama Anggaran</th>
+                        <th class="p-2 text-left">Kode MAK</th>
+                        <th class="p-2 text-left">Nama MAK</th>
                         <th class="p-2 text-right">Jumlah</th>
                         <th class="p-2 text-left">Keterangan</th>
                     <?php elseif ($active_tab === 'anggaran'): ?>
                         <th class="p-2 text-left">Kode Anggaran</th>
                         <th class="p-2 text-left">Nama Anggaran</th>
                         <th class="p-2 text-right">Total Anggaran</th>
+                        <th class="p-2 text-left">Tahun</th>
                     <?php else: ?>
                         <th class="p-2 text-left">Tanggal</th>
                         <th class="p-2 text-left">No Kuintasi</th>
                         <th class="p-2 text-left">Kode Anggaran</th>
                         <th class="p-2 text-left">Nama Anggaran</th>
+                        <th class="p-2 text-left">Kode MAK</th>
+                        <th class="p-2 text-left">Nama MAK</th>
                         <th class="p-2 text-right">Jumlah</th>
                         <th class="p-2 text-left">Keterangan</th>
                     <?php endif; ?>
@@ -232,18 +435,23 @@ if ($active_tab === 'keuangan') {
                             <td class="p-2"><?= e($r['nomor_kuintasi']) ?></td>
                             <td class="p-2"><?= e($r['kode_anggaran']) ?></td>
                             <td class="p-2"><?= e($r['nama_anggaran']) ?></td>
-                            <td class="p-2 text-right"><?= number_format((float)$r['jumlah'], 0, ',', '.') ?></td>
+                            <td class="p-2"><?= e($r['kode_mak']) ?></td>
+                            <td class="p-2"><?= e($r['nama_mak'] ?? '') ?></td>
+                            <td class="p-2 text-right">Rp <?= number_format((float)$r['jumlah'], 0, ',', '.') ?></td>
                             <td class="p-2"><?= e($r['keterangan']) ?></td>
                         <?php elseif ($active_tab === 'anggaran'): ?>
                             <td class="p-2"><?= e($r['kode_anggaran']) ?></td>
                             <td class="p-2"><?= e($r['nama_anggaran']) ?></td>
-                            <td class="p-2 text-right"><?= number_format((float)$r['total_anggaran'], 0, ',', '.') ?></td>
+                            <td class="p-2 text-right">Rp <?= number_format((float)$r['total_anggaran'], 0, ',', '.') ?></td>
+                            <td class="p-2"><?= e($r['tahun']) ?></td>
                         <?php else: ?>
                             <td class="p-2"><?= e($r['tanggal']) ?></td>
                             <td class="p-2"><?= e($r['nomor_kuintasi']) ?></td>
                             <td class="p-2"><?= e($r['kode_anggaran']) ?></td>
                             <td class="p-2"><?= e($r['nama_anggaran']) ?></td>
-                            <td class="p-2 text-right"><?= number_format((float)$r['jumlah'], 0, ',', '.') ?></td>
+                            <td class="p-2"><?= e($r['kode_mak']) ?></td>
+                            <td class="p-2"><?= e($r['nama_mak'] ?? '') ?></td>
+                            <td class="p-2 text-right">Rp <?= number_format((float)$r['jumlah'], 0, ',', '.') ?></td>
                             <td class="p-2"><?= e($r['keterangan']) ?></td>
                         <?php endif; ?>
                     </tr>
@@ -278,12 +486,12 @@ if ($active_tab === 'keuangan') {
             <?php if ((auth_user()['role'] ?? '') === 'admin'): ?>
                 <p class="text-sm mt-2">
                     <?php if ($active_tab === 'anggaran'): ?>
-                        <a href="table.php?t=anggaran" class="text-blue-600 hover:underline">Tambahkan data anggaran</a>
+                        <a href="javascript:void(0)" onclick="toggleForm('anggaranForm')" class="text-blue-600 hover:underline">Tambahkan data anggaran</a>
                     <?php elseif ($active_tab === 'pengeluaran'): ?>
-                        <a href="table.php?t=pengeluaran" class="text-blue-600 hover:underline">Tambahkan data pengeluaran</a>
+                        <a href="javascript:void(0)" onclick="toggleForm('pengeluaranForm')" class="text-blue-600 hover:underline">Tambahkan data pengeluaran</a>
                     <?php else: ?>
-                        <a href="table.php?t=anggaran" class="text-blue-600 hover:underline">Tambahkan data anggaran</a> atau 
-                        <a href="table.php?t=pengeluaran" class="text-blue-600 hover:underline">data pengeluaran</a>
+                        <a href="keuangan.php?tab=anggaran" class="text-blue-600 hover:underline">Lihat data anggaran</a> atau 
+                        <a href="keuangan.php?tab=pengeluaran" class="text-blue-600 hover:underline">data pengeluaran</a>
                     <?php endif; ?>
                 </p>
             <?php endif; ?>
@@ -291,5 +499,23 @@ if ($active_tab === 'keuangan') {
     </div>
     <?php endif; ?>
 </div>
+
+<script>
+function toggleForm(formId) {
+    const form = document.getElementById(formId);
+    form.classList.toggle('hidden');
+}
+
+// Untuk menutup form ketika klik di luar form
+document.addEventListener('click', function(event) {
+    const forms = document.querySelectorAll('#anggaranForm, #pengeluaranForm');
+    forms.forEach(form => {
+        if (!form.classList.contains('hidden') && !form.contains(event.target) && 
+            !event.target.matches('button[onclick*="toggleForm"]')) {
+            form.classList.add('hidden');
+        }
+    });
+});
+</script>
 
 <?php require __DIR__ . '/../inc/layout_footer.php'; ?>

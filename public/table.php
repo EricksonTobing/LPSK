@@ -120,7 +120,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } catch (PDOException $e) {
         error_log("Database error: " . $e->getMessage());
-        $_SESSION['error'] = "Database error: " . $e->getMessage();
+        
+        // User-friendly error messages
+        $errorCode = $e->getCode();
+        $errorMessage = $e->getMessage();
+        
+        if (strpos($errorMessage, 'foreign key constraint') !== false) {
+            $_SESSION['error'] = "Tidak dapat menghapus data karena masih digunakan di tabel lain";
+        } elseif (strpos($errorMessage, 'duplicate entry') !== false) {
+            $_SESSION['error'] = "Data dengan nilai yang sama sudah ada dalam sistem";
+        } elseif (strpos($errorMessage, 'data too long') !== false) {
+            $_SESSION['error'] = "Data yang dimasukkan terlalu panjang untuk field tertentu";
+        } else {
+            $_SESSION['error'] = "Terjadi kesalahan database. Silakan coba lagi atau hubungi administrator.";
+        }
     }
     redirect("table.php?t=$t");
 }
@@ -276,6 +289,72 @@ function get_input_type($column, $value = '')
     return ['type' => 'text'];
 }
 
+// FUNGSI TAMBAHAN: get_field_help
+function get_field_help($column) {
+    $help_messages = [
+        'no_reg_medan' => 'Nomor registrasi unik dari Medan',
+        'nama_pemohon' => 'Nama lengkap pemohon perlindungan',
+        'jenis_kelamin' => 'Jenis kelamin pemohon',
+        'status_hukum' => 'Status hukum pemohon (Saksi, Korban, Ahli, Pelapor, Saksi Pelaku)',
+        'tgl_pengajuan' => 'Tanggal pengajuan permohonan',
+        'pihak_perwakilan' => 'Pihak yang mewakili pemohon',
+        'tindak_pidana' => 'Jenis tindak pidana yang dilaporkan',
+        'id_pegawai' => 'Petugas yang menerima permohonan',
+        'kelengkapan_berkas' => 'Kelengkapan dokumen yang diserahkan',
+        'media_pengajuan' => 'Media yang digunakan untuk pengajuan',
+        'link_berkas_permohonan' => 'Link Google Drive atau penyimpanan online untuk berkas',
+        'jenis_perlindungan' => 'Jenis perlindungan yang dimohonkan',
+        'kab_kot_locus' => 'Kabupaten/Kota tempat kejadian',
+        'provinsi' => 'Provinsi tempat kejadian',
+        'kab_kota_pemohon' => 'Kabupaten/Kota asal pemohon',
+        'provinsi_pemohon' => 'Provinsi asal pemohon',
+        'tempat_permohonan' => 'Tempat permohonan diajukan',
+        
+        // Penelaahan
+        'no_registrasi' => 'Nomor registrasi penelaahan',
+        'proses_hukum' => 'Tahap proses hukum saat ini',
+        'tanggal_dispo' => 'Tanggal disposisi penelaahan',
+        'proses_penalaahan' => 'Proses dan perkembangan penelaahan',
+        'tgl_berakhir_penelaahan' => 'Tanggal berakhirnya masa penelaahan',
+        'waktu_tambahan' => 'Waktu tambahan jika diperlukan',
+        'nama_ta_penalaahan' => 'Nama Technical Assistant penelaahan',
+        'risalah_laporan' => 'Status risalah laporan',
+        
+        // Layanan
+        'no_kep_smpl' => 'Nomor Keputusan SMPL',
+        'no_spk' => 'Nomor SPK (Surat Perintah Kerja)',
+        'tgl_no_kep_smpl' => 'Tanggal Keputusan SMPL',
+        'status_spk' => 'Status penandatanganan SPK',
+        'nama_terlindung' => 'Nama yang diberikan perlindungan',
+        'jenis_tindak_pidana' => 'Jenis tindak pidana yang terjadi',
+        'tgl_mulai_layanan' => 'Tanggal mulai pemberian layanan',
+        'masa_layanan' => 'Masa berlaku layanan',
+        'tambahan_masa_layanan' => 'Perpanjangan masa layanan jika ada',
+        'tgl_berakhir_layanan' => 'Tanggal berakhirnya layanan',
+        'wilayah_hukum' => 'Wilayah hukum yang menangani',
+        'nama_ta_layanan' => 'Nama Technical Assistant layanan',
+        'status' => 'Status layanan saat ini'
+    ];
+    
+    return $help_messages[$column] ?? 'Isikan data yang sesuai';
+}
+
+// FUNGSI TAMBAHAN: is_required_field
+function is_required_field($column, $pk) {
+    $required_fields = [
+        'permohonan' => ['no_reg_medan', 'nama_pemohon', 'jenis_kelamin', 'status_hukum', 
+                        'tgl_pengajuan', 'pihak_perwakilan', 'tindak_pidana', 'id_pegawai', 
+                        'media_pengajuan', 'tempat_permohonan'],
+        'penelaahan' => ['no_registrasi', 'no_reg_medan', 'proses_hukum', 'tanggal_dispo', 
+                        'id_pegawai', 'nama_ta_penalaahan'],
+        'layanan' => ['no_kep_smpl', 'no_reg_medan', 'no_registrasi', 'tgl_no_kep_smpl', 
+                     'nama_terlindung', 'jenis_tindak_pidana', 'id_pegawai', 'tgl_mulai_layanan', 
+                     'masa_layanan', 'nama_ta_layanan']
+    ];
+    
+    return in_array($column, $required_fields[$_GET['t'] ?? 'permohonan']) && $column !== $pk;
+}
+
 // Get per_page value from request or use default
 $per_page_options = [10, 20, 50];
 $per_page = isset($_GET['per_page']) && in_array((int)$_GET['per_page'], $per_page_options)
@@ -400,6 +479,26 @@ foreach ($rows as $row) {
 require __DIR__ . '/../inc/layout_header.php';
 require __DIR__ . '/../inc/layout_nav.php';
 ?>
+
+<!-- Tambahkan di bagian atas table.php setelah title -->
+<div class="alert alert-info mb-6">
+    <div class="alert-icon">
+        <i class="fas fa-info-circle"></i>
+    </div>
+    <div class="alert-content">
+        <strong>Panduan Penggunaan:</strong>
+        <ul class="mt-1 list-disc list-inside text-sm">
+            <li>Gunakan filter untuk menyaring data yang ditampilkan</li>
+            <li>Klik pada header kolom untuk mengurutkan data</li>
+            <li>Gunakan tombol + untuk menambah data baru</li>
+            <li>Field dengan tanda * wajib diisi</li>
+            <li>Arahkan kursor ke field untuk melihat petunjuk pengisian</li>
+        </ul>
+    </div>
+    <button class="alert-close" onclick="this.parentElement.remove()">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
 
 <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
     <h1 class="text-2xl font-bold text-gray-800 dark:text-white"><?= e(ucfirst($t)) ?></h1>
@@ -584,12 +683,12 @@ require __DIR__ . '/../inc/layout_nav.php';
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="<?= count($colLabels) + ($role === 'admin' ? 2 : 1) ?>" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
-                        <div class="flex flex-col items-center justify-center">
-                            <i class="fas fa-inbox text-3xl mb-2 text-gray-300"></i>
-                            <p>Tidak ada data yang ditemukan</p>
-                            <?php if ($q || array_filter($_GET, function($val, $key) { return $key !== 't' && $key !== 'page' && $key !== 'sort' && $key !== 'order' && $val !== ''; }, ARRAY_FILTER_USE_BOTH)): ?>
-                                <p class="text-sm mt-1">Coba sesuaikan filter pencarian Anda</p>
+                    <td colspan="<?= count($colLabels) + ($role === 'admin' ? 2 : 1) ?>" class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                        <div class="flex flex-col items-center justify-center py-8">
+                            <i class="fas fa-inbox text-3xl text-gray-300 dark:text-gray-600 mb-2"></i>
+                            <p class="text-gray-500 dark:text-gray-400">Tidak ada data yang ditemukan</p>
+                            <?php if ($q || !empty($filters)): ?>
+                                <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">Coba ubah kata kunci pencarian atau filter</p>
                             <?php endif; ?>
                         </div>
                     </td>
@@ -601,207 +700,267 @@ require __DIR__ . '/../inc/layout_nav.php';
 
     <!-- Pagination -->
     <?php if ($total > 0): ?>
-    <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="text-sm text-gray-700 dark:text-gray-300">
-            Menampilkan <span class="font-medium"><?= $offset + 1 ?></span> - <span class="font-medium"><?= min($offset + $per, $total) ?></span> dari <span class="font-medium"><?= $total ?></span> hasil
+        <div class="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
+            <div class="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
+                <div class="text-sm text-gray-700 dark:text-gray-300">
+                    Menampilkan <span class="font-medium"><?= $offset + 1 ?></span> - 
+                    <span class="font-medium"><?= min($offset + $per, $total) ?></span> dari 
+                    <span class="font-medium"><?= $total ?></span> data
+                </div>
+                <div class="flex items-center space-x-2">
+                    <?php if ($page > 1): ?>
+                        <a href="?<?= build_query(['page' => $page - 1, 'per_page' => $per, 'q' => $q, 'sort' => $sort_column, 'order' => $sort_order] + array_filter($_GET, fn($k) => in_array($k, array_map(fn($f) => str_replace('/', '_', $f), $filters)), ARRAY_FILTER_USE_KEY)) ?>" class="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-chevron-left mr-1"></i> Sebelumnya
+                        </a>
+                    <?php endif; ?>
+                    
+                    <?php
+                    $start_page = max(1, $page - 2);
+                    $end_page = min($start_page + 4, ceil($total / $per));
+                    if ($end_page - $start_page < 4) {
+                        $start_page = max(1, $end_page - 4);
+                    }
+                    ?>
+                    
+                    <?php for ($p = $start_page; $p <= $end_page; $p++): ?>
+                        <a href="?<?= build_query(['page' => $p, 'per_page' => $per, 'q' => $q, 'sort' => $sort_column, 'order' => $sort_order] + array_filter($_GET, fn($k) => in_array($k, array_map(fn($f) => str_replace('/', '_', $f), $filters)), ARRAY_FILTER_USE_KEY)) ?>" class="px-3 py-1 rounded border <?= $p == $page ? 'border-blue-500 bg-blue-500 text-white' : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700' ?> transition-colors">
+                            <?= $p ?>
+                        </a>
+                    <?php endfor; ?>
+                    
+                    <?php if ($page < ceil($total / $per)): ?>
+                        <a href="?<?= build_query(['page' => $page + 1, 'per_page' => $per, 'q' => $q, 'sort' => $sort_column, 'order' => $sort_order] + array_filter($_GET, fn($k) => in_array($k, array_map(fn($f) => str_replace('/', '_', $f), $filters)), ARRAY_FILTER_USE_KEY)) ?>" class="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            Selanjutnya <i class="fas fa-chevron-right ml-1"></i>
+                        </a>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
-        <div class="inline-flex mt-2 xs:mt-0">
-            <?php
-            $prevPage   = $page > 1 ? $page - 1 : 1;
-            $nextPage   = $page < ceil($total / $per) ? $page + 1 : $page;
-            $prevParams = array_merge($_GET, ['page' => $prevPage, 'sort' => $sort_column, 'order' => $sort_order]);
-            $nextParams = array_merge($_GET, ['page' => $nextPage, 'sort' => $sort_column, 'order' => $sort_order]);
-            ?>
-            <a href="?<?= build_query($prevParams) ?>" class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 rounded-l hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 <?= $page <= 1 ? 'opacity-50 cursor-not-allowed' : '' ?>">
-                <i class="fas fa-chevron-left mr-1"></i> Prev
-            </a>
-            <span class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-700 bg-gray-100 dark:bg-gray-600 dark:text-white">
-                <?= $page ?> / <?= ceil($total / $per) ?>
-            </span>
-            <a href="?<?= build_query($nextParams) ?>" class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 rounded-r hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 <?= $page >= ceil($total / $per) ? 'opacity-50 cursor-not-allowed' : '' ?>">
-                Next <i class="fas fa-chevron-right ml-1"></i>
-            </a>
-        </div>
-    </div>
     <?php endif; ?>
 </div>
 
-<!-- Edit Modal -->
 <?php if ($role === 'admin'): ?>
-    <div id="editModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white dark:bg-gray-800">
-            <div class="mt-3">
-                <div class="flex justify-between items-center pb-3 border-b">
-                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white">Edit Data</h3>
-                    <button type="button" onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <form id="editForm" method="post" class="mt-4 space-y-4 max-h-96 overflow-y-auto pr-2">
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="action" value="update">
-                    <input type="hidden" id="editPk" name="<?= e($pk) ?>" value="">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                       
-<?php foreach ($colLabels as $col => $label):
-    $isJoined = false;
-    foreach ($joins as $joinTable => $joinInfo) {
-        if (in_array($col, $joinInfo[2])) {
-            $isJoined = true;
-            break;
-        }
-    }
-    if ($isJoined) continue;
-    $input_type = get_input_type($col);
-    $inputName  = $col; // Gunakan nama kolom asli
-    $inputId    = 'edit_' . $col;
-?>
-<div>
-    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><?= e($label) ?></label>
-    <?php if ($input_type['type'] === 'select'): ?>
-        <select name="<?= e($inputName) ?>" id="<?= e($inputId) ?>" 
-            class="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-            <option value="">- Pilih -</option>
-            <?php foreach ($input_type['options'] as $key => $option): ?>
-                <option value="<?= e($key) ?>"><?= e($option) ?></option>
-            <?php endforeach; ?>
-        </select>
-    <?php elseif ($input_type['type'] === 'date'): ?>
-        <input type="date" name="<?= e($inputName) ?>" id="<?= e($inputId) ?>" 
-            class="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-    <?php elseif ($input_type['type'] === 'number'): ?>
-        <input type="number" name="<?= e($inputName) ?>" id="<?= e($inputId) ?>" 
-            step="<?= $input_type['step'] ?? '1' ?>"
-            class="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-    <?php elseif ($input_type['type'] === 'url'): ?>
-        <input type="url" name="<?= e($inputName) ?>" id="<?= e($inputId) ?>" 
-            class="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-            placeholder="https://...">
-    <?php else: ?>
-        <input type="text" name="<?= e($inputName) ?>" id="<?= e($inputId) ?>" 
-            class="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-    <?php endif; ?>
-</div>
-<?php endforeach; ?>
-                    </div>
-                    <div class="flex justify-end pt-4 border-t mt-6">
-                        <button type="button" onclick="closeEditModal()" class="mr-3 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors">
-                            Batal
-                        </button>
-                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                            Simpan Perubahan
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Modal -->
-    <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
-            <div class="mt-3 text-center">
-                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
-                </div>
-                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mt-3">Konfirmasi Hapus</h3>
-                <div class="mt-2 px-4 py-3">
-                    <p class="text-sm text-gray-500 dark:text-gray-300">Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.</p>
-                </div>
-                <div class="mt-4 flex justify-center gap-3">
-                    <form id="deleteForm" method="post">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="action" value="delete">
-                        <input type="hidden" id="deletePk" name="<?= e($pk) ?>" value="">
-                        <button type="button" onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors">
-                            Batal
-                        </button>
-                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                            Hapus
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add Button -->
-    <div class="fixed bottom-6 right-6">
-        <button onclick="openCreateModal()" class="w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl transition-all hover:scale-110">
-            <i class="fas fa-plus"></i>
-        </button>
-    </div>
+    <!-- Floating Action Button -->
+    <button onclick="openCreateModal()" class="fixed bottom-8 right-8 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110" title="Tambah Data Baru">
+        <i class="fas fa-plus text-xl"></i>
+    </button>
 
     <!-- Create Modal -->
-    <div id="createModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white dark:bg-gray-800">
-            <div class="mt-3">
-                <div class="flex justify-between items-center pb-3 border-b">
-                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white">Tambah Data Baru</h3>
-                    <button type="button" onclick="closeCreateModal()" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times"></i>
+    <div id="createModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-white">Tambah Data <?= e($title) ?></h3>
+            </div>
+            <form id="createForm" method="post" class="p-6 space-y-4">
+                <?= csrf_field() ?>
+                <input type="hidden" name="action" value="create">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <?php foreach ($colLabels as $col => $label): 
+                        // Skip joined columns in create form
+                        $isJoined = false;
+                        foreach ($joins as $joinTable => $joinInfo) {
+                            if (in_array($col, $joinInfo[2])) {
+                                $isJoined = true;
+                                break;
+                            }
+                        }
+                        if ($isJoined) continue;
+                        
+                        $input_type = get_input_type($col);
+                        $required = is_required_field($col, $pk);
+                        $help_text = get_field_help($col);
+                    ?>
+                        <div class="space-y-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <?= e($label) ?>
+                                <?php if ($required): ?>
+                                    <span class="text-red-500">*</span>
+                                <?php endif; ?>
+                            </label>
+                            <?php if ($input_type['type'] === 'select'): ?>
+                                <select name="<?= e($col) ?>" 
+                                    <?= $required ? 'required' : '' ?>
+                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                                    title="<?= e($help_text) ?>">
+                                    <option value="">- Pilih -</option>
+                                    <?php foreach ($input_type['options'] as $key => $option): ?>
+                                        <option value="<?= e($key) ?>"><?= e($option) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            <?php else: ?>
+                                <input type="<?= e($input_type['type']) ?>" 
+                                    name="<?= e($col) ?>" 
+                                    <?= $required ? 'required' : '' ?>
+                                    <?php if (isset($input_type['step'])): ?>step="<?= e($input_type['step']) ?>"<?php endif; ?>
+                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                                    placeholder="<?= e($label) ?>"
+                                    title="<?= e($help_text) ?>">
+                            <?php endif; ?>
+                            <p class="text-xs text-gray-500 dark:text-gray-400"><?= e($help_text) ?></p>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <button type="button" onclick="closeCreateModal()" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white border border-gray-300 dark:border-gray-600 rounded-lg transition-colors">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                        Simpan
                     </button>
                 </div>
-                <form id="createForm" method="post" class="mt-4 space-y-4 max-h-96 overflow-y-auto pr-2">
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="action" value="create">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <?php foreach ($colLabels as $col => $label): 
-                            $isJoined = false;
-                            foreach ($joins as $joinTable => $joinInfo) {
-                                if (in_array($col, $joinInfo[2])) {
-                                    $isJoined = true;
-                                    break;
-                                }
-                            }
-                            if ($isJoined) continue;
-                            $input_type = get_input_type($col);
-                            $inputName  = $col; // PERBAIKAN: Gunakan nama kolom asli
-                            $inputId    = 'create_' . str_replace('/', '_', $col);
-                        ?>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><?= e($label) ?></label>
-                                <?php if ($input_type['type'] === 'select'): ?>
-                                    <select name="<?= e($inputName) ?>" id="<?= e($inputId) ?>" 
-                                        class="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                                        <option value="">- Pilih -</option>
-                                        <?php foreach ($input_type['options'] as $key => $option): ?>
-                                            <option value="<?= e($key) ?>"><?= e($option) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                <?php elseif ($input_type['type'] === 'date'): ?>
-                                    <input type="date" name="<?= e($inputName) ?>" id="<?= e($inputId) ?>" 
-                                        class="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                                <?php elseif ($input_type['type'] === 'number'): ?>
-                                    <input type="number" name="<?= e($inputName) ?>" id="<?= e($inputId) ?>" 
-                                        step="<?= $input_type['step'] ?? '1' ?>"
-                                        class="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                                <?php elseif ($input_type['type'] === 'url'): ?>
-                                    <input type="url" name="<?= e($inputName) ?>" id="<?= e($inputId) ?>" 
-                                        class="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                                        placeholder="https://...">
-                                <?php else: ?>
-                                    <input type="text" name="<?= e($inputName) ?>" id="<?= e($inputId) ?>" 
-                                        class="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                                <?php endif; ?>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                    <div class="flex justify-end pt-4 border-t mt-6">
-                        <button type="button" onclick="closeCreateModal()" class="mr-3 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors">
-                            Batal
-                        </button>
-                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                            Tambah Data
-                        </button>
-                    </div>
-                </form>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-white">Edit Data <?= e($title) ?></h3>
             </div>
+            <form id="editForm" method="post" class="p-6 space-y-4">
+                <?= csrf_field() ?>
+                <input type="hidden" name="action" value="update">
+                <input type="hidden" name="<?= e($pk) ?>" id="editId">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <?php foreach ($colLabels as $col => $label): 
+                        $input_type = get_input_type($col);
+                        $required = is_required_field($col, $pk);
+                        $help_text = get_field_help($col);
+                    ?>
+                        <div class="space-y-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <?= e($label) ?>
+                                <?php if ($required): ?>
+                                    <span class="text-red-500">*</span>
+                                <?php endif; ?>
+                            </label>
+                            <?php if ($input_type['type'] === 'select'): ?>
+                                <select name="<?= e($col) ?>" 
+                                    id="edit_<?= e($col) ?>"
+                                    <?= $required ? 'required' : '' ?>
+                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                                    title="<?= e($help_text) ?>">
+                                    <option value="">- Pilih -</option>
+                                    <?php foreach ($input_type['options'] as $key => $option): ?>
+                                        <option value="<?= e($key) ?>"><?= e($option) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            <?php else: ?>
+                                <input type="<?= e($input_type['type']) ?>" 
+                                    name="<?= e($col) ?>" 
+                                    id="edit_<?= e($col) ?>"
+                                    <?= $required ? 'required' : '' ?>
+                                    <?php if (isset($input_type['step'])): ?>step="<?= e($input_type['step']) ?>"<?php endif; ?>
+                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                                    placeholder="<?= e($label) ?>"
+                                    title="<?= e($help_text) ?>">
+                            <?php endif; ?>
+                            <p class="text-xs text-gray-500 dark:text-gray-400"><?= e($help_text) ?></p>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <button type="button" onclick="closeEditModal()" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white border border-gray-300 dark:border-gray-600 rounded-lg transition-colors">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                        Update
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-white">Konfirmasi Hapus</h3>
+            </div>
+            <form id="deleteForm" method="post" class="p-6">
+                <?= csrf_field() ?>
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="<?= e($pk) ?>" id="deleteId">
+                <p class="text-gray-600 dark:text-gray-300 mb-4">Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.</p>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeDeleteModal()" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white border border-gray-300 dark:border-gray-600 rounded-lg transition-colors">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
+                        Hapus
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 <?php endif; ?>
 
 <script>
+// Per page selection
+document.getElementById('per_page_select').addEventListener('change', function() {
+    const url = new URL(window.location.href);
+    url.searchParams.set('per_page', this.value);
+    url.searchParams.set('page', '1'); // Reset to first page
+    window.location.href = url.toString();
+});
+
+// Modal functions
+function openCreateModal() {
+    document.getElementById('createModal').classList.remove('hidden');
+}
+
+function closeCreateModal() {
+    document.getElementById('createModal').classList.add('hidden');
+}
+
+function openEditModal(id) {
+    // Fetch data for this ID
+    fetch(`get_data.php?t=<?= e($t) ?>&id=${id}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('editId').value = id;
+                <?php foreach ($colLabels as $col => $label): ?>
+                    const <?= e($col) ?>Input = document.getElementById('edit_<?= e($col) ?>');
+                    if (<?= e($col) ?>Input) {
+                        <?= e($col) ?>Input.value = data.data.<?= e($col) ?> || '';
+                    }
+                <?php endforeach; ?>
+                document.getElementById('editModal').classList.remove('hidden');
+            } else {
+                alert('Gagal memuat data');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat memuat data');
+        });
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').classList.add('hidden');
+}
+
+function confirmDelete(id) {
+    document.getElementById('deleteId').value = id;
+    document.getElementById('deleteModal').classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+}
+
+// Close modals when clicking outside
+document.querySelectorAll('.fixed').forEach(modal => {
+    modal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.add('hidden');
+        }
+    });
+});
+
+// Sort function
 function sortTable(column) {
     const url = new URL(window.location.href);
     const currentSort = url.searchParams.get('sort');
@@ -817,96 +976,16 @@ function sortTable(column) {
     window.location.href = url.toString();
 }
 
-function openEditModal(id) {
-    fetch(`ajax_get_row.php?t=<?= e($t) ?>&id=${id}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const row = data.data;
-                document.getElementById('editPk').value = id;
-                
-                <?php foreach ($colLabels as $col => $label): 
-    $isJoined = false;
-    foreach ($joins as $joinTable => $joinInfo) {
-        if (in_array($col, $joinInfo[2])) {
-            $isJoined = true;
-            break;
-        }
-    }
-    if ($isJoined) continue;
-?>
-if (row.hasOwnProperty('<?= e($col) ?>')) {
-    const inputElement = document.getElementById('edit_<?= e($col) ?>');
-    if (inputElement) {
-        inputElement.value = row['<?= e($col) ?>'] || '';
-    }
-}
-<?php endforeach; ?>
-                
-                document.getElementById('editModal').classList.remove('hidden');
-            } else {
-                alert('Error loading data: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error loading data');
-        });
-}
-
-function closeEditModal() {
-    document.getElementById('editModal').classList.add('hidden');
-}
-
-function confirmDelete(id) {
-    document.getElementById('deletePk').value = id;
-    document.getElementById('deleteModal').classList.remove('hidden');
-}
-
-function closeDeleteModal() {
-    document.getElementById('deleteModal').classList.add('hidden');
-}
-
-function openCreateModal() {
-    document.getElementById('createModal').classList.remove('hidden');
-}
-
-function closeCreateModal() {
-    document.getElementById('createModal').classList.add('hidden');
-    document.getElementById('createForm').reset();
-}
-
-// Per page change handler
-document.getElementById('per_page_select').addEventListener('change', function() {
-    const url = new URL(window.location.href);
-    url.searchParams.set('per_page', this.value);
-    url.searchParams.set('page', '1'); // Reset to first page
-    window.location.href = url.toString();
-});
-
-// Close modals on outside click
-document.addEventListener('click', function(event) {
-    const editModal = document.getElementById('editModal');
-    const deleteModal = document.getElementById('deleteModal');
-    const createModal = document.getElementById('createModal');
-    
-    if (editModal && !editModal.classList.contains('hidden') && event.target === editModal) {
-        closeEditModal();
-    }
-    if (deleteModal && !deleteModal.classList.contains('hidden') && event.target === deleteModal) {
-        closeDeleteModal();
-    }
-    if (createModal && !createModal.classList.contains('hidden') && event.target === createModal) {
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
         closeCreateModal();
-    }
-});
-
-// Escape key to close modals
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
         closeEditModal();
         closeDeleteModal();
-        closeCreateModal();
+    }
+    if (e.ctrlKey && e.key === 'n' && <?= $role === 'admin' ? 'true' : 'false' ?>) {
+        e.preventDefault();
+        openCreateModal();
     }
 });
 </script>

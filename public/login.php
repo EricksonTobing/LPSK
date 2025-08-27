@@ -11,132 +11,477 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($ok) redirect('dashboard.php');
     $error = 'Username atau password salah';
 }
-$title = 'Login - LPSK';
+$title = 'Login - MEDAN MELINDUNGI';
 require __DIR__ . '/../inc/layout_header.php';
 ?>
-<div class="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-sky-50 to-blue-100">
-    <!-- Left: Image Section -->
-    <div class="md:w-1/2 flex flex-col justify-center items-center p-8 bg-gradient-to-r from-blue-600 to-sky-500 text-white">
-        <div class="max-w-md w-full space-y-8">
-            <div class="text-center">
-                <div class="mx-auto flex justify-center">
-                    <img src="../inc/img/logo.png" alt="LPSK Logo" class="h-32 w-auto mb-6 bg-white p-4 rounded-2xl shadow-xl">
-                </div>
-                <h2 class="mt-2 text-3xl font-bold">Selamat Datang di LPSK</h2>
-                <p class="mt-4 text-lg opacity-90">Sistem Informasi Terpadu untuk Medan Melindungi</p>
-            </div>
-            
-            <!-- <div class="mt-16 space-y-4">
-                <div class="flex items-center space-x-3 bg-white bg-opacity-20 p-4 rounded-xl">
-                    <div class="bg-white text-blue-600 p-2 rounded-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                        </svg>
-                    </div>
-                    <p class="text-sm">Keamanan data terjamin dengan sistem enkripsi terbaru</p>
-                </div>
-                
-                <div class="flex items-center space-x-3 bg-white bg-opacity-20 p-4 rounded-xl">
-                    <div class="bg-white text-blue-600 p-2 rounded-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                    </div>
-                    <p class="text-sm">Akses cepat dan responsif dari berbagai perangkat</p>
-                </div>
-            </div> -->
-        </div>
-    </div>
 
-    <!-- Right: Login Form -->
-    <div class="md:w-1/2 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl">
-            <div>
-                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                    Masuk ke Akun Anda
-                </h2>
-                <p class="mt-2 text-center text-sm text-gray-600">
-                    Atau 
-                    <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
-                        hubungi administrator untuk bantuan
-                    </a>
-                </p>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - MEDAN MELINDUNGI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-red: #C6100D;
+            --primary-blue: #241E4E;
+            --accent-red: #E53E3E;
+            --accent-blue: #3182CE;
+            --light-bg: #F7FAFC;
+            --dark-bg: #1A202C;
+            --text-light: #2D3748;
+            --text-dark: #E2E8F0;
+        }
+        
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+        
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .login-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        @media (min-width: 768px) {
+            .login-card {
+                flex-direction: row;
+                min-height: 550px;
+            }
+        }
+        
+        .login-hero {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-red) 100%);
+            color: white;
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        @media (min-width: 768px) {
+            .login-hero {
+                width: 45%;
+            }
+        }
+        
+        .login-hero::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .login-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            left: -80px;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .hero-logo {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .hero-logo img {
+            width: 80px;
+            height: auto;
+        }
+        
+        .hero-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .hero-subtitle {
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .hero-features {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .feature-icon {
+            background: white;
+            color: var(--primary-blue);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .feature-text {
+            font-size: 0.875rem;
+        }
+        
+        .login-form-section {
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        @media (min-width: 768px) {
+            .login-form-section {
+                width: 55%;
+            }
+        }
+        
+        .form-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-subtitle {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+        
+        .form-subtitle a {
+            color: var(--primary-red);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .form-subtitle a:hover {
+            text-decoration: underline;
+        }
+        
+        .error-alert {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .error-icon {
+            flex-shrink: 0;
+        }
+        
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .input-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: white;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(36, 30, 78, 0.1);
+        }
+        
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .remember-checkbox {
+            width: 1rem;
+            height: 1rem;
+            border-radius: 0.25rem;
+            border: 1px solid #cbd5e1;
+            accent-color: var(--primary-blue);
+        }
+        
+        .forgot-password {
+            color: var(--primary-red);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-red) 100%);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .login-button:active {
+            transform: translateY(0);
+        }
+        
+        .copyright {
+            text-align: center;
+            margin-top: 2rem;
+            color: #64748b;
+            font-size: 0.75rem;
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .login-card {
+                background: #1e293b;
+            }
+            
+            .form-title {
+                color: white;
+            }
+            
+            .form-subtitle {
+                color: #cbd5e1;
+            }
+            
+            .input-label {
+                color: #e2e8f0;
+            }
+            
+            .form-input {
+                background: #334155;
+                border-color: #475569;
+                color: white;
+            }
+            
+            .form-input:focus {
+                border-color: var(--primary-blue);
+                box-shadow: 0 0 0 3px rgba(36, 30, 78, 0.3);
+            }
+            
+            .input-icon {
+                color: #94a3b8;
+            }
+            
+            .error-alert {
+                background-color: #7f1d1d;
+                border-color: #b91c1c;
+                color: #fecaca;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <div class="login-content">
+        <div class="login-card">
+            <!-- Hero Section -->
+            <div class="login-hero">
+                <div class="hero-logo">
+                    <img src="../inc/img/logo.png" alt="MEDAN MELINDUNGI Logo">
+                </div>
+                <h1 class="hero-title">MEDAN MELINDUNGI</h1>
+                <p class="hero-subtitle">Sistem Informasi Terpadu untuk Layanan Publik</p>
+                
+                <div class="hero-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <p class="feature-text">Keamanan data terjamin dengan sistem enkripsi terbaru</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <p class="feature-text">Akses cepat dan responsif dari berbagai perangkat</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <p class="feature-text">Privasi dan perlindungan data pengguna terjamin</p>
+                    </div>
+                </div>
             </div>
             
-            <form class="mt-8 space-y-6" method="post">
-                <?= csrf_field() ?>
-                <?php if ($error): ?>
-                    <div class="rounded-md bg-red-50 p-4 mb-4">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <h3 class="text-sm font-medium text-red-800"><?= e($error) ?></h3>
-                            </div>
-                        </div>
-                    </div>
-                <?php endif; ?>
+            <!-- Login Form Section -->
+            <div class="login-form-section">
+                <div class="form-header">
+                    <h2 class="form-title">Masuk ke Akun Anda</h2>
+                    <p class="form-subtitle">
+                        Atau <a href="#">hubungi administrator</a> untuk bantuan
+                    </p>
+                </div>
                 
-                <div class="rounded-md shadow-sm -space-y-px">
-                    <div class="mb-4">
-                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                </svg>
+                <form method="post">
+                    <?= csrf_field() ?>
+                    <?php if ($error): ?>
+                        <div class="error-alert">
+                            <div class="error-icon">
+                                <i class="fas fa-exclamation-circle"></i>
                             </div>
-                            <input id="username" name="username" type="text" autocomplete="username" required class="relative block w-full pl-10 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="Masukkan username">
+                            <div><?= e($error) ?></div>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <div class="input-group">
+                        <label for="username" class="input-label">Username</label>
+                        <div class="input-wrapper">
+                            <div class="input-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <input id="username" name="username" type="text" autocomplete="username" required class="form-input" placeholder="Masukkan username">
                         </div>
                     </div>
                     
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
-                                </svg>
+                    <div class="input-group">
+                        <label for="password" class="input-label">Password</label>
+                        <div class="input-wrapper">
+                            <div class="input-icon">
+                                <i class="fas fa-lock"></i>
                             </div>
-                            <input id="password" name="password" type="password" autocomplete="current-password" required class="relative block w-full pl-10 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="Masukkan password">
+                            <input id="password" name="password" type="password" autocomplete="current-password" required class="form-input" placeholder="Masukkan password">
                         </div>
                     </div>
-                </div>
-
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <input id="remember" name="remember" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                        <label for="remember" class="ml-2 block text-sm text-gray-900">
-                            Ingat saya
+                    
+                    <div class="form-options">
+                        <label class="remember-me">
+                            <input id="remember" name="remember" type="checkbox" class="remember-checkbox">
+                            <span>Ingat saya</span>
                         </label>
+                        
+                        <a href="#" class="forgot-password">Lupa password?</a>
                     </div>
-
-                    <div class="text-sm">
-                        <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
-                            Lupa password?
-                        </a>
-                    </div>
-                </div>
-
-                <div>
-                    <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-md transition-all duration-200">
-                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                            <svg class="h-5 w-5 text-blue-300 group-hover:text-blue-200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
-                            </svg>
-                        </span>
+                    
+                    <button type="submit" class="login-button">
+                        <i class="fas fa-sign-in-alt"></i>
                         Masuk
                     </button>
-                </div>
+                </form>
                 
-                <div class="text-center text-sm text-gray-500 mt-6">
-                    © <?= date('Y') ?> LPSK. All rights reserved.
+                <div class="copyright">
+                    © <?= date('Y') ?> MEDAN MELINDUNGI. All rights reserved.
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
+</body>
+</html>
+
 <?php require __DIR__ . '/../inc/layout_footer.php'; ?>
