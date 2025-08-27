@@ -4,9 +4,8 @@ require_once __DIR__ . '/../inc/auth.php';
 require_once __DIR__ . '/../inc/db.php';
 require_once __DIR__ . '/../inc/helpers.php';
 require_once __DIR__ . '/../inc/csrf.php';
-require_admin();
-
-$title = 'Admin - Users';
+require_login();
+$title = 'Keuangan';
 require __DIR__ . '/../inc/layout_header.php';
 require __DIR__ . '/../inc/layout_nav.php';
 
@@ -129,6 +128,37 @@ $stmt->execute($params);
 $rows = $stmt->fetchAll();
 ?>
 
+
+<style>
+:root {
+  --primary-red: #C6100D;
+  --primary-dark-blue: #241E4E;
+  --secondary-blue: #3430A4;
+  --light-bg: #F8FAFC;
+  --text-dark: #1E293B;
+  --text-light: #64748B;
+  --border-color: #E2E8F0;
+}
+
+.bg-primary-red { background-color: var(--primary-red); }
+.bg-primary-dark-blue { background-color: var(--primary-dark-blue); }
+.bg-secondary-blue { background-color: var(--secondary-blue); }
+.text-primary-red { color: var(--primary-red); }
+.text-primary-dark-blue { color: var(--primary-dark-blue); }
+.border-primary-red { border-color: var(--primary-red); }
+.border-primary-dark-blue { border-color: var(--primary-dark-blue); }
+
+.hover\:bg-primary-red:hover { background-color: var(--primary-red); }
+.hover\:bg-primary-dark-blue:hover { background-color: var(--primary-dark-blue); }
+
+@media (max-width: 640px) {
+  .table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+  }
+}
+</style>
 <!-- Notifikasi -->
 <?php if ($success): ?>
 <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-4 relative" role="alert">

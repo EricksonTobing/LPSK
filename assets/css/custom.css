@@ -135,29 +135,373 @@ textarea.error {
   pointer-events: none;
 }
 
-/* Style untuk scrollbar di detail anggaran */
-#anggaran-detail::-webkit-scrollbar {
-  width: 4px;
+/* Tambahkan style untuk center text yang lebih baik */
+#anggaran-center-text {
+  text-align: center;
+  pointer-events: none;
 }
 
-#anggaran-detail::-webkit-scrollbar-track {
+#total-anggaran-text {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+/* Style untuk detail anggaran */
+#anggaran-detail .text-right {
+  min-width: 120px;
+}
+
+#anggaran-detail .text-green-600 {
+  color: #16a34a;
+}
+
+.dark #anggaran-detail .text-green-400 {
+  color: #4ade80;
+}
+
+:root {
+  --primary-red: #c6100d;
+  --primary-blue: #241e4e;
+  --accent-red: #e53e3e;
+  --accent-blue: #3182ce;
+  --light-bg: #f7fafc;
+  --dark-bg: #1a202c;
+  --text-light: #2d3748;
+  --text-dark: #e2e8f0;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: var(--primary-red);
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+.nav-indicator {
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-blue), var(--primary-red));
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.3s, bottom 0.3s;
+}
+
+.nav-link:hover .nav-indicator {
+  opacity: 1;
+  bottom: -3px;
+}
+
+.nav-link.active .nav-indicator {
+  opacity: 1;
+  bottom: -3px;
+}
+
+.user-initial {
+  background: linear-gradient(135deg, var(--primary-blue), var(--primary-red));
+}
+
+.search-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(198, 16, 13, 0.2);
+}
+
+.mobile-menu-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.mobile-menu-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: linear-gradient(
+    to bottom,
+    var(--primary-blue),
+    var(--primary-red)
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.mobile-menu-item:hover::before {
+  opacity: 1;
+}
+
+/* Animasi untuk notifikasi */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Responsive improvements */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .text-responsive {
+    font-size: 0.875rem;
+  }
+}
+
+/* Better focus styles for accessibility */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #c6100d;
+  outline-offset: 2px;
+}
+
+/* Improved transitions */
+.transition-smooth {
+  transition: all 0.3s ease;
+}
+
+/* Better table responsiveness */
+.responsive-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Card improvements for mobile */
+.card {
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Form improvements for mobile */
+.form-input-responsive {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+}
+
+/* Grid improvements for smaller screens */
+.grid-responsive {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+/* Hide scrollbar for sidebar but keep functionality */
+.sidebar-scroll {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* Responsive table styles */
+.responsive-table-container {
+  position: relative;
+  overflow-x: auto;
+}
+
+.responsive-table-container.has-scroll-indicators::before,
+.responsive-table-container.has-scroll-indicators::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.responsive-table-container.has-scroll-indicators::before {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.responsive-table-container.has-scroll-indicators::after {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.dark .responsive-table-container.has-scroll-indicators::before {
+  background: linear-gradient(
+    to right,
+    rgba(31, 41, 55, 1) 0%,
+    rgba(31, 41, 55, 0) 100%
+  );
+}
+
+.dark .responsive-table-container.has-scroll-indicators::after {
+  background: linear-gradient(
+    to left,
+    rgba(31, 41, 55, 1) 0%,
+    rgba(31, 41, 55, 0) 100%
+  );
+}
+
+/* Sticky header and columns */
+table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+table th.sticky,
+table td.sticky {
+  position: sticky;
+  z-index: 5;
+}
+
+/* Smooth transitions */
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+.transform {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.scale-100 {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.opacity-100 {
+  opacity: 1;
+}
+
+/* Custom scrollbar */
+.responsive-table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.responsive-table-container::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 4px;
 }
 
-#anggaran-detail::-webkit-scrollbar-thumb {
+.responsive-table-container::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 4px;
 }
 
-.dark #anggaran-detail::-webkit-scrollbar-track {
+.responsive-table-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.dark .responsive-table-container::-webkit-scrollbar-track {
   background: #374151;
 }
 
-.dark #anggaran-detail::-webkit-scrollbar-thumb {
+.dark .responsive-table-container::-webkit-scrollbar-thumb {
   background: #6b7280;
 }
 
+.dark .responsive-table-container::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+/* Tambahkan CSS ini ke file custom.css yang sudah ada */
+
+/* Alpine.js x-cloak untuk mencegah flash saat loading */
+[x-cloak] {
+  display: none !important;
+}
+
+/* Ensure mobile sidebar is properly positioned */
+.fixed.inset-y-0.left-0 {
+  position: fixed !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+}
+
+/* Prevent body scroll when sidebar is open */
+body.sidebar-open {
+  overflow: hidden;
+}
+
+/* Better mobile menu button interaction */
+.md\\:hidden button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Improve sidebar performance on mobile */
+.sidebar-container {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Better overlay interaction on touch devices */
+.sidebar-overlay {
+  touch-action: none;
+}
+
+/* Ensure sidebar content is scrollable on small screens */
+.sidebar-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fix for iOS Safari viewport issues */
+@supports (height: 100dvh) {
+  .fixed.inset-y-0 {
+    height: 100dvh;
+  }
+}
+
+/* Prevent text selection on interactive elements */
+.mobile-menu-item,
+button {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Better focus visibility for mobile */
+@media (hover: none) {
+  button:focus,
+  .mobile-menu-item:focus {
+    background-color: rgba(59, 130, 246, 0.1);
+    outline: 2px solid #3b82f6;
+  }
+}
 /* Penyesuaian kecil */
 table td,
 table th {

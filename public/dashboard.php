@@ -124,18 +124,19 @@ require __DIR__ . '/../inc/layout_nav.php';
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700">
       <h2 class="font-semibold text-lg text-gray-800 dark:text-white mb-5 text-center">Distribusi Anggaran</h2>
       <div class="relative">
-        <div class="relative">
-          <canvas id="chartAnggaran" class="w-full h-64"></canvas>
-          <div id="anggaran-center-text" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <div class="text-xl lg:text-2xl font-bold text-gray-800 dark:text-white" id="total-anggaran-text">Rp 0</div>
-            <div class="text-sm text-gray-500 dark:text-gray-400">Total Anggaran</div>
-          </div>
-        </div>
+        <!-- Di bagian Doughnut Chart -->
+<div class="relative">
+  <canvas id="chartAnggaran" class="w-full h-64"></canvas>
+  <div id="anggaran-center-text" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+    <div class="text-xl lg:text-2xl font-bold text-gray-800 dark:text-white" id="total-anggaran-text">Rp 0</div>
+    <!-- Persentase akan ditambahkan secara dinamis oleh JavaScript -->
+  </div>
+</div>
         <div id="loading-chart-anggaran" class="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-800 rounded-lg">
           <i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i>
         </div>
       </div>
-      
+  
       <!-- Detail anggaran per kode -->
       <div class="mt-4">
         <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Detail per Kode:</div>
@@ -145,6 +146,34 @@ require __DIR__ . '/../inc/layout_nav.php';
       </div>
     </div>
   </div>
+
+
+<!-- Chart Beban Kerja Pegawai -->
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 mb-8">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-5 gap-3">
+        <h2 class="font-semibold text-lg text-gray-800 dark:text-white">Beban Kerja Pegawai</h2>
+        <div class="flex flex-wrap items-center text-sm gap-3">
+            <span class="flex items-center">
+                <span class="w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
+                <span class="text-gray-600 dark:text-gray-400">Petugas Penerima Permohonan</span>
+            </span>
+            <span class="flex items-center">
+                <span class="w-3 h-3 rounded-full bg-green-500 mr-2"></span>
+                <span class="text-gray-600 dark:text-gray-400">CM Penelaahan</span>
+            </span>
+            <span class="flex items-center">
+                <span class="w-3 h-3 rounded-full bg-amber-500 mr-2"></span>
+                <span class="text-gray-600 dark:text-gray-400">CM Layanan</span>
+            </span>
+        </div>
+    </div>
+    <div class="relative">
+        <canvas id="chartBebanKerja" class="w-full h-80"></canvas>
+        <div id="loading-chart-beban-kerja" class="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-800 rounded-lg">
+            <i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i>
+        </div>
+    </div>
+</div>
 
   <!-- Chart keuangan dan Peta -->
   <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
@@ -245,7 +274,8 @@ class DashboardManager {
     this.charts = {
       permohonan: null,
       pengeluaran: null,
-      anggaran: null
+      anggaran: null,
+      bebanKerja: null
     };
     
     this.colors = {
@@ -316,7 +346,8 @@ class DashboardManager {
     const loadingElements = [
       'loading-chart-permohonan',
       'loading-chart-anggaran', 
-      'loading-chart-pengeluaran'
+      'loading-chart-pengeluaran',
+      'loading-chart-beban-kerja'
     ];
     
     loadingElements.forEach(id => {
@@ -338,7 +369,8 @@ class DashboardManager {
     const loadingElements = [
       'loading-chart-permohonan',
       'loading-chart-anggaran', 
-      'loading-chart-pengeluaran'
+      'loading-chart-pengeluaran',
+      'loading-chart-beban-kerja'
     ];
     
     loadingElements.forEach(id => {
@@ -420,6 +452,7 @@ class DashboardManager {
     this.renderPermohonanChart(data.charts.permohonan_line);
     this.renderKeuanganChart(data.charts.keuangan);
     this.renderAnggaranChart(data.anggaran);
+    this.renderBebanKerjaChart(data.charts.beban_kerja);
   }
 
   renderPermohonanChart(chartData) {
@@ -638,21 +671,67 @@ class DashboardManager {
     const ctx = document.getElementById('chartAnggaran');
     if (!ctx || !anggaranData) return;
 
-    // Update center text
+    // Update center text untuk menampilkan SISA ANGGARAN
     const centerText = document.getElementById('total-anggaran-text');
     if (centerText) {
-      centerText.textContent = anggaranData.total_fmt ? `Rp ${anggaranData.total_fmt}` : 'Rp 0';
+      centerText.textContent = anggaranData.sisa_fmt ? `Rp ${anggaranData.sisa_fmt}` : 'Rp 0';
+      
+      // Tambahkan teks persentase sisa anggaran
+      const percentageText = document.createElement('div');
+      percentageText.className = 'text-xs text-gray-500 dark:text-gray-400 mt-1';
+      const persentaseSisa = anggaranData.total > 0 ? 
+        Math.round((anggaranData.sisa / anggaranData.total) * 100) : 0;
+      percentageText.textContent = `${persentaseSisa}% sisa dari total`;
+      
+      // Hapus teks persentase lama jika ada
+      const oldPercentage = centerText.nextElementSibling;
+      if (oldPercentage && oldPercentage.className.includes('text-xs')) {
+        oldPercentage.remove();
+      }
+      
+      centerText.after(percentageText);
     }
 
-    // Prepare chart data
+    // Prepare chart data - gunakan data PENGELUARAN untuk bagian chart
     const labels = [];
     const values = [];
+    const backgroundColors = [];
     
     if (anggaranData.per_kode && anggaranData.per_kode.length > 0) {
-      anggaranData.per_kode.forEach(item => {
-        labels.push(`${item.kode} - ${item.nama}`);
-        values.push(item.total || 0);
+      anggaranData.per_kode.forEach((item, index) => {
+        if (item.pengeluaran > 0) { // Hanya tampilkan yang ada pengeluarannya
+          labels.push(`${item.kode} - ${item.nama}`);
+          values.push(item.pengeluaran || 0);
+          backgroundColors.push(this.colors.primary[index % this.colors.primary.length]);
+        }
       });
+    }
+
+    // Jika tidak ada pengeluaran, tampilkan chart kosong
+    if (values.length === 0) {
+      this.charts.anggaran = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Belum ada pengeluaran'],
+          datasets: [{
+            data: [1],
+            backgroundColor: ['#e5e7eb'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '70%',
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: false }
+          }
+        }
+      });
+      
+      this.renderAnggaranDetail(anggaranData.per_kode || []);
+      return;
     }
 
     this.charts.anggaran = new Chart(ctx, {
@@ -661,7 +740,7 @@ class DashboardManager {
         labels: labels,
         datasets: [{
           data: values,
-          backgroundColor: this.colors.primary.slice(0, labels.length),
+          backgroundColor: backgroundColors,
           borderWidth: 0,
           borderRadius: 8,
           hoverOffset: 12,
@@ -687,8 +766,21 @@ class DashboardManager {
               label: function(context) {
                 const value = context.raw || 0;
                 const formatted = value.toLocaleString('id-ID');
-                const percentage = context.parsed || 0;
-                return `${context.label}: Rp ${formatted} (${percentage.toFixed(1)}%)`;
+                const total = values.reduce((sum, val) => sum + val, 0);
+                const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                
+                // Cari data lengkap untuk item ini
+                const itemIndex = context.dataIndex;
+                const itemData = anggaranData.per_kode.find(item => 
+                  `${item.kode} - ${item.nama}` === context.label
+                );
+                
+                const sisa = itemData ? itemData.sisa_fmt : '0';
+                return [
+                  `${context.label}:`,
+                  `Pengeluaran: Rp ${formatted} (${percent}%)`,
+                  `Sisa: Rp ${sisa}`
+                ];
               }
             }
           }
@@ -702,9 +794,9 @@ class DashboardManager {
     
     // Render detail breakdown
     this.renderAnggaranDetail(anggaranData.per_kode || []);
-  }
+}
 
-  renderAnggaranDetail(anggaranData) {
+renderAnggaranDetail(anggaranData) {
     const detailContainer = document.getElementById('anggaran-detail');
     if (!detailContainer) return;
     
@@ -713,8 +805,15 @@ class DashboardManager {
     if (anggaranData.length === 0) {
       html = '<div class="text-sm text-gray-500 dark:text-gray-400 text-center py-4">Tidak ada data anggaran untuk tahun ini</div>';
     } else {
+      // Urutkan berdasarkan pengeluaran terbesar
+      anggaranData.sort((a, b) => b.pengeluaran - a.pengeluaran);
+      
       anggaranData.forEach((item, index) => {
         const color = this.colors.primary[index % this.colors.primary.length];
+        const persentaseSisa = item.total > 0 ? 
+          Math.round((item.sisa / item.total) * 100) : 0;
+        const persentasePenggunaan = item.total > 0 ? 
+          Math.round((item.pengeluaran / item.total) * 100) : 0;
         
         html += `
           <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
@@ -725,8 +824,16 @@ class DashboardManager {
                 <div class="text-xs text-gray-500 dark:text-gray-400 truncate">${item.nama}</div>
               </div>
             </div>
-            <div class="text-sm font-semibold text-gray-600 dark:text-gray-400 ml-3">
-              Rp ${item.total_fmt}
+            <div class="text-right ml-3 min-w-[100px]">
+              <div class="text-sm font-semibold text-green-600 dark:text-green-400">
+                Rp ${item.sisa_fmt}
+              </div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">
+                ${persentaseSisa}% sisa
+              </div>
+              <div class="text-xs text-gray-400 dark:text-gray-500">
+                ${persentasePenggunaan}% digunakan
+              </div>
             </div>
           </div>
         `;
@@ -734,7 +841,84 @@ class DashboardManager {
     }
     
     detailContainer.innerHTML = html;
-  }
+}
+
+renderBebanKerjaChart(chartData) {
+    // Destroy existing chart
+    if (this.charts.bebanKerja) {
+        this.charts.bebanKerja.destroy();
+    }
+
+    const ctx = document.getElementById('chartBebanKerja');
+    if (!ctx || !chartData) return;
+
+    this.charts.bebanKerja = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartData.labels || [],
+            datasets: chartData.datasets?.map((dataset, index) => ({
+                label: dataset.label,
+                data: dataset.data || [],
+                backgroundColor: dataset.backgroundColor || this.colors.primary[index],
+                borderColor: dataset.backgroundColor || this.colors.primary[index],
+                borderWidth: 1,
+                borderRadius: 6,
+                hoverBackgroundColor: dataset.backgroundColor ? 
+                    dataset.backgroundColor.replace('0.7', '0.9') : 
+                    this.colors.primary[index].replace('0.7', '0.9')
+            })) || []
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        color: '#6B7280'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#374151',
+                    borderWidth: 1,
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${context.raw}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    stacked: true,
+                    ticks: {
+                        color: '#6B7280'
+                    },
+                    grid: {
+                        color: '#E5E7EB'
+                    }
+                },
+                y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0,
+                        color: '#6B7280'
+                    },
+                    grid: {
+                        color: '#E5E7EB'
+                    }
+                }
+            }
+        }
+    });
+}
+
 
   renderMap(mapData) {
     if (!mapData || !window.DatamapIndonesia) {

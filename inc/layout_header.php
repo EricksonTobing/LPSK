@@ -14,19 +14,24 @@
         extend: {
           colors: {
             primary: {
+              red: '#C6100D',
+              blue: '#241E4E',
               50: '#eff6ff',
               100: '#dbeafe',
               500: '#3b82f6',
               600: '#2563eb',
               700: '#1d4ed8',
             }
+          },
+          screens: {
+            'xs': '475px',
           }
         }
       }
     }
   </script>
   
-  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/custom.css">
   
   <!-- AlpineJS -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>

@@ -216,61 +216,117 @@ try {
     }
 
     // --- Data Sisa Anggaran per Kode ---
-    $stmt = executeQuery(
-        $pdo,
-        "SELECT 
-            a.kode_anggaran,
-            a.nama_anggaran,
-            a.total_anggaran,
-            COALESCE(SUM(p.jumlah), 0) as total_pengeluaran,
-            (a.total_anggaran - COALESCE(SUM(p.jumlah), 0)) as sisa_anggaran
-        FROM anggaran a
-        LEFT JOIN pengeluaran p ON a.kode_anggaran = p.kode_anggaran 
-            AND YEAR(p.tanggal) = ?
-        WHERE a.tahun = ?
-        GROUP BY a.kode_anggaran, a.nama_anggaran, a.total_anggaran
-        ORDER BY a.kode_anggaran",
-        [$selectedYear, $selectedYear]
-    );
-    $anggaranData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt = executeQuery(
+    $pdo,
+    "SELECT 
+        a.kode_anggaran,
+        a.nama_anggaran,
+        a.total_anggaran,
+        COALESCE(SUM(p.jumlah), 0) as total_pengeluaran,
+        (a.total_anggaran - COALESCE(SUM(p.jumlah), 0)) as sisa_anggaran
+    FROM anggaran a
+    LEFT JOIN pengeluaran p ON a.kode_anggaran = p.kode_anggaran 
+        AND YEAR(p.tanggal) = ?
+    WHERE a.tahun = ?
+    GROUP BY a.kode_anggaran, a.nama_anggaran, a.total_anggaran
+    ORDER BY a.kode_anggaran",
+    [$selectedYear, $selectedYear]
+);
+$anggaranData = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Hitung total keseluruhan
-    $totalAnggaran = 0;
-    $totalPengeluaran = 0;
-    $totalSisa = 0;
-    $anggaranPerKode = [];
+// Hitung total keseluruhan
+$totalAnggaran = 0;
+$totalPengeluaran = 0;
+$totalSisa = 0;
+$anggaranPerKode = [];
 
-    foreach ($anggaranData as $item) {
-        $anggaran = (float)$item['total_anggaran'];
-        $pengeluaran = (float)$item['total_pengeluaran'];
-        $sisa = (float)$item['sisa_anggaran'];
+foreach ($anggaranData as $item) {
+    $anggaran = (float)$item['total_anggaran'];
+    $pengeluaran = (float)$item['total_pengeluaran'];
+    $sisa = (float)$item['sisa_anggaran'];
 
-        $totalAnggaran += $anggaran;
-        $totalPengeluaran += $pengeluaran;
-        $totalSisa += $sisa;
+    $totalAnggaran += $anggaran;
+    $totalPengeluaran += $pengeluaran;
+    $totalSisa += $sisa;
 
-        $anggaranPerKode[] = [
-            'kode' => $item['kode_anggaran'],
-            'nama' => $item['nama_anggaran'],
-            'total' => $anggaran,
-            'total_fmt' => number_format($anggaran, 0, ',', '.'),
-            'pengeluaran' => $pengeluaran,
-            'pengeluaran_fmt' => number_format($pengeluaran, 0, ',', '.'),
-            'sisa' => $sisa,
-            'sisa_fmt' => number_format($sisa, 0, ',', '.'),
-            'persentase' => $totalAnggaran > 0 ? round(($anggaran / $totalAnggaran) * 100, 2) : 0
-        ];
-    }
-
-    $anggaranSummary = [
-        'total' => $totalAnggaran,
-        'total_fmt' => number_format($totalAnggaran, 0, ',', '.'),
-        'pengeluaran' => $totalPengeluaran,
-        'pengeluaran_fmt' => number_format($totalPengeluaran, 0, ',', '.'),
-        'sisa' => $totalSisa,
-        'sisa_fmt' => number_format($totalSisa, 0, ',', '.'),
-        'per_kode' => $anggaranPerKode
+    $anggaranPerKode[] = [
+        'kode' => $item['kode_anggaran'],
+        'nama' => $item['nama_anggaran'],
+        'total' => $anggaran,
+        'total_fmt' => number_format($anggaran, 0, ',', '.'),
+        'pengeluaran' => $pengeluaran,
+        'pengeluaran_fmt' => number_format($pengeluaran, 0, ',', '.'),
+        'sisa' => $sisa,
+        'sisa_fmt' => number_format($sisa, 0, ',', '.'),
+        'persentase_penggunaan' => $anggaran > 0 ? round(($pengeluaran / $anggaran) * 100, 2) : 0
     ];
+}
+
+$anggaranSummary = [
+    'total' => $totalAnggaran,
+    'total_fmt' => number_format($totalAnggaran, 0, ',', '.'),
+    'pengeluaran' => $totalPengeluaran,
+    'pengeluaran_fmt' => number_format($totalPengeluaran, 0, ',', '.'),
+    'sisa' => $totalSisa,
+    'sisa_fmt' => number_format($totalSisa, 0, ',', '.'),
+    'persentase_penggunaan' => $totalAnggaran > 0 ? round(($totalPengeluaran / $totalAnggaran) * 100, 2) : 0,
+    'per_kode' => $anggaranPerKode
+];
+
+
+// --- Data Beban Kerja Pegawai ---
+// --- Data Beban Kerja Pegawai ---
+$stmt = executeQuery(
+    $pdo,
+    "SELECT 
+        pg.id_pegawai,
+        pg.nama_pegawai,
+        COUNT(DISTINCT pm.no_reg_medan) as jumlah_permohonan,
+        COUNT(DISTINCT pn.no_registrasi) as jumlah_penelaahan, 
+        COUNT(DISTINCT ly.no_kep_smpl) as jumlah_layanan
+    FROM pegawai pg
+    LEFT JOIN permohonan pm ON pg.id_pegawai = pm.id_pegawai AND YEAR(pm.tgl_pengajuan) = ?
+    LEFT JOIN penelaahan pn ON pg.id_pegawai = pn.id_pegawai AND YEAR(pn.tanggal_dispo) = ?
+    LEFT JOIN layanan ly ON pg.id_pegawai = ly.id_pegawai AND (YEAR(ly.tanggal_disposisi) = ? OR (ly.tanggal_disposisi IS NULL AND YEAR(ly.tgl_mulai_layanan) = ?))
+    GROUP BY pg.id_pegawai, pg.nama_pegawai
+    ORDER BY pg.nama_pegawai",
+    [$selectedYear, $selectedYear, $selectedYear, $selectedYear]
+);
+$bebanKerjaPegawai = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Format data untuk chart
+$pegawaiLabels = [];
+$permohonanData = [];
+$penelaahanData = [];
+$layananData = [];
+
+foreach ($bebanKerjaPegawai as $pegawai) {
+    $pegawaiLabels[] = $pegawai['nama_pegawai'];
+    $permohonanData[] = (int)$pegawai['jumlah_permohonan'];
+    $penelaahanData[] = (int)$pegawai['jumlah_penelaahan'];
+    $layananData[] = (int)$pegawai['jumlah_layanan'];
+}
+
+$bebanKerjaChart = [
+    'labels' => $pegawaiLabels,
+    'datasets' => [
+        [
+            'label' => 'Permohonan',
+            'data' => $permohonanData,
+            'backgroundColor' => 'rgba(59, 130, 246, 0.7)'
+        ],
+        [
+            'label' => 'Penelaahan',
+            'data' => $penelaahanData,
+            'backgroundColor' => 'rgba(16, 185, 129, 0.7)'
+        ],
+        [
+            'label' => 'Layanan',
+            'data' => $layananData,
+            'backgroundColor' => 'rgba(245, 158, 11, 0.7)'
+        ]
+    ]
+];
 
     // --- Data untuk Peta Provinsi ---
     $stmt = executeQuery(
@@ -327,32 +383,33 @@ try {
     }
 
     // --- Siapkan response JSON ---
-    $response = [
-        'success' => true,
-        'selectedYear' => $selectedYear,
-        'counts' => $counts,
-        'anggaran' => $anggaranSummary,
-        'charts' => [
-            'permohonan_line' => [
-                'labels' => $labelsPermohonan,
-                'permohonan' => $dataPermohonan,
-                'penelaahan' => $dataPenelaahan,
-                'layanan' => $dataLayanan,
-            ],
-            'keuangan' => [
-                'labels' => $labelsKeuangan,
-                'datasets' => $datasetsKeuangan,
-            ],
-            'pengeluaran' => [
-                'labels' => $labelsPengeluaran,
-                'data' => $dataPengeluaran,
-            ],
+$response = [
+    'success' => true,
+    'selectedYear' => $selectedYear,
+    'counts' => $counts,
+    'anggaran' => $anggaranSummary,
+    'charts' => [
+        'permohonan_line' => [
+            'labels' => $labelsPermohonan,
+            'permohonan' => $dataPermohonan,
+            'penelaahan' => $dataPenelaahan,
+            'layanan' => $dataLayanan,
         ],
-        'map' => [
-            'provinsi_counts' => $provinsiCounts,
-            'provinsi_fillkeys' => $fillKeys
-        ]
-    ];
+        'keuangan' => [
+            'labels' => $labelsKeuangan,
+            'datasets' => $datasetsKeuangan,
+        ],
+        'pengeluaran' => [
+            'labels' => $labelsPengeluaran,
+            'data' => $dataPengeluaran,
+        ],
+        'beban_kerja' => $bebanKerjaChart
+    ],
+    'map' => [
+        'provinsi_counts' => $provinsiCounts,
+        'provinsi_fillkeys' => $fillKeys
+    ]
+];
 
     echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 
