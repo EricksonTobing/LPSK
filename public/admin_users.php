@@ -5,15 +5,8 @@ require_once __DIR__ . '/../inc/db.php';
 require_once __DIR__ . '/../inc/helpers.php';
 require_once __DIR__ . '/../inc/csrf.php';
 require_login();
-$title = 'Keuangan';
-require __DIR__ . '/../inc/layout_header.php';
-require __DIR__ . '/../inc/layout_nav.php';
 
-// Handle feedback messages
-$success = $_GET['success'] ?? null;
-$error = $_GET['error'] ?? null;
-
-/* ---------- POST Handler ---------- */
+// Handle POST requests first
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
     $action = $_POST['action'] ?? null;
@@ -47,7 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_POST['role'] === 'admin' ? 'admin' : 'user'
                 ]);
                 
-            redirect('admin_users.php?success=User berhasil ditambahkan');
+            header('Location: admin_users.php?success=User berhasil ditambahkan');
+            exit();
             
         } elseif ($action === 'update') {
             $id = (int) $_POST['id_user'];
@@ -90,7 +84,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ];
             }
             db()->prepare($sql)->execute($params);
-            redirect('admin_users.php?success=User berhasil diperbarui');
+            header('Location: admin_users.php?success=User berhasil diperbarui');
+            exit();
             
         } elseif ($action === 'delete') {
             $id = (int) $_POST['id_user'];
@@ -101,12 +96,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             db()->prepare("DELETE FROM users WHERE id_user=?")->execute([$id]);
-            redirect('admin_users.php?success=User berhasil dihapus');
+            header('Location: admin_users.php?success=User berhasil dihapus');
+            exit();
         }
     } catch (Exception $e) {
-        redirect('admin_users.php?error=' . urlencode($e->getMessage()));
+        header('Location: admin_users.php?error=' . urlencode($e->getMessage()));
+        exit();
     }
 }
+
+// Set header setelah semua operasi POST selesai
+$title = 'Keuangan';
+require __DIR__ . '/../inc/layout_header.php';
+require __DIR__ . '/../inc/layout_nav.php';
+
+// Handle feedback messages
+$success = $_GET['success'] ?? null;
+$error = $_GET['error'] ?? null;
 
 /* ---------- Pagination & Search ---------- */
 list($page, $per, $offset) = paginate_params();
@@ -456,6 +462,7 @@ $rows = $stmt->fetchAll();
     </div>
 </div>
 
+
 <script>
 // Fungsi untuk membuka modal
 function openModal(modalId) {
@@ -469,11 +476,15 @@ function closeModal(modalId) {
 
 // Fungsi untuk membuka modal edit dengan data yang sudah diisi
 function openEditModal(id, username, nama_lengkap, email, role) {
-    document.getElementById('edit_id_user').value = id;
-    document.getElementById('edit_username').value = username;
-    document.getElementById('edit_nama_lengkap').value = nama_lengkap;
-    document.getElementById('edit_email').value = email;
-    document.getElementById('edit_role').value = role;
+    // Pastikan nilai tidak undefined
+    document.getElementById('edit_id_user').value = id || '';
+    document.getElementById('edit_username').value = username || '';
+    document.getElementById('edit_nama_lengkap').value = nama_lengkap || '';
+    document.getElementById('edit_email').value = email || '';
+    document.getElementById('edit_role').value = role || 'user';
+    
+    // Reset password field
+    document.getElementById('edit_password').value = '';
     
     openModal('editUserModal');
 }
@@ -486,6 +497,26 @@ window.onclick = function(event) {
         });
     }
 }
-</script>
+
+// Prevent event propagation in modal content
+document.querySelectorAll('.relative.top-20.mx-auto').forEach(container => {
+    container.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+});
+
+// Juga tambahkan untuk modal create
+document.getElementById('createUserModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal('createUserModal');
+    }
+});
+
+document.getElementById('editUserModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal('editUserModal');
+    }
+});
+ </script>
 
 <?php require __DIR__ . '/../inc/layout_footer.php'; ?>

@@ -3,7 +3,7 @@
 <footer class="bg-white dark:bg-gray-800 border-t dark:border-gray-700 text-center text-sm text-gray-600 dark:text-gray-400 py-6 mt-auto">
   <div class="max-w-7xl mx-auto px-4">
     <div class="flex flex-col md:flex-row justify-between items-center">
-      <p>&copy; <?= date('Y'); ?> LPSK App &mdash; Built with ❤️</p>
+      <p>&copy; <?= date('Y'); ?> LPSK App &mdash; Created by Intern Students Of The Faculty of Computer Science, UST</p>
       <p class="mt-1 md:mt-0 text-xs">Sistem Informasi Manajemen LPSK</p>
       <div class="mt-2 md:mt-0 flex space-x-4">
         <a href="#" class="text-gray-500 hover:text-primary-red transition-colors"><i class="fab fa-facebook"></i></a>

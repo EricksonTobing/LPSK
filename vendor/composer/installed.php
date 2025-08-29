@@ -3,7 +3,7 @@
         'name' => 'lpsk/app',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '49b3722a11a9211504bee59ba84bcebde52ebe32',
+        'reference' => '5dd3a57d14476fb9f4ff6275067fc9985238fcfd',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -58,7 +58,7 @@
         'lpsk/app' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '49b3722a11a9211504bee59ba84bcebde52ebe32',
+            'reference' => '5dd3a57d14476fb9f4ff6275067fc9985238fcfd',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

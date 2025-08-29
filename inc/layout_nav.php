@@ -87,12 +87,7 @@ $u = auth_user(); $role = $u['role'] ?? 'user';
                                 <p class="text-sm font-medium text-gray-900 dark:text-white truncate"><?= e($u['nama_lengkap'] ?? $u['username']) ?></p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400 capitalize"><?= e($u['role']) ?></p>
                             </div>
-                            <a href="profile.php" class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                                <i class="fas fa-user-circle mr-2"></i> Profil Saya
-                            </a>
-                            <a href="settings.php" class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                                <i class="fas fa-cog mr-2"></i> Pengaturan
-                            </a>
+                            
                             <div class="border-t border-gray-100 dark:border-gray-700"></div>
                             <a href="logout.php" class="flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                                 <i class="fas fa-right-from-bracket mr-2"></i> Keluar
@@ -195,12 +190,7 @@ $u = auth_user(); $role = $u['role'] ?? 'user';
                     
                     <?php if ($u): ?>
                     <div class="pt-2 mt-2 border-t border-gray-200 dark:border-gray-700">
-                        <a href="profile.php" class="mobile-menu-item flex items-center py-3 px-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" @click="sidebarOpen = false">
-                            <i class="fas fa-user-circle mr-3 w-5 text-center"></i> Profil Saya
-                        </a>
-                        <a href="settings.php" class="mobile-menu-item flex items-center py-3 px-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" @click="sidebarOpen = false">
-                            <i class="fas fa-cog mr-3 w-5 text-center"></i> Pengaturan
-                        </a>
+                     
                         <a href="logout.php" class="mobile-menu-item flex items-center py-3 px-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" @click="sidebarOpen = false">
                             <i class="fas fa-right-from-bracket mr-3 w-5 text-center"></i> Keluar
                         </a>

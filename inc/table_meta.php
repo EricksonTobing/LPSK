@@ -24,7 +24,7 @@ return [
         'provinsi_pemohon' => 'Provinsi Pemohon',
         'tempat_permohonan' => 'Tempat Permohonan'
     ],
-    'searchable' => ['no_reg_medan', 'nama_pemohon', 'tindak_pidana', 'media_pengajuan'],
+    'searchable' => ['no_reg_medan', 'nama_pemohon', 'tindak_pidana', 'media_pengajuan', 'jenis_perlindungan'],
     'filters' => ['jenis_kelamin', 'status_hukum', 'media_pengajuan', 'tempat_permohonan'],
     'joins' => [
         'pegawai' => ['id_pegawai', 'id_pegawai', ['nama_pegawai']]

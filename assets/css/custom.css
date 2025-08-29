@@ -502,11 +502,3 @@ button {
     outline: 2px solid #3b82f6;
   }
 }
-/* Penyesuaian kecil */
-table td,
-table th {
-  white-space: nowrap;
-}
-details summary {
-  list-style: none;
-}

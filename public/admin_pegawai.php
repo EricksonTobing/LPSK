@@ -6,15 +6,7 @@ require_once __DIR__ . '/../inc/helpers.php';
 require_once __DIR__ . '/../inc/csrf.php';
 require_admin();
 
-$title = 'Admin - Pegawai';
-require __DIR__ . '/../inc/layout_header.php';
-require __DIR__ . '/../inc/layout_nav.php';
-
-// Handle feedback messages
-$success = $_GET['success'] ?? null;
-$error = $_GET['error'] ?? null;
-
-/* ---------- POST Handler ---------- */
+// Handle POST requests first
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
     $action = $_POST['action'] ?? null;
@@ -40,7 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                           VALUES(:nama_pegawai, :jabatan, :unit_kerja, :email, :no_telp, :aktif)")
                 ->execute($data);
                 
-            redirect('admin_pegawai.php?success=Pegawai berhasil ditambahkan');
+            header('Location: admin_pegawai.php?success=Pegawai berhasil ditambahkan');
+            exit();
             
         } elseif ($action === 'update') {
             $id = (int) $_POST['id_pegawai'];
@@ -71,7 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                           WHERE id_pegawai = :id_pegawai")
                 ->execute($data);
                 
-            redirect('admin_pegawai.php?success=Pegawai berhasil diperbarui');
+            header('Location: admin_pegawai.php?success=Pegawai berhasil diperbarui');
+            exit();
             
         } elseif ($action === 'delete') {
             $id = (int) $_POST['id_pegawai'];
@@ -91,12 +85,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             db()->prepare("DELETE FROM pegawai WHERE id_pegawai=?")->execute([$id]);
-            redirect('admin_pegawai.php?success=Pegawai berhasil dihapus');
+            header('Location: admin_pegawai.php?success=Pegawai berhasil dihapus');
+            exit();
         }
     } catch (Exception $e) {
-        redirect('admin_pegawai.php?error=' . urlencode($e->getMessage()));
+        header('Location: admin_pegawai.php?error=' . urlencode($e->getMessage()));
+        exit();
     }
 }
+
+// Set header setelah semua operasi POST selesai
+$title = 'Admin - Pegawai';
+require __DIR__ . '/../inc/layout_header.php';
+require __DIR__ . '/../inc/layout_nav.php';
+
+// Handle feedback messages
+$success = $_GET['success'] ?? null;
+$error = $_GET['error'] ?? null;
 
 /* ---------- Pagination & Search ---------- */
 list($page, $per, $offset) = paginate_params();
@@ -464,13 +469,14 @@ function closeModal(id) {
 }
 
 function openEditModal(id, nama, jabatan, unitKerja, email, noTelp, aktif) {
-    document.getElementById('edit_id_pegawai').value = id;
-    document.getElementById('edit_nama_pegawai').value = nama;
+    // Pastikan nilai tidak undefined
+    document.getElementById('edit_id_pegawai').value = id || '';
+    document.getElementById('edit_nama_pegawai').value = nama || '';
     document.getElementById('edit_jabatan').value = jabatan || '';
     document.getElementById('edit_unit_kerja').value = unitKerja || '';
     document.getElementById('edit_email').value = email || '';
     document.getElementById('edit_no_telp').value = noTelp || '';
-    document.getElementById('edit_aktif').value = aktif;
+    document.getElementById('edit_aktif').value = aktif !== undefined ? aktif : 1;
     
     openModal('editPegawaiModal');
 }
@@ -483,6 +489,13 @@ window.onclick = function(event) {
         });
     }
 }
+
+// Prevent event propagation in modal content
+document.querySelectorAll('.modal-container').forEach(container => {
+    container.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+});
 </script>
 
 <?php require __DIR__ . '/../inc/layout_footer.php'; ?>
