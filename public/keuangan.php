@@ -4,20 +4,20 @@ require_once __DIR__ . '/../inc/auth.php';
 require_once __DIR__ . '/../inc/db.php';
 require_once __DIR__ . '/../inc/helpers.php';
 require_once __DIR__ . '/../inc/csrf.php';
-require_login();
-$title = 'Keuangan';
-require __DIR__ . '/../inc/layout_header.php';
-require __DIR__ . '/../inc/layout_nav.php';
 
-// Tentukan tab aktif
-$active_tab = $_GET['tab'] ?? 'keuangan';
-$tabs = [
-    'keuangan' => 'Ringkasan Keuangan',
-    'anggaran' => 'Data Anggaran', 
-    'pengeluaran' => 'Data Pengeluaran'
-];
+require_login();
+// Pastikan session sudah started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Pastikan session messages ada
+if (!isset($_SESSION['error'])) $_SESSION['error'] = null;
+if (!isset($_SESSION['success'])) $_SESSION['success'] = null;
+$title = 'Keuangan';
 
 // Handle form submission
+$active_tab = $_GET['tab'] ?? 'keuangan';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         csrf_verify();
@@ -31,9 +31,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $tahun = $_POST['tahun'] ?? '';
                 
                 if (!empty($kode_anggaran) && !empty($nama_anggaran) && !empty($total_anggaran) && !empty($tahun)) {
-                    $stmt = db()->prepare("INSERT INTO anggaran (kode_anggaran, nama_anggaran, total_anggaran, tahun) VALUES (?, ?, ?, ?)");
-                    $stmt->execute([$kode_anggaran, $nama_anggaran, $total_anggaran, $tahun]);
-                    $_SESSION['success'] = "Data anggaran berhasil ditambahkan";
+                    // Validasi tahun
+                    if ($tahun < 2000 || $tahun > 2100) {
+                        $_SESSION['error'] = "Tahun harus antara 2000 dan 2100";
+                    } else {
+                        $stmt = db()->prepare("INSERT INTO anggaran (kode_anggaran, nama_anggaran, total_anggaran, tahun) VALUES (?, ?, ?, ?)");
+                        $stmt->execute([$kode_anggaran, $nama_anggaran, $total_anggaran, $tahun]);
+                        $_SESSION['success'] = "Data anggaran berhasil ditambahkan";
+                    }
                 } else {
                     $_SESSION['error'] = "Semua field harus diisi";
                 }
@@ -46,9 +51,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $total_anggaran = $_POST['total_anggaran'] ?? '';
                 
                 if (!empty($kode_anggaran) && !empty($nama_anggaran) && !empty($total_anggaran) && !empty($tahun)) {
-                    $stmt = db()->prepare("UPDATE anggaran SET nama_anggaran = ?, total_anggaran = ? WHERE kode_anggaran = ? AND tahun = ?");
-                    $stmt->execute([$nama_anggaran, $total_anggaran, $kode_anggaran, $tahun]);
-                    $_SESSION['success'] = "Data anggaran berhasil diperbarui";
+                    // Validasi tahun
+                    if ($tahun < 2000 || $tahun > 2100) {
+                        $_SESSION['error'] = "Tahun harus antara 2000 dan 2100";
+                    } else {
+                        $stmt = db()->prepare("UPDATE anggaran SET nama_anggaran = ?, total_anggaran = ? WHERE kode_anggaran = ? AND tahun = ?");
+                        $stmt->execute([$nama_anggaran, $total_anggaran, $kode_anggaran, $tahun]);
+                        $_SESSION['success'] = "Data anggaran berhasil diperbarui";
+                    }
                 } else {
                     $_SESSION['error'] = "Semua field harus diisi";
                 }
@@ -120,34 +130,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['success'] = "Data pengeluaran berhasil dihapus";
                 }
             }
+        
         }
         
-    } catch (PDOException $e) {
-        $_SESSION['error'] = "Gagal memproses data: " . $e->getMessage();
     }
-    
-    // Redirect untuk menghindari resubmission - perbaikan di sini
-    $redirect_url = "keuangan.php?tab=" . urlencode($active_tab);
+     catch (Exception $e) {
+        // Tangani error di sini
+        $_SESSION['error'] = "Terjadi kesalahan: " . $e->getMessage();
+    }
+  // Redirect untuk menghindari resubmission
+    $redirect_url = 'keuangan.php?tab=' . urlencode($active_tab);
+
+    // Pertahankan parameter pencarian
     if (!empty($_GET['q'])) {
-        $redirect_url .= "&q=" . urlencode($_GET['q']);
+        $redirect_url .= '&q=' . urlencode($_GET['q']);
     }
-    if (!empty($_GET['page'])) {
-        $redirect_url .= "&page=" . urlencode($_GET['page']);
+
+    // Pertahankan parameter tahun
+    if (!empty($_GET['tahun'])) {
+        $redirect_url .= '&tahun=' . urlencode($_GET['tahun']);
     }
-    
-    header("Location: " . $redirect_url);
-    exit();
+
+    // Pertahankan parameter page untuk pagination
+    if (!empty($_GET['page']) && $_GET['page'] > 1) {
+        $redirect_url .= '&page=' . (int)$_GET['page'];
+    }
+
+    // Pastikan tidak ada output sebelum redirect
+    if (!headers_sent()) {
+        header("Location: " . $redirect_url);
+        exit();
+    } else {
+        // Jika headers sudah dikirim, gunakan JavaScript redirect
+        echo "<script>window.location.href = '" . htmlspecialchars($redirect_url) . "';</script>";
+        exit();
+    }
 }
+
+
+
+require __DIR__ . '/../inc/layout_header.php';
+require __DIR__ . '/../inc/layout_nav.php';
+
+// Tentukan tab aktif
+$tabs = [
+    'keuangan' => 'Ringkasan Keuangan',
+    'anggaran' => 'Data Anggaran', 
+    'pengeluaran' => 'Data Pengeluaran'
+];
 
 list($page, $per, $offset) = paginate_params();
 $q = trim((string)($_GET['q'] ?? ''));
+// Default tahun filter ke tahun terkini untuk tab ringkasan keuangan
+$current_year = date('Y');
+$tahun_filter = $_GET['tahun'] ?? ($active_tab === 'keuangan' ? $current_year : '');
+
 $where = '';
 $params = [];
 
 // Query berdasarkan tab aktif
 if ($active_tab === 'pengeluaran') {
     // Query untuk pengeluaran - perbaikan sesuai dengan struktur tabel
-    $sql = "SELECT p.*, a.nama_anggaran, a.total_anggaran, m.nama_mak
+    $sql = "SELECT p.*, a.nama_anggaran, m.nama_mak
             FROM pengeluaran p
             LEFT JOIN anggaran a ON a.kode_anggaran = p.kode_anggaran AND a.tahun = p.tahun
             LEFT JOIN mak m ON m.kode_mak = p.kode_mak";
@@ -166,6 +210,12 @@ if ($active_tab === 'pengeluaran') {
         $params = array_fill(0, 5, $search_param);
     }
 
+    // Filter tahun untuk pengeluaran
+    if (!empty($tahun_filter)) {
+        $where_clauses[] = "p.tahun = ?";
+        $params[] = $tahun_filter;
+    }
+
 } elseif ($active_tab === 'anggaran') {
     // Query untuk anggaran
     $sql = "SELECT a.* FROM anggaran a";
@@ -181,9 +231,15 @@ if ($active_tab === 'pengeluaran') {
         $params = array_fill(0, 2, $search_param);
     }
 
+    // Filter tahun untuk anggaran
+    if (!empty($tahun_filter)) {
+        $where_clauses[] = "a.tahun = ?";
+        $params[] = $tahun_filter;
+    }
+
 } else {
     // Query default (keuangan) - tetap menggunakan pengeluaran untuk ringkasan
-    $sql = "SELECT p.*, a.nama_anggaran, a.total_anggaran, m.nama_mak
+    $sql = "SELECT p.*, a.nama_anggaran, m.nama_mak
             FROM pengeluaran p
             LEFT JOIN anggaran a ON a.kode_anggaran = p.kode_anggaran AND a.tahun = p.tahun
             LEFT JOIN mak m ON m.kode_mak = p.kode_mak";
@@ -200,6 +256,12 @@ if ($active_tab === 'pengeluaran') {
         $search_param = "%$q%";
         $params = array_fill(0, 5, $search_param);
     }
+
+    // Filter tahun untuk ringkasan keuangan
+    if (!empty($tahun_filter)) {
+        $where_clauses[] = "p.tahun = ?";
+        $params[] = $tahun_filter;
+    }
 }
 
 // Gabungkan WHERE clause jika ada
@@ -214,12 +276,8 @@ $sql .= " ORDER BY " . ($active_tab === 'anggaran' ? "a.kode_anggaran" : "p.tang
 
 // Hitung total
 $count_stmt = db()->prepare($count_sql);
-if ($q) {
-    if ($active_tab === 'anggaran') {
-        $count_stmt->execute(array_fill(0, 2, "%$q%"));
-    } else {
-        $count_stmt->execute(array_fill(0, 5, "%$q%"));
-    }
+if (!empty($params)) {
+    $count_stmt->execute($params);
 } else {
     $count_stmt->execute();
 }
@@ -230,10 +288,9 @@ $stmt = db()->prepare($sql);
 $param_index = 0;
 
 // Bind search parameters jika ada
-if ($q) {
-    $param_count = ($active_tab === 'anggaran') ? 2 : 5;
-    for ($i = 0; $i < $param_count; $i++) {
-        $stmt->bindValue(++$param_index, "%$q%", PDO::PARAM_STR);
+if (!empty($params)) {
+    foreach ($params as $param) {
+        $stmt->bindValue(++$param_index, $param, PDO::PARAM_STR);
     }
 }
 
@@ -244,16 +301,32 @@ $stmt->bindValue(++$param_index, $offset, PDO::PARAM_INT);
 $stmt->execute();
 $rows = $stmt->fetchAll();
 
-// Hitung total anggaran dan pengeluaran untuk ringkasan
+// Hitung total anggaran dan pengeluaran untuk ringkasan dengan filter tahun
 $total_anggaran = 0;
 $total_pengeluaran = 0;
 $sisa_anggaran = 0;
 
 if ($active_tab === 'keuangan') {
-    $anggaran_stmt = db()->query("SELECT SUM(total_anggaran) as total FROM anggaran");
+    $anggaran_sql = "SELECT SUM(total_anggaran) as total FROM anggaran";
+    $pengeluaran_sql = "SELECT SUM(jumlah) as total FROM pengeluaran";
+    
+    $anggaran_params = [];
+    $pengeluaran_params = [];
+    
+    if (!empty($tahun_filter)) {
+        $anggaran_sql .= " WHERE tahun = ?";
+        $anggaran_params[] = $tahun_filter;
+        
+        $pengeluaran_sql .= " WHERE tahun = ?";
+        $pengeluaran_params[] = $tahun_filter;
+    }
+    
+    $anggaran_stmt = db()->prepare($anggaran_sql);
+    $anggaran_stmt->execute($anggaran_params);
     $total_anggaran = (float)($anggaran_stmt->fetchColumn() ?? 0);
     
-    $pengeluaran_stmt = db()->query("SELECT SUM(jumlah) as total FROM pengeluaran");
+    $pengeluaran_stmt = db()->prepare($pengeluaran_sql);
+    $pengeluaran_stmt->execute($pengeluaran_params);
     $total_pengeluaran = (float)($pengeluaran_stmt->fetchColumn() ?? 0);
     
     $sisa_anggaran = $total_anggaran - $total_pengeluaran;
@@ -271,6 +344,20 @@ if ($active_tab === 'pengeluaran' || (auth_user()['role'] ?? '') === 'admin') {
     $mak_options = $mak_stmt->fetchAll();
 }
 
+// Ambil daftar tahun untuk filter - hanya tahun yang ada data di database
+$tahun_options = [];
+$tahun_stmt = db()->query("SELECT DISTINCT tahun FROM (
+    SELECT tahun FROM anggaran 
+    UNION 
+    SELECT tahun FROM pengeluaran
+) AS years ORDER BY tahun DESC");
+$tahun_options = $tahun_stmt->fetchAll(PDO::FETCH_COLUMN);
+
+// Jika tidak ada data tahun, tambahkan tahun berjalan
+if (empty($tahun_options)) {
+    $tahun_options = [date('Y')];
+}
+
 // Handle untuk mendapatkan data edit
 $edit_data = null;
 if (isset($_GET['edit']) && $_GET['edit']) {
@@ -286,14 +373,14 @@ if (isset($_GET['edit']) && $_GET['edit']) {
 }
 ?>
 
-<div class="container mx-auto px-4 py-6">
+<div class="container mx-auto px-4 py-6 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300">
     <h1 class="text-2xl md:text-3xl font-semibold mb-6">Manajemen Keuangan</h1>
 
     <!-- Tab Navigation - Responsive -->
-    <div class="flex flex-wrap border-b border-gray-200 mb-6 overflow-x-auto">
+    <div class="flex flex-wrap border-b border-gray-200 dark:border-gray-700 mb-6 overflow-x-auto">
         <?php foreach ($tabs as $tab_id => $tab_label): ?>
-            <a href="?tab=<?= $tab_id ?><?= $q ? '&q='.urlencode($q) : '' ?>" 
-               class="py-3 px-4 md:px-6 text-sm font-medium whitespace-nowrap <?= $active_tab === $tab_id ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700' ?>">
+            <a href="?tab=<?= $tab_id ?><?= $q ? '&q='.urlencode($q) : '' ?><?= $tahun_filter ? '&tahun='.urlencode($tahun_filter) : '' ?>" 
+               class="py-3 px-4 md:px-6 text-sm font-medium whitespace-nowrap <?= $active_tab === $tab_id ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' ?>">
                 <?= e($tab_label) ?>
             </a>
         <?php endforeach; ?>
@@ -301,13 +388,13 @@ if (isset($_GET['edit']) && $_GET['edit']) {
 
     <!-- Alerts -->
     <?php if (isset($_SESSION['error'])): ?>
-        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded shadow-sm">
+        <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 mb-6 rounded shadow-sm">
             <div class="flex">
                 <div class="flex-shrink-0">
                     <i class="fas fa-exclamation-circle text-red-400"></i>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm text-red-700"><?= e($_SESSION['error']) ?></p>
+                    <p class="text-sm text-red-700 dark:text-red-300"><?= e($_SESSION['error']) ?></p>
                 </div>
             </div>
             <?php unset($_SESSION['error']) ?>
@@ -315,13 +402,13 @@ if (isset($_GET['edit']) && $_GET['edit']) {
     <?php endif; ?>
 
     <?php if (isset($_SESSION['success'])): ?>
-        <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded shadow-sm">
+        <div class="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-4 mb-6 rounded shadow-sm">
             <div class="flex">
                 <div class="flex-shrink-0">
                     <i class="fas fa-check-circle text-green-400"></i>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm text-green-700"><?= e($_SESSION['success']) ?></p>
+                    <p class="text-sm text-green-700 dark:text-green-300"><?= e($_SESSION['success']) ?></p>
                 </div>
             </div>
             <?php unset($_SESSION['success']) ?>
@@ -331,19 +418,22 @@ if (isset($_GET['edit']) && $_GET['edit']) {
     <?php if ($active_tab === 'keuangan'): ?>
         <!-- Ringkasan Keuangan - Responsive Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-green-500">
-                <h3 class="text-lg font-semibold text-gray-700 mb-2">Total Anggaran</h3>
-                <p class="text-2xl font-bold text-green-600">Rp <?= number_format($total_anggaran, 0, ',', '.') ?></p>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border-l-4 border-green-500">
+                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Total Anggaran</h3>
+                <p class="text-2xl font-bold text-green-600 dark:text-green-400">Rp <?= number_format($total_anggaran, 0, ',', '.') ?></p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Tahun: <?= $tahun_filter ?: 'Semua Tahun' ?></p>
             </div>
-            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-red-500">
-                <h3 class="text-lg font-semibold text-gray-700 mb-2">Total Pengeluaran</h3>
-                <p class="text-2xl font-bold text-red-600">Rp <?= number_format($total_pengeluaran, 0, ',', '.') ?></p>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border-l-4 border-red-500">
+                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Total Pengeluaran</h3>
+                <p class="text-2xl font-bold text-red-600 dark:text-red-400">Rp <?= number_format($total_pengeluaran, 0, ',', '.') ?></p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Tahun: <?= $tahun_filter ?: 'Semua Tahun' ?></p>
             </div>
-            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-blue-500 sm:col-span-2 lg:col-span-1">
-                <h3 class="text-lg font-semibold text-gray-700 mb-2">Sisa Anggaran</h3>
-                <p class="text-2xl font-bold <?= $sisa_anggaran >= 0 ? 'text-blue-600' : 'text-red-600' ?>">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border-l-4 border-blue-500 sm:col-span-2 lg:col-span-1">
+                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Sisa Anggaran</h3>
+                <p class="text-2xl font-bold <?= $sisa_anggaran >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-red-600 dark:text-red-400' ?>">
                     Rp <?= number_format($sisa_anggaran, 0, ',', '.') ?>
                 </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Tahun: <?= $tahun_filter ?: 'Semua Tahun' ?></p>
             </div>
         </div>
     <?php endif; ?>
@@ -353,13 +443,13 @@ if (isset($_GET['edit']) && $_GET['edit']) {
     <div class="mb-4 flex flex-wrap gap-2">
         <?php if ($active_tab === 'anggaran'): ?>
             <button onclick="showModal('anggaranModal')" 
-               class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700 transition-colors duration-150 flex items-center">
+               class="px-4 py-2 bg-gradient-to-r from-primary-blue to-primary-red hover:from-primary-blue/90 hover:to-primary-red/90 text-white rounded-lg flex items-center text-sm transition-all shadow-md hover:shadow-lg ml-2">
                <i class="fas fa-plus mr-2"></i>
                <span class="hidden sm:inline">Tambah</span> Anggaran
             </button>
         <?php elseif ($active_tab === 'pengeluaran'): ?>
             <button onclick="showModal('pengeluaranModal')" 
-               class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-blue-700 transition-colors duration-150 flex items-center">
+               class="px-4 py-2 bg-gradient-to-r from-primary-blue to-primary-red hover:from-primary-blue/90 hover:to-primary-red/90 text-white rounded-lg flex items-center text-sm transition-all shadow-md hover:shadow-lg ml-2">
                <i class="fas fa-plus mr-2"></i>
                <span class="hidden sm:inline">Tambah</span> Pengeluaran
             </button>
@@ -368,16 +458,27 @@ if (isset($_GET['edit']) && $_GET['edit']) {
     <?php endif; ?>
 
     <!-- Data Table -->
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
         <!-- Search Form -->
-        <div class="p-4 bg-gray-50 border-b">
+        <div class="p-4 bg-gray-50 dark:bg-gray-700 border-b dark:border-gray-600">
             <form method="GET" class="space-y-3">
                 <input type="hidden" name="tab" value="<?= e($active_tab) ?>">
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                     <input type="text" name="q" value="<?= e($q) ?>" placeholder="Cari data <?= $active_tab ?>..." 
-                           class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                           class="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                    
+                    <!-- Filter Tahun -->
+                    <select name="tahun" class="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                        <option value="">Semua Tahun</option>
+                        <?php foreach ($tahun_options as $tahun_opt): ?>
+                            <option value="<?= e($tahun_opt) ?>" <?= $tahun_filter == $tahun_opt ? 'selected' : '' ?>>
+                                <?= e($tahun_opt) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    
                     <div class="flex gap-2">
-                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <button type="submit" class="px-4 py-2 bg-primary-blue hover:bg-primary-blue/90 text-white rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg">
                             <i class="fas fa-search mr-2"></i>Cari
                         </button>
                         <a href="keuangan.php?tab=<?= e($active_tab) ?>" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
@@ -388,18 +489,26 @@ if (isset($_GET['edit']) && $_GET['edit']) {
                 
                 <!-- Export Links -->
                 <div class="flex flex-wrap gap-3 text-sm">
-                    <a class="text-blue-600 hover:text-blue-800 hover:underline flex items-center" 
-                       href="export.php?<?= build_query(array_merge($_GET, ['fmt'=>'xlsx','t'=>'keuangan'])) ?>">
-                        <i class="fas fa-file-excel mr-1"></i>Export Excel
-                    </a>
-                    <a class="text-blue-600 hover:text-blue-800 hover:underline flex items-center" 
-                       href="export.php?<?= build_query(array_merge($_GET, ['fmt'=>'csv','t'=>'keuangan'])) ?>">
-                        <i class="fas fa-file-csv mr-1"></i>CSV
-                    </a>
-                    <a class="text-blue-600 hover:text-blue-800 hover:underline flex items-center" 
-                       href="export.php?<?= build_query(array_merge($_GET, ['fmt'=>'pdf','t'=>'keuangan'])) ?>">
-                        <i class="fas fa-file-pdf mr-1"></i>PDF
-                    </a>
+                    <?php if ($active_tab === 'pengeluaran'): ?>
+                       
+                        <a class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline flex items-center" 
+                           href="export_spout.php?t=pengeluaran&<?= http_build_query($_GET) ?>">
+                            <i class="fas fa-rocket mr-2"></i> Export (Spout)
+                        </a>
+                    <?php elseif ($active_tab === 'anggaran'): ?>
+                         
+                        <a class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline flex items-center" 
+                           href="export_spout.php?t=anggaran&<?= http_build_query($_GET) ?>">
+                            <i class="fas fa-rocket mr-2"></i> Export (Spout)
+                        </a>
+                    <?php else: ?>
+                     
+                        <!-- Untuk tab keuangan, buat export khusus ringkasan -->
+                        <!-- <a class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline flex items-center" 
+                           href="export_spout.php?t=ringkasan&<?= http_build_query($_GET) ?>">
+                            <i class="fas fa-rocket mr-2"></i> Export (Spout)
+                        </a> -->
+                    <?php endif; ?>
                 </div>
             </form>
         </div>
@@ -407,55 +516,55 @@ if (isset($_GET['edit']) && $_GET['edit']) {
         <?php if ($total > 0): ?>
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
-                <thead class="bg-gray-100">
+                <thead class="bg-gray-100 dark:bg-gray-700">
                     <tr>
                         <?php if ($active_tab === 'pengeluaran'): ?>
-                            <th class="p-3 text-left font-semibold">Tanggal</th>
-                            <th class="p-3 text-left font-semibold">No Kuitansi</th>
-                            <th class="p-3 text-left font-semibold">Kode Anggaran</th>
-                            <th class="p-3 text-left font-semibold">Nama Anggaran</th>
-                            <th class="p-3 text-left font-semibold">Tahun</th>
-                            <th class="p-3 text-left font-semibold">Kode MAK</th>
-                            <th class="p-3 text-left font-semibold">Nama MAK</th>
-                            <th class="p-3 text-right font-semibold">Jumlah</th>
-                            <th class="p-3 text-left font-semibold">Keterangan</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Tanggal</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">No Kuitansi</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Kode Anggaran</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Nama Anggaran</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Tahun</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Kode MAK</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Nama MAK</th>
+                            <th class="p-3 text-right font-semibold text-gray-900 dark:text-gray-100">Jumlah</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Keterangan</th>
                             <?php if ((auth_user()['role'] ?? '') === 'admin'): ?>
-                                <th class="p-3 text-center font-semibold">Aksi</th>
+                                <th class="p-3 text-center font-semibold text-gray-900 dark:text-gray-100">Aksi</th>
                             <?php endif; ?>
                         <?php elseif ($active_tab === 'anggaran'): ?>
-                            <th class="p-3 text-left font-semibold">Kode Anggaran</th>
-                            <th class="p-3 text-left font-semibold">Nama Anggaran</th>
-                            <th class="p-3 text-right font-semibold">Total Anggaran</th>
-                            <th class="p-3 text-left font-semibold">Tahun</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Kode Anggaran</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Nama Anggaran</th>
+                            <th class="p-3 text-right font-semibold text-gray-900 dark:text-gray-100">Total Anggaran</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Tahun</th>
                             <?php if ((auth_user()['role'] ?? '') === 'admin'): ?>
-                                <th class="p-3 text-center font-semibold">Aksi</th>
+                                <th class="p-3 text-center font-semibold text-gray-900 dark:text-gray-100">Aksi</th>
                             <?php endif; ?>
                         <?php else: ?>
-                            <th class="p-3 text-left font-semibold">Tanggal</th>
-                            <th class="p-3 text-left font-semibold">No Kuitansi</th>
-                            <th class="p-3 text-left font-semibold">Kode Anggaran</th>
-                            <th class="p-3 text-left font-semibold">Nama Anggaran</th>
-                            <th class="p-3 text-left font-semibold">Tahun</th>
-                            <th class="p-3 text-left font-semibold">Kode MAK</th>
-                            <th class="p-3 text-left font-semibold">Nama MAK</th>
-                            <th class="p-3 text-right font-semibold">Jumlah</th>
-                            <th class="p-3 text-left font-semibold">Keterangan</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Tanggal</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">No Kuitansi</th>
+                            <th class="p-3 text-left font-semibold text-gray-90 dark:text-gray-100">Kode Anggaran</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Nama Anggaran</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Tahun</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Kode MAK</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Nama MAK</th>
+                            <th class="p-3 text-right font-semibold text-gray-900 dark:text-gray-100">Jumlah</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Keterangan</th>
                         <?php endif; ?>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200">
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                     <?php foreach ($rows as $r): ?>
-                        <tr class="hover:bg-gray-50 transition-colors">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                             <?php if ($active_tab === 'pengeluaran'): ?>
-                                <td class="p-3"><?= e($r['tanggal']) ?></td>
-                                <td class="p-3 font-medium"><?= e($r['nomor_kuintasi']) ?></td>
-                                <td class="p-3"><?= e($r['kode_anggaran']) ?></td>
-                                <td class="p-3"><?= e($r['nama_anggaran']) ?></td>
-                                <td class="p-3"><?= e($r['tahun']) ?></td>
-                                <td class="p-3"><?= e($r['kode_mak']) ?></td>
-                                <td class="p-3"><?= e($r['nama_mak'] ?? '') ?></td>
-                                <td class="p-3 text-right font-medium">Rp <?= number_format((float)$r['jumlah'], 0, ',', '.') ?></td>
-                                <td class="p-3"><?= e($r['keterangan']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['tanggal']) ?></td>
+                                <td class="p-3 font-medium text-gray-900 dark:text-gray-100"><?= e($r['nomor_kuintasi']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['kode_anggaran']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['nama_anggaran']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['tahun']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['kode_mak']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['nama_mak'] ?? '') ?></td>
+                                <td class="p-3 text-right font-medium text-gray-900 dark:text-gray-100">Rp <?= number_format((float)$r['jumlah'], 0, ',', '.') ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['keterangan']) ?></td>
                                 <?php if ((auth_user()['role'] ?? '') === 'admin'): ?>
                                     <td class="p-3 text-center">
                                         <div class="flex justify-center gap-1">
@@ -477,10 +586,10 @@ if (isset($_GET['edit']) && $_GET['edit']) {
                                     </td>
                                 <?php endif; ?>
                             <?php elseif ($active_tab === 'anggaran'): ?>
-                                <td class="p-3 font-medium"><?= e($r['kode_anggaran']) ?></td>
-                                <td class="p-3"><?= e($r['nama_anggaran']) ?></td>
-                                <td class="p-3 text-right font-medium">Rp <?= number_format((float)$r['total_anggaran'], 0, ',', '.') ?></td>
-                                <td class="p-3"><?= e($r['tahun']) ?></td>
+                                <td class="p-3 font-medium text-gray-900 dark:text-gray-100"><?= e($r['kode_anggaran']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['nama_anggaran']) ?></td>
+                                <td class="p-3 text-right font-medium text-gray-900 dark:text-gray-100">Rp <?= number_format((float)$r['total_anggaran'], 0, ',', '.') ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['tahun']) ?></td>
                                 <?php if ((auth_user()['role'] ?? '') === 'admin'): ?>
                                     <td class="p-3 text-center">
                                         <div class="flex justify-center gap-1">
@@ -503,15 +612,15 @@ if (isset($_GET['edit']) && $_GET['edit']) {
                                     </td>
                                 <?php endif; ?>
                             <?php else: ?>
-                                <td class="p-3"><?= e($r['tanggal']) ?></td>
-                                <td class="p-3 font-medium"><?= e($r['nomor_kuintasi']) ?></td>
-                                <td class="p-3"><?= e($r['kode_anggaran']) ?></td>
-                                <td class="p-3"><?= e($r['nama_anggaran']) ?></td>
-                                <td class="p-3"><?= e($r['tahun']) ?></td>
-                                <td class="p-3"><?= e($r['kode_mak']) ?></td>
-                                <td class="p-3"><?= e($r['nama_mak'] ?? '') ?></td>
-                                <td class="p-3 text-right font-medium">Rp <?= number_format((float)$r['jumlah'], 0, ',', '.') ?></td>
-                                <td class="p-3"><?= e($r['keterangan']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['tanggal']) ?></td>
+                                <td class="p-3 font-medium text-gray-900 dark:text-gray-100"><?= e($r['nomor_kuintasi']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['kode_anggaran']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['nama_anggaran']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['tahun']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['kode_mak']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['nama_mak'] ?? '') ?></td>
+                                <td class="p-3 text-right font-medium text-gray-900 dark:text-gray-100">Rp <?= number_format((float)$r['jumlah'], 0, ',', '.') ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['keterangan']) ?></td>
                             <?php endif; ?>
                         </tr>
                     <?php endforeach; ?>
@@ -520,9 +629,9 @@ if (isset($_GET['edit']) && $_GET['edit']) {
         </div>
 
         <!-- Pagination -->
-        <div class="flex flex-col sm:flex-row justify-between items-center px-4 py-3 bg-gray-50 border-t text-sm">
+        <div class="flex flex-col sm:flex-row justify-between items-center px-4 py-3 bg-gray-50 dark:bg-gray-700 border-t text-sm">
             <div class="mb-2 sm:mb-0">
-                <span class="text-gray-700">
+                <span class="text-gray-700 dark:text-gray-300">
                     Total Data: <span class="font-semibold"><?= number_format($total, 0, ',', '.') ?></span>
                 </span>
             </div>
@@ -539,135 +648,94 @@ if (isset($_GET['edit']) && $_GET['edit']) {
                 if ($page > 1):
                     $paginationParams['page'] = $page - 1;
                 ?>
-                    <a class="px-3 py-2 text-sm border rounded bg-white text-gray-700 hover:bg-gray-50 transition-colors" 
+                    <a class="px-3 py-2 text-sm border rounded bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" 
                        href="?<?= build_query($paginationParams) ?>">
                         <i class="fas fa-chevron-left"></i>
                     </a>
                 <?php endif; ?>
-
+                
+               
                 <?php for ($i = $startPage; $i <= $endPage; $i++): 
                     $paginationParams['page'] = $i;
                 ?>
-                    <a class="px-3 py-2 text-sm border rounded transition-colors <?= $i == $page ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 hover:bg-gray-50' ?>" 
-                       href="?<?= build_query($paginationParams) ?>"><?= $i ?></a>
+                    <a class="px-3 py-2 text-sm border rounded <?= $i == $page ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700' ?> transition-colors" 
+                       href="?<?= build_query($paginationParams) ?>">
+                        <?= $i ?>
+                    </a>
                 <?php endfor; ?>
-
-                <?php 
-                // Next button
-                if ($page < $totalPages):
+                
+              
+                <?php if ($page < $totalPages): 
                     $paginationParams['page'] = $page + 1;
                 ?>
-                    <a class="px-3 py-2 text-sm border rounded bg-white text-gray-700 hover:bg-gray-50 transition-colors" 
+                    <a class="px-3 py-2 text-sm border rounded bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" 
                        href="?<?= build_query($paginationParams) ?>">
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 <?php endif; ?>
             </div>
         </div>
-        
         <?php else: ?>
-        <div class="text-center py-12 px-4">
-            <div class="mb-4">
-                <i class="fas fa-inbox text-6xl text-gray-300"></i>
+            <div class="p-8 text-center text-gray-500 dark:text-gray-400">
+                <i class="fas fa-inbox text-4xl mb-4 text-gray-300"></i>
+                <p>Tidak ada data <?= $active_tab ?> yang ditemukan.</p>
             </div>
-            <?php if ($q): ?>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ditemukan data</h3>
-                <p class="text-gray-600 mb-4">Pencarian untuk "<strong><?= e($q) ?></strong>" tidak menghasilkan data.</p>
-                <a href="keuangan.php?tab=<?= e($active_tab) ?>" 
-                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                    <i class="fas fa-arrow-left mr-2"></i>Kembali ke semua data
-                </a>
-            <?php else: ?>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada data <?= $active_tab ?></h3>
-                <p class="text-gray-600 mb-4">Mulai dengan menambahkan data <?= $active_tab ?> pertama Anda.</p>
-                <?php if ((auth_user()['role'] ?? '') === 'admin'): ?>
-                    <?php if ($active_tab === 'anggaran'): ?>
-                        <button onclick="showModal('anggaranModal')" 
-                                class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                            <i class="fas fa-plus mr-2"></i>Tambahkan data anggaran
-                        </button>
-                    <?php elseif ($active_tab === 'pengeluaran'): ?>
-                        <button onclick="showModal('pengeluaranModal')" 
-                                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                            <i class="fas fa-plus mr-2"></i>Tambahkan data pengeluaran
-                        </button>
-                    <?php else: ?>
-                        <div class="space-x-2">
-                            <a href="keuangan.php?tab=anggaran" 
-                               class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                                <i class="fas fa-chart-line mr-2"></i>Lihat data anggaran
-                            </a>
-                            <a href="keuangan.php?tab=pengeluaran" 
-                               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                                <i class="fas fa-receipt mr-2"></i>Lihat data pengeluaran
-                            </a>
-                        </div>
-                    <?php endif; ?>
-                <?php endif; ?>
-            <?php endif; ?>
-        </div>
         <?php endif; ?>
     </div>
 </div>
 
 <!-- Modal Anggaran -->
-<div id="anggaranModal" class="modal fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
-    <div class="modal-content bg-white rounded-lg shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
-        <div class="modal-header bg-blue-600 text-white p-4 rounded-t-lg flex justify-between items-center">
-            <h3 class="text-lg font-semibold"><?= $edit_data ? 'Edit' : 'Tambah' ?> Anggaran</h3>
-            <button onclick="hideModal('anggaranModal')" class="text-white hover:text-gray-200">
+<div id="anggaranModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden transition-opacity duration-300">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div class="p-4 border-b dark:border-gray-700 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white"><?= $edit_data ? 'Edit' : 'Tambah' ?> Data Anggaran</h3>
+            <button onclick="hideModal('anggaranModal')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <form method="POST" class="p-4">
+        <form method="POST" class="p-4 space-y-4">
             <?= csrf_field() ?>
+            <input type="hidden" name="<?= $edit_data ? 'edit_anggaran' : 'tambah_anggaran' ?>" value="1">
+            
             <?php if ($edit_data): ?>
-                <input type="hidden" name="edit_anggaran" value="1">
+                <input type="hidden" name="kode_anggaran" value="<?= e($edit_data['kode_anggaran']) ?>">
+                <input type="hidden" name="tahun" value="<?= e($edit_data['tahun']) ?>">
             <?php else: ?>
-                <input type="hidden" name="tambah_anggaran" value="1">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kode Anggaran</label>
+                    <input type="text" name="kode_anggaran" required 
+                           class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                           value="<?= e($edit_data['kode_anggaran'] ?? '') ?>">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tahun</label>
+                    <input type="number" name="tahun" required min="2000" max="2100" 
+                           class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                           value="<?= e($edit_data['tahun'] ?? date('Y')) ?>">
+                </div>
             <?php endif; ?>
             
-            <div class="space-y-4">
-                <div>
-                    <label for="kode_anggaran" class="block text-sm font-medium text-gray-700 mb-1">Kode Anggaran</label>
-                    <input type="text" id="kode_anggaran" name="kode_anggaran" 
-                           value="<?= e($edit_data['kode_anggaran'] ?? '') ?>" 
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                           required <?= $edit_data ? 'readonly' : '' ?>>
-                </div>
-                
-                <div>
-                    <label for="nama_anggaran" class="block text-sm font-medium text-gray-700 mb-1">Nama Anggaran</label>
-                    <input type="text" id="nama_anggaran" name="nama_anggaran" 
-                           value="<?= e($edit_data['nama_anggaran'] ?? '') ?>" 
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                           required>
-                </div>
-                
-                <div>
-                    <label for="total_anggaran" class="block text-sm font-medium text-gray-700 mb-1">Total Anggaran</label>
-                    <input type="number" id="total_anggaran" name="total_anggaran" 
-                           value="<?= e($edit_data['total_anggaran'] ?? '') ?>" 
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                           required min="0" step="1000">
-                </div>
-                
-                <div>
-                    <label for="tahun" class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
-                    <input type="number" id="tahun" name="tahun" 
-                           value="<?= e($edit_data['tahun'] ?? date('Y')) ?>" 
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                           required min="2000" max="2100">
-                </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Anggaran</label>
+                <input type="text" name="nama_anggaran" required 
+                       class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       value="<?= e($edit_data['nama_anggaran'] ?? '') ?>">
             </div>
             
-            <div class="flex justify-end gap-2 mt-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Total Anggaran</label>
+                <input type="number" name="total_anggaran" required step="0.01" 
+                       class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       value="<?= e($edit_data['total_anggaran'] ?? '') ?>">
+            </div>
+            
+            <div class="flex justify-end gap-2 pt-4 border-t dark:border-gray-700">
                 <button type="button" onclick="hideModal('anggaranModal')" 
-                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+                        class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors">
                     Batal
                 </button>
                 <button type="submit" 
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                     <?= $edit_data ? 'Update' : 'Simpan' ?>
                 </button>
             </div>
@@ -675,102 +743,99 @@ if (isset($_GET['edit']) && $_GET['edit']) {
     </div>
 </div>
 
-<!-- Modal Pengeluaran -->
-<div id="pengeluaranModal" class="modal fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
-    <div class="modal-content bg-white rounded-lg shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
-        <div class="modal-header bg-blue-600 text-white p-4 rounded-t-lg flex justify-between items-center">
-            <h3 class="text-lg font-semibold"><?= $edit_data ? 'Edit' : 'Tambah' ?> Pengeluaran</h3>
-            <button onclick="hideModal('pengeluaranModal')" class="text-white hover:text-gray-200">
+<!-- Modal Pengeluaran   -->
+<div id="pengeluaranModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden transition-opacity duration-300">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div class="p-4 border-b dark:border-gray-700 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white"><?= $edit_data ? 'Edit' : 'Tambah' ?> Data Pengeluaran</h3>
+            <button onclick="hideModal('pengeluaranModal')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <form method="POST" class="p-4">
+        <form method="POST" class="p-4 space-y-3">
             <?= csrf_field() ?>
+            <input type="hidden" name="<?= $edit_data ? 'edit_pengeluaran' : 'tambah_pengeluaran' ?>" value="1">
+            
             <?php if ($edit_data): ?>
-                <input type="hidden" name="edit_pengeluaran" value="1">
+                <input type="hidden" name="nomor_kuintasi" value="<?= e($edit_data['nomor_kuintasi']) ?>">
             <?php else: ?>
-                <input type="hidden" name="tambah_pengeluaran" value="1">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nomor Kuitansi</label>
+                    <input type="text" name="nomor_kuintasi" required 
+                           class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                           value="<?= e($edit_data['nomor_kuintasi'] ?? '') ?>">
+                </div>
             <?php endif; ?>
             
-            <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                    <label for="nomor_kuintasi" class="block text-sm font-medium text-gray-700 mb-1">Nomor Kuitansi</label>
-                    <input type="text" id="nomor_kuintasi" name="nomor_kuintasi" 
-                           value="<?= e($edit_data['nomor_kuintasi'] ?? '') ?>" 
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                           required <?= $edit_data ? 'readonly' : '' ?>>
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kode Anggaran</label>
+    <select name="kode_anggaran" required 
+            class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+            id="kode_anggaran_select">
+        <option value="">Pilih Kode Anggaran</option>
+        <?php foreach ($anggaran_options as $opt): ?>
+            <option value="<?= e($opt['kode_anggaran']) ?>" 
+                    data-tahun="<?= e($opt['tahun']) ?>"
+                    <?= ($edit_data['kode_anggaran'] ?? '') == $opt['kode_anggaran'] && ($edit_data['tahun'] ?? '') == $opt['tahun'] ? 'selected' : '' ?>>
+                <?= e($opt['kode_anggaran']) ?> - <?= e($opt['nama_anggaran']) ?> (<?= e($opt['tahun']) ?>)
+            </option>
+        <?php endforeach; ?>
+    </select>
+</div>          
+                <!-- TAMBAHKAN INPUT HIDDEN UNTUK TAHUN -->
+<input type="hidden" name="tahun" id="tahun_hidden" value="<?= e($edit_data['tahun'] ?? '') ?>">
+<!-- TAMBAHKAN FIELD TAHUN UNTUK DISPLAY SAJA -->
+<div>
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tahun</label>
+    <input type="text" id="tahun_display" readonly 
+           class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-gray-100 dark:bg-gray-700 dark:text-white"
+           value="<?= e($edit_data['tahun'] ?? '') ?>">
+</div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah</label>
+                    <input type="number" name="jumlah" required step="0.01" 
+                           class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                           value="<?= e($edit_data['jumlah'] ?? '') ?>">
                 </div>
                 
                 <div>
-                    <label for="kode_anggaran" class="block text-sm font-medium text-gray-700 mb-1">Kode Anggaran</label>
-                    <select id="kode_anggaran" name="kode_anggaran" 
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                            required>
-                        <option value="">-- Pilih Kode Anggaran --</option>
-                        <?php foreach ($anggaran_options as $option): ?>
-                            <option value="<?= e($option['kode_anggaran']) ?>" 
-                                    data-tahun="<?= e($option['tahun']) ?>"
-                                    <?= ($edit_data['kode_anggaran'] ?? '') === $option['kode_anggaran'] && ($edit_data['tahun'] ?? '') === $option['tahun'] ? 'selected' : '' ?>>
-                                <?= e($option['kode_anggaran']) ?> - <?= e($option['nama_anggaran']) ?> (<?= e($option['tahun']) ?>)
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                
-                <div>
-                    <label for="tahun" class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
-                    <input type="number" id="tahun" name="tahun" 
-                           value="<?= e($edit_data['tahun'] ?? date('Y')) ?>" 
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                           required min="2000" max="2100">
-                </div>
-                
-                <div>
-                    <label for="jumlah" class="block text-sm font-medium text-gray-700 mb-1">Jumlah</label>
-                    <input type="number" id="jumlah" name="jumlah" 
-                           value="<?= e($edit_data['jumlah'] ?? '') ?>" 
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                           required min="0" step="1000">
-                </div>
-                
-                <div>
-                    <label for="tanggal" class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
-                    <input type="date" id="tanggal" name="tanggal" 
-                           value="<?= e($edit_data['tanggal'] ?? date('Y-m-d')) ?>" 
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                           required>
-                </div>
-                
-                <div>
-                    <label for="kode_mak" class="block text-sm font-medium text-gray-700 mb-1">Kode MAK</label>
-                    <select id="kode_mak" name="kode_mak" 
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                            required>
-                        <option value="">-- Pilih Kode MAK --</option>
-                        <?php foreach ($mak_options as $option): ?>
-                            <option value="<?= e($option['kode_mak']) ?>" 
-                                    <?= ($edit_data['kode_mak'] ?? '') === $option['kode_mak'] ? 'selected' : '' ?>>
-                                <?= e($option['kode_mak']) ?> - <?= e($option['nama_mak']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                
-                <div>
-                    <label for="keterangan" class="block text-sm font-medium text-gray-700 mb-1">Keterangan</label>
-                    <textarea id="keterangan" name="keterangan" 
-                              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                              rows="3"><?= e($edit_data['keterangan'] ?? '') ?></textarea>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tanggal</label>
+                    <input type="date" name="tanggal" required 
+                           class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                           value="<?= e($edit_data['tanggal'] ?? date('Y-m-d')) ?>">
                 </div>
             </div>
             
-            <div class="flex justify-end gap-2 mt-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kode MAK</label>
+                <select name="kode_mak" required 
+                        class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                    <option value="">Pilih Kode MAK</option>
+                    <?php foreach ($mak_options as $opt): ?>
+                        <option value="<?= e($opt['kode_mak']) ?>" 
+                                <?= ($edit_data['kode_mak'] ?? '') == $opt['kode_mak'] ? 'selected' : '' ?>>
+                            <?= e($opt['kode_mak']) ?> - <?= e($opt['nama_mak']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Keterangan</label>
+                <textarea name="keterangan" rows="2"
+                          class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"><?= e($edit_data['keterangan'] ?? '') ?></textarea>
+            </div>
+            
+            <div class="flex justify-end gap-2 pt-4 border-t dark:border-gray-700">
                 <button type="button" onclick="hideModal('pengeluaranModal')" 
-                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+                        class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors">
                     Batal
                 </button>
                 <button type="submit" 
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                     <?= $edit_data ? 'Update' : 'Simpan' ?>
                 </button>
             </div>
@@ -779,72 +844,96 @@ if (isset($_GET['edit']) && $_GET['edit']) {
 </div>
 
 <script>
-// Fungsi untuk menampilkan modal
+// Modal Functions
 function showModal(modalId) {
-    document.getElementById(modalId).classList.remove('hidden');
-    document.body.classList.add('overflow-hidden');
+    const modal = document.getElementById(modalId);
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.classList.add('opacity-100');
+        // Update tahun based on selected kode_anggaran when modal opens
+        if (modalId === 'pengeluaranModal') {
+            updateTahunFromAnggaran();
+        }
+    }, 10);
 }
 
-// Fungsi untuk menyembunyikan modal
 function hideModal(modalId) {
-    document.getElementById(modalId).classList.add('hidden');
-    document.body.classList.remove('overflow-hidden');
-    // Reset form jika modal ditutup
-    document.querySelector(`#${modalId} form`).reset();
+    const modal = document.getElementById(modalId);
+    modal.classList.remove('opacity-100');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        // Reset form jika modal ditutup
+        window.location.href = window.location.pathname + '?tab=' + '<?= $active_tab ?>';
+    }, 300);
 }
 
-// Fungsi untuk mengedit anggaran
+// Close modal when clicking outside
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('fixed')) {
+        hideModal(e.target.id);
+    }
+});
+
+// Edit Functions
 function editAnggaran(kode, tahun) {
-    // Redirect ke halaman dengan parameter edit
-    window.location.href = `keuangan.php?tab=anggaran&edit=1&kode=${encodeURIComponent(kode)}&tahun=${encodeURIComponent(tahun)}`;
+    window.location.href = '?tab=anggaran&edit=1&kode=' + encodeURIComponent(kode) + '&tahun=' + encodeURIComponent(tahun);
 }
 
-// Fungsi untuk mengedit pengeluaran
 function editPengeluaran(nomor) {
-    // Redirect ke halaman dengan parameter edit
-    window.location.href = `keuangan.php?tab=pengeluaran&edit=1&nomor=${encodeURIComponent(nomor)}`;
+    window.location.href = '?tab=pengeluaran&edit=1&nomor=' + encodeURIComponent(nomor);
 }
 
-// Event listener untuk tombol escape
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        const modals = document.querySelectorAll('.modal');
-        modals.forEach(modal => {
-            if (!modal.classList.contains('hidden')) {
-                hideModal(modal.id);
+// Auto-update tahun when kode_anggaran changes in pengeluaran modal
+// document.querySelector('select[name="kode_anggaran"]')?.addEventListener('change', function() {
+//     const selectedOption = this.options[this.selectedIndex];
+//     const tahun = selectedOption.getAttribute('data-tahun');
+//     if (tahun) {
+//         document.querySelector('select[name="tahun"]').value = tahun;
+//     }
+// });
+
+// Auto-update tahun when kode_anggaran changes in pengeluaran modal
+function updateTahunFromAnggaran() {
+    const kodeAnggaranSelect = document.querySelector('select[name="kode_anggaran"]');
+    const tahunHidden = document.getElementById('tahun_hidden');
+    const tahunDisplay = document.getElementById('tahun_display');
+    
+    if (kodeAnggaranSelect && tahunHidden && tahunDisplay) {
+        kodeAnggaranSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const tahun = selectedOption.getAttribute('data-tahun');
+            if (tahun) {
+                tahunHidden.value = tahun;
+                tahunDisplay.value = tahun;
             }
         });
-    }
-});
-
-// Event listener untuk klik di luar modal
-document.addEventListener('click', function(e) {
-    const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => {
-        if (e.target === modal) {
-            hideModal(modal.id);
+        
+        // Also trigger on page load if kode_anggaran is already selected
+        if (kodeAnggaranSelect.value) {
+            const selectedOption = kodeAnggaranSelect.options[kodeAnggaranSelect.selectedIndex];
+            const tahun = selectedOption.getAttribute('data-tahun');
+            if (tahun) {
+                tahunHidden.value = tahun;
+                tahunDisplay.value = tahun;
+            }
         }
-    });
-});
-
-// Auto-sync tahun dengan kode anggaran
-document.getElementById('kode_anggaran')?.addEventListener('change', function() {
-    const selectedOption = this.options[this.selectedIndex];
-    const tahun = selectedOption.getAttribute('data-tahun');
-    if (tahun) {
-        document.getElementById('tahun').value = tahun;
     }
+}
+
+// Panggil fungsi saat modal dibuka atau halaman dimuat
+document.addEventListener('DOMContentLoaded', function() {
+    updateTahunFromAnggaran();
 });
 
-// Tampilkan modal jika ada data edit
+// Show modal if there's edit data
 <?php if ($edit_data): ?>
-    window.addEventListener('DOMContentLoaded', function() {
+    window.onload = function() {
         <?php if ($active_tab === 'anggaran'): ?>
             showModal('anggaranModal');
         <?php elseif ($active_tab === 'pengeluaran'): ?>
             showModal('pengeluaranModal');
         <?php endif; ?>
-    });
+    };
 <?php endif; ?>
 </script>
 

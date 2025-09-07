@@ -1,487 +1,159 @@
 <?php
+/**
+ * Memuat file konfigurasi utama aplikasi.
+ */
 require_once __DIR__ . '/../inc/config.php';
+
+/**
+ * Memuat fungsi-fungsi otentikasi pengguna.
+ */
 require_once __DIR__ . '/../inc/auth.php';
+
+/**
+ * Memuat fungsi-fungsi untuk perlindungan CSRF.
+ */
 require_once __DIR__ . '/../inc/csrf.php';
+
+/**
+ * Memuat helper umum untuk aplikasi.
+ */
 require_once __DIR__ . '/../inc/helpers.php';
 
+// Inisialisasi variabel error untuk menampung pesan error login
 $error = null;
+
+/**
+ * Proses login ketika form dikirimkan (POST request).
+ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Verifikasi token CSRF untuk keamanan
     csrf_verify();
+
+    // Proses login dengan username dan password yang diberikan
     $ok = login(trim($_POST['username'] ?? ''), (string)($_POST['password'] ?? ''));
-    if ($ok) redirect('dashboard.php');
+
+    // Jika login berhasil, redirect ke dashboard
+    if ($ok) {
+        redirect('dashboard.php');
+    }
+
+    // Jika login gagal, tampilkan pesan error
     $error = 'Username atau password salah';
 }
+
+// Set judul halaman
 $title = 'Login - MEDAN MELINDUNGI';
+
+// Memuat layout header
 require __DIR__ . '/../inc/layout_header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - MEDAN MELINDUNGI</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-red: #C6100D;
-            --primary-blue: #241E4E;
-            --accent-red: #E53E3E;
-            --accent-blue: #3182CE;
-            --light-bg: #F7FAFC;
-            --dark-bg: #1A202C;
-            --text-light: #2D3748;
-            --text-dark: #E2E8F0;
-        }
-        
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            min-height: 100vh;
-        }
-        
-        .login-container {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .login-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-        }
-        
-        .login-card {
-            background: white;
-            border-radius: 1.5rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            overflow: hidden;
-            width: 100%;
-            max-width: 1000px;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        @media (min-width: 768px) {
-            .login-card {
-                flex-direction: row;
-                min-height: 550px;
-            }
-        }
-        
-        .login-hero {
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-red) 100%);
-            color: white;
-            padding: 2.5rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        @media (min-width: 768px) {
-            .login-hero {
-                width: 45%;
-            }
-        }
-        
-        .login-hero::before {
-            content: '';
-            position: absolute;
-            top: -50px;
-            right: -50px;
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
-        .login-hero::after {
-            content: '';
-            position: absolute;
-            bottom: -80px;
-            left: -80px;
-            width: 250px;
-            height: 250px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
-        .hero-logo {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 1.5rem;
-            border-radius: 1rem;
-            margin-bottom: 2rem;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .hero-logo img {
-            width: 80px;
-            height: auto;
-        }
-        
-        .hero-title {
-            font-size: 1.875rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            position: relative;
-            z-index: 10;
-        }
-        
-        .hero-subtitle {
-            opacity: 0.9;
-            margin-bottom: 2rem;
-            position: relative;
-            z-index: 10;
-        }
-        
-        .hero-features {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-top: 2rem;
-            position: relative;
-            z-index: 10;
-        }
-        
-        .feature-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            background: rgba(255, 255, 255, 0.15);
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .feature-icon {
-            background: white;
-            color: var(--primary-blue);
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        
-        .feature-text {
-            font-size: 0.875rem;
-        }
-        
-        .login-form-section {
-            padding: 2.5rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        
-        @media (min-width: 768px) {
-            .login-form-section {
-                width: 55%;
-            }
-        }
-        
-        .form-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        
-        .form-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-blue);
-            margin-bottom: 0.5rem;
-        }
-        
-        .form-subtitle {
-            color: #64748b;
-            font-size: 0.875rem;
-        }
-        
-        .form-subtitle a {
-            color: var(--primary-red);
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .form-subtitle a:hover {
-            text-decoration: underline;
-        }
-        
-        .error-alert {
-            background-color: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #dc2626;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .error-icon {
-            flex-shrink: 0;
-        }
-        
-        .input-group {
-            margin-bottom: 1.25rem;
-        }
-        
-        .input-label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--text-light);
-            margin-bottom: 0.5rem;
-        }
-        
-        .input-wrapper {
-            position: relative;
-        }
-        
-        .input-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 0.75rem 1rem 0.75rem 2.75rem;
-            border: 1px solid #cbd5e1;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            transition: all 0.2s;
-            background: white;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(36, 30, 78, 0.1);
-        }
-        
-        .form-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            font-size: 0.875rem;
-        }
-        
-        .remember-me {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .remember-checkbox {
-            width: 1rem;
-            height: 1rem;
-            border-radius: 0.25rem;
-            border: 1px solid #cbd5e1;
-            accent-color: var(--primary-blue);
-        }
-        
-        .forgot-password {
-            color: var(--primary-red);
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .forgot-password:hover {
-            text-decoration: underline;
-        }
-        
-        .login-button {
-            width: 100%;
-            padding: 0.75rem 1.5rem;
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-red) 100%);
-            color: white;
-            border: none;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        
-        .login-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        
-        .login-button:active {
-            transform: translateY(0);
-        }
-        
-        .copyright {
-            text-align: center;
-            margin-top: 2rem;
-            color: #64748b;
-            font-size: 0.75rem;
-        }
-        
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            .login-card {
-                background: #1e293b;
-            }
-            
-            .form-title {
-                color: white;
-            }
-            
-            .form-subtitle {
-                color: #cbd5e1;
-            }
-            
-            .input-label {
-                color: #e2e8f0;
-            }
-            
-            .form-input {
-                background: #334155;
-                border-color: #475569;
-                color: white;
-            }
-            
-            .form-input:focus {
-                border-color: var(--primary-blue);
-                box-shadow: 0 0 0 3px rgba(36, 30, 78, 0.3);
-            }
-            
-            .input-icon {
-                color: #94a3b8;
-            }
-            
-            .error-alert {
-                background-color: #7f1d1d;
-                border-color: #b91c1c;
-                color: #fecaca;
-            }
-        }
-    </style>
-</head>
-<body>
-<div class="login-container">
-    <div class="login-content">
-        <div class="login-card">
-            <!-- Hero Section -->
-            <div class="login-hero">
-                <div class="hero-logo">
+<div class="bg-gray-50 dark:bg-gray-900 h-screen w-screen flex justify-center items-center p-4">
+    <div class="bg-white dark:bg-gray-800 px-6 py-8 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md w-full max-w-md">
+        <!-- Logo dan Judul -->
+        <div class="flex flex-col items-center justify-center mb-6">
+            <div class="w-16 h-16 bg-gradient-to-br from-primary-blue to-primary-red rounded-full flex items-center justify-center mb-3">
+                <!-- <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> -->
                     <img src="../inc/img/logo.png" alt="MEDAN MELINDUNGI Logo">
-                </div>
-                <h1 class="hero-title">MEDAN MELINDUNGI</h1>
-                <p class="hero-subtitle">Sistem Informasi Terpadu untuk Layanan Publik</p>
-                
-                <div class="hero-features">
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <p class="feature-text">Keamanan data terjamin dengan sistem enkripsi terbaru</p>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <i class="fas fa-bolt"></i>
-                        </div>
-                        <p class="feature-text">Akses cepat dan responsif dari berbagai perangkat</p>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <i class="fas fa-lock"></i>
-                        </div>
-                        <p class="feature-text">Privasi dan perlindungan data pengguna terjamin</p>
-                    </div>
-                </div>
+                    <!-- <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg> -->
             </div>
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white">MEDAN MELINDUNGI</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 text-center">Sistem Informasi Terpadu untuk Layanan Internal</p>
+        </div>
+
+        <!-- Form Login -->
+        <form method="post">
+            <?= csrf_field() ?>
             
-            <!-- Login Form Section -->
-            <div class="login-form-section">
-                <div class="form-header">
-                    <h2 class="form-title">Masuk ke Akun Anda</h2>
-                    <p class="form-subtitle">
-                        Atau <a href="#">hubungi administrator</a> untuk bantuan
-                    </p>
+            <!-- Pesan Error -->
+            <?php if ($error): ?>
+            <div class="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-md flex justify-between items-center">
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="text-red-700 dark:text-red-300 text-sm"><?= e($error) ?></span>
                 </div>
-                
-                <form method="post">
-                    <?= csrf_field() ?>
-                    <?php if ($error): ?>
-                        <div class="error-alert">
-                            <div class="error-icon">
-                                <i class="fas fa-exclamation-circle"></i>
-                            </div>
-                            <div><?= e($error) ?></div>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <div class="input-group">
-                        <label for="username" class="input-label">Username</label>
-                        <div class="input-wrapper">
-                            <div class="input-icon">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <input id="username" name="username" type="text" autocomplete="username" required class="form-input" placeholder="Masukkan username">
-                        </div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </div>
+            <?php endif; ?>
+
+            <!-- Field Username -->
+            <div class="flex flex-col mb-4">
+                <label class="text-xs text-gray-500 dark:text-gray-400 mb-1">Username</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
                     </div>
-                    
-                    <div class="input-group">
-                        <label for="password" class="input-label">Password</label>
-                        <div class="input-wrapper">
-                            <div class="input-icon">
-                                <i class="fas fa-lock"></i>
-                            </div>
-                            <input id="password" name="password" type="password" autocomplete="current-password" required class="form-input" placeholder="Masukkan password">
-                        </div>
-                    </div>
-                    
-                    <div class="form-options">
-                        <label class="remember-me">
-                            <input id="remember" name="remember" type="checkbox" class="remember-checkbox">
-                            <span>Ingat saya</span>
-                        </label>
-                        
-                        <a href="#" class="forgot-password">Lupa password?</a>
-                    </div>
-                    
-                    <button type="submit" class="login-button">
-                        <i class="fas fa-sign-in-alt"></i>
-                        Masuk
-                    </button>
-                </form>
-                
-                <div class="copyright">
-                    © <?= date('Y') ?> MEDAN MELINDUNGI. All rights reserved.
+                    <input 
+                        id="username" 
+                        name="username" 
+                        type="text" 
+                        autocomplete="username" 
+                        required 
+                        class="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent dark:bg-gray-700 dark:text-white" 
+                        placeholder="Masukkan username"
+                        value="<?= e($_POST['username'] ?? '') ?>"
+                    />
                 </div>
             </div>
+
+            <!-- Field Password -->
+            <div class="flex flex-col mb-6">
+                <label class="text-xs text-gray-500 dark:text-gray-400 mb-1">Password</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                    <input 
+                        id="password" 
+                        name="password" 
+                        type="password" 
+                        autocomplete="current-password" 
+                        required 
+                        class="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent dark:bg-gray-700 dark:text-white" 
+                        placeholder="Masukkan password"
+                    />
+                </div>
+            </div>
+
+            <!-- Opsi Remember Me -->
+            <div class="flex items-center mb-6">
+                <input 
+                    id="remember" 
+                    name="remember" 
+                    type="checkbox" 
+                    class="h-4 w-4 text-primary-blue focus:ring-primary-blue border-gray-300 rounded"
+                />
+                <label for="remember" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Ingat saya</label>
+            </div>
+
+            <!-- Tombol Submit -->
+            <div class="flex flex-col items-center justify-center">
+                <button type="submit" class="w-full py-2 px-4 bg-gradient-to-r from-primary-blue to-primary-red text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-blue transition-all duration-200 hover:opacity-90 shadow-md">
+                    Masuk
+                </button>
+                
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-4 text-center">
+                    Butuh bantuan? 
+                    <a href="#" class="font-medium text-primary-blue hover:text-primary-red dark:text-blue-400">Hubungi administrator</a>
+                </p>
+            </div>
+        </form>
+
+        <!-- Copyright -->
+        <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <p class="text-xs text-gray-500 dark:text-gray-400 text-center">
+                &copy; <?= date('Y'); ?> LPSK App &mdash; Created by Intern Students Of The Faculty of Computer Science, Catholic University of Santo Tomas
+            </p>
         </div>
     </div>
 </div>
-</body>
-</html>
 
-<?php require __DIR__ . '/../inc/layout_footer.php'; ?>

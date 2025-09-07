@@ -1,23 +1,42 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// =======================================================
+// Konfigurasi Error Reporting untuk Pengembangan
+// =======================================================
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
 
+// =======================================================
+// Import File Konfigurasi dan Library yang Dibutuhkan
+// =======================================================
 require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/../inc/auth.php';
 require_once __DIR__ . '/../inc/db.php';
 require_once __DIR__ . '/../inc/helpers.php';
 require_once __DIR__ . '/../inc/csrf.php';
 
+// =======================================================
+// Autentikasi: Pastikan User Sudah Login
+// =======================================================
 require_login();
+
+// =======================================================
+// Ambil Metadata Tabel dari Konfigurasi
+// =======================================================
 $tables = require __DIR__ . '/../inc/table_meta.php';
 
+// =======================================================
+// Penentuan Tabel Aktif Berdasarkan Parameter GET
+// =======================================================
 $t = $_GET['t'] ?? 'permohonan';
 if (!isset($tables[$t]) || $t === 'users') {
     http_response_code(404);
     exit('Not Found');
 }
 
+// =======================================================
+// Ambil Metadata Tabel Aktif
+// =======================================================
 $meta       = $tables[$t];
 $pk         = $meta['pk'];
 $colLabels  = $meta['columns'];
@@ -27,9 +46,14 @@ $filters    = $meta['filters'] ?? [];
 $joins      = $meta['joins'] ?? [];
 $title      = ucfirst($t);
 
+// =======================================================
+// Ambil Role User Saat Ini
+// =======================================================
 $role = auth_user()['role'] ?? 'user';
 
-// POST Handler - PERBAIKAN UTAMA
+// =======================================================
+// Handler untuk Request POST (Create, Update, Delete)
+// =======================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
     if ($role !== 'admin') {
@@ -39,10 +63,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
     try {
+        // -----------------------------------------------
+        // Proses Create atau Update Data
+        // -----------------------------------------------
         if ($action === 'create' || $action === 'update') {
             $data = [];
             foreach (array_keys($colLabels) as $c) {
-                // Skip joined columns (they are read-only)
+                // Lewati kolom hasil join (read-only)
                 $isJoined = false;
                 foreach ($joins as $joinTable => $joinInfo) {
                     if (in_array($c, $joinInfo[2])) {
@@ -52,32 +79,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 if ($isJoined) continue;
 
-                // PERBAIKAN: Gunakan nama kolom asli
+                // Ambil nilai dari POST, gunakan nama kolom asli
                 $v = $_POST[$c] ?? null;
-                
                 error_log("Field $c: " . var_export($v, true));
-                
                 if (is_string($v)) $v = trim($v);
                 $data[$c] = $v === '' ? null : $v;
             }
 
             error_log("Data to save: " . print_r($data, true));
 
-            // Validation
+            // Validasi: Primary Key harus diisi saat create
             if ($action === 'create' && empty($data[$pk])) {
                 $_SESSION['error'] = "Primary key ($pk) is required";
                 redirect("table.php?t=$t");
             }
 
+            // -------------------------------------------
+            // Query Insert Data Baru
+            // -------------------------------------------
             if ($action === 'create') {
                 $sql = "INSERT INTO $t (" . implode(',', array_keys($data)) . ") VALUES (" . implode(',', array_fill(0, count($data), '?')) . ")";
                 error_log("SQL: $sql");
                 error_log("Params: " . print_r(array_values($data), true));
-                
                 $stmt = db()->prepare($sql);
                 $stmt->execute(array_values($data));
                 $_SESSION['success'] = "Data created successfully";
             } else {
+                // ---------------------------------------
+                // Query Update Data Berdasarkan Primary Key
+                // ---------------------------------------
                 $id = $_POST[$pk] ?? null;
                 if (!$id) {
                     $_SESSION['error'] = "ID required";
@@ -93,16 +123,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $sql = "UPDATE $t SET " . implode(',', $set) . " WHERE $pk=?";
                 error_log("SQL: $sql");
                 error_log("Params: " . print_r($params, true));
-                
                 $stmt = db()->prepare($sql);
                 $stmt->execute($params);
                 $_SESSION['success'] = "Data updated successfully";
             }
-        
-        } elseif ($action === 'delete') {
+        }
+        // -----------------------------------------------
+        // Proses Delete Data
+        // -----------------------------------------------
+        elseif ($action === 'delete') {
             $id = $_POST[$pk] ?? null;
             if ($id) {
-                // Cek foreign key sebelum hapus
+                // Cek foreign key sebelum hapus pada tabel permohonan
                 if ($t === 'permohonan') {
                     $checkLayanan = db()->prepare("SELECT COUNT(*) FROM layanan WHERE no_reg_medan = ?");
                     $checkLayanan->execute([$id]);
@@ -120,11 +152,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } catch (PDOException $e) {
         error_log("Database error: " . $e->getMessage());
-        
-        // User-friendly error messages
+        // Penanganan error database yang user-friendly
         $errorCode = $e->getCode();
         $errorMessage = $e->getMessage();
-        
         if (strpos($errorMessage, 'foreign key constraint') !== false) {
             $_SESSION['error'] = "Tidak dapat menghapus data karena masih digunakan di tabel lain";
         } elseif (strpos($errorMessage, 'duplicate entry') !== false) {
@@ -138,15 +168,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect("table.php?t=$t");
 }
 
-// PERBAIKAN FUNGSI get_input_type
+// =======================================================
+// Fungsi: Menentukan Tipe Input Form Berdasarkan Kolom
+// =======================================================
 function get_input_type($column, $value = '')
 {
-    // Handle URL field
+    // Kolom khusus untuk URL
     if ($column === 'link_berkas_permohonan') {
         return ['type' => 'url'];
     }
 
-    // PERBAIKAN: Daftar lengkap kolom enum dengan data yang benar
+    // Daftar enum kolom beserta opsi-nya
     $enum_columns = [
         'jenis_kelamin'         => ['L' => 'Laki-laki', 'P' => 'Perempuan'],
         'status_hukum'          => [
@@ -217,11 +249,12 @@ function get_input_type($column, $value = '')
         'aktif'                 => [1 => 'Aktif', 0 => 'Tidak Aktif']
     ];
 
+    // Jika kolom enum, kembalikan tipe select beserta opsi
     if (isset($enum_columns[$column])) {
         return ['type' => 'select', 'options' => $enum_columns[$column]];
     }
 
-    // Handle date fields
+    // Kolom bertipe tanggal
     if (
         strpos($column, 'tanggal') !== false ||
         strpos($column, 'tgl') !== false ||
@@ -230,13 +263,13 @@ function get_input_type($column, $value = '')
         return ['type' => 'date'];
     }
 
-    // Handle numeric fields
+    // Kolom bertipe numerik
     $numeric_columns = ['total_anggaran', 'jumlah'];
     if (in_array($column, $numeric_columns)) {
         return ['type' => 'number', 'step' => '0.01'];
     }
 
-    // Handle foreign keys
+    // Kolom foreign key: id_pegawai
     if ($column === 'id_pegawai') {
         try {
             $stmt = db()->query("SELECT id_pegawai, nama_pegawai FROM pegawai ORDER BY nama_pegawai");
@@ -251,6 +284,7 @@ function get_input_type($column, $value = '')
         }
     }
 
+    // Kolom foreign key: kode_mak
     if ($column === 'kode_mak') {
         try {
             $stmt = db()->query("SELECT kode_mak, nama_mak FROM mak ORDER BY nama_mak");
@@ -265,6 +299,7 @@ function get_input_type($column, $value = '')
         }
     }
 
+    // Kolom foreign key: kode_anggaran
     if ($column === 'kode_anggaran') {
         try {
             $stmt = db()->query("SELECT kode_anggaran, nama_anggaran FROM anggaran ORDER BY nama_anggaran");
@@ -279,17 +314,20 @@ function get_input_type($column, $value = '')
         }
     }
 
-    // Handle tahun di anggaran
+    // Kolom tahun: dropdown tahun
     if ($column === 'tahun') {
         $currentYear = date('Y');
         $years = range($currentYear - 10, $currentYear + 5);
         return ['type' => 'select', 'options' => array_combine($years, $years)];
     }
 
+    // Default: text
     return ['type' => 'text'];
 }
 
-// FUNGSI TAMBAHAN: get_field_help
+// =======================================================
+// Fungsi: Bantuan/Tooltip untuk Setiap Kolom
+// =======================================================
 function get_field_help($column) {
     $help_messages = [
         'no_reg_medan' => 'Nomor registrasi unik dari Medan',
@@ -309,7 +347,6 @@ function get_field_help($column) {
         'kab_kota_pemohon' => 'Kabupaten/Kota asal pemohon',
         'provinsi_pemohon' => 'Provinsi asal pemohon',
         'tempat_permohonan' => 'Tempat permohonan diajukan',
-        
         // Penelaahan
         'no_registrasi' => 'Nomor registrasi penelaahan',
         'proses_hukum' => 'Tahap proses hukum saat ini',
@@ -319,7 +356,6 @@ function get_field_help($column) {
         'waktu_tambahan' => 'Waktu tambahan jika diperlukan',
         'nama_ta_penalaahan' => 'Nama Technical Assistant penelaahan',
         'risalah_laporan' => 'Status risalah laporan',
-        
         // Layanan
         'no_kep_smpl' => 'Nomor Keputusan SMPL',
         'no_spk' => 'Nomor SPK (Surat Perintah Kerja)',
@@ -330,16 +366,17 @@ function get_field_help($column) {
         'tgl_mulai_layanan' => 'Tanggal mulai pemberian layanan',
         'masa_layanan' => 'Masa berlaku layanan',
         'tambahan_masa_layanan' => 'Perpanjangan masa layanan jika ada',
-        'tgl_berakhir_layanan' => 'Tanggal berakhirnya layanan',
+        'tgl_berakhir_layanan' => 'Tanggal berakhirnya layanan (otomatis terhitung tidak perlu diisi)',
         'wilayah_hukum' => 'Wilayah hukum yang menangani',
         'nama_ta_layanan' => 'Nama Technical Assistant layanan',
         'status' => 'Status layanan saat ini'
     ];
-    
     return $help_messages[$column] ?? 'Isikan data yang sesuai';
 }
 
-// FUNGSI TAMBAHAN: is_required_field
+// =======================================================
+// Fungsi: Menentukan Field yang Wajib Diisi
+// =======================================================
 function is_required_field($column, $pk) {
     $required_fields = [
         'permohonan' => ['no_reg_medan', 'nama_pemohon', 'jenis_kelamin', 'status_hukum', 
@@ -351,21 +388,32 @@ function is_required_field($column, $pk) {
                      'nama_terlindung', 'jenis_tindak_pidana', 'id_pegawai', 'tgl_mulai_layanan', 
                      'masa_layanan', 'nama_ta_layanan']
     ];
-    
     return in_array($column, $required_fields[$_GET['t'] ?? 'permohonan']) && $column !== $pk;
 }
 
-// Get per_page value from request or use default
+// =======================================================
+// Logging untuk Debugging Pagination dan Parameter GET
+// =======================================================
+error_log("Per page value: " . $per_page);
+error_log("GET parameters: " . print_r($_GET, true));
+
+// =======================================================
+// Konfigurasi Pilihan Baris per Halaman (Pagination)
+// =======================================================
 $per_page_options = [10, 20, 50, 100];
 $per_page = isset($_GET['per_page']) && in_array((int)$_GET['per_page'], $per_page_options)
     ? (int)$_GET['per_page']
-    : 20;
+    : 10;
 
-// Get sort parameters
+error_log("Final per page: " . $per_page);
+
+// =======================================================
+// Ambil Parameter Sorting dari GET
+// =======================================================
 $sort_column = $_GET['sort'] ?? $pk;
 $sort_order = $_GET['order'] ?? 'DESC';
 
-// Validate sort column - include joined columns
+// Validasi kolom sorting (termasuk kolom hasil join)
 $valid_columns = array_keys($colLabels);
 foreach ($joins as $joinInfo) {
     $valid_columns = array_merge($valid_columns, $joinInfo[2]);
@@ -374,10 +422,10 @@ if (!in_array($sort_column, $valid_columns)) {
     $sort_column = $pk;
 }
 
-// Validate sort order
+// Validasi urutan sorting
 $sort_order = strtoupper($sort_order) === 'ASC' ? 'ASC' : 'DESC';
 
-// Build ORDER BY clause - handle joined columns
+// Tentukan tabel untuk ORDER BY (jika kolom join)
 $orderByTable = $t;
 $orderByColumn = $sort_column;
 foreach ($joins as $joinTable => $joinInfo) {
@@ -388,13 +436,18 @@ foreach ($joins as $joinTable => $joinInfo) {
 }
 $orderBy = "$orderByTable.$sort_column $sort_order";
 
-// Listing with JOIN support
-list($page, $per, $offset) = paginate_params($per_page);
+// =======================================================
+// Proses Pagination dan Query Data
+// =======================================================
+list($page, $per_page, $offset) = paginate_params($per_page);
+error_log("Page: $page, Per Page: $per_page, Offset: $offset");
 $q      = trim((string)($_GET['q'] ?? ''));
 $where  = [];
 $params = [];
 
-// Build SELECT clause with joins
+// =======================================================
+// Build SELECT dan JOIN Clause
+// =======================================================
 $selectColumns = ["$t.*"];
 $joinClauses   = [];
 $joinParams    = [];
@@ -410,7 +463,9 @@ foreach ($joins as $joinTable => $joinInfo) {
 $selectSql = implode(', ', $selectColumns);
 $joinSql   = implode(' ', $joinClauses);
 
-// Search
+// =======================================================
+// Proses Pencarian (Search)
+// =======================================================
 if ($q !== '' && $searchable) {
     $like  = "%$q%";
     $parts = [];
@@ -430,7 +485,9 @@ if ($q !== '' && $searchable) {
     $where[] = '(' . implode(' OR ', $parts) . ')';
 }
 
-// Filter kolom
+// =======================================================
+// Proses Filter Kolom
+// =======================================================
 foreach ($filters as $f) {
     $filterName = str_replace('/', '_', $f);
     if ($val = trim((string)($_GET[$filterName] ?? ''))) {
@@ -449,16 +506,24 @@ foreach ($filters as $f) {
 }
 $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
+// =======================================================
+// Hitung Total Data untuk Pagination
+// =======================================================
 $totalStmt = db()->prepare("SELECT COUNT(*) FROM $t $joinSql $whereSql");
 $totalStmt->execute(array_merge($joinParams, $params));
 $total = (int)$totalStmt->fetchColumn();
 
-$sql = "SELECT $selectSql FROM $t $joinSql $whereSql ORDER BY $orderBy LIMIT $per OFFSET $offset";
+// =======================================================
+// Query Data Utama untuk Ditampilkan
+// =======================================================
+$sql = "SELECT $selectSql FROM $t $joinSql $whereSql ORDER BY $orderBy LIMIT $per_page OFFSET $offset";
 $stmt = db()->prepare($sql);
 $stmt->execute(array_merge($joinParams, $params));
 $rows = $stmt->fetchAll();
 
-// Process joined data for display
+// =======================================================
+// Proses Data Join untuk Ditampilkan di Tabel
+// =======================================================
 $processedRows = [];
 foreach ($rows as $row) {
     $processedRow = $row;
@@ -476,9 +541,23 @@ foreach ($rows as $row) {
     $processedRows[] = $processedRow;
 }
 
+// =======================================================
+// Tampilkan Header dan Navigasi Layout
+// =======================================================
 require __DIR__ . '/../inc/layout_header.php';
 require __DIR__ . '/../inc/layout_nav.php';
 ?>
+
+<!--
+    ============================
+    Bagian Tampilan (HTML)
+    ============================
+    - Header Section
+    - Alert Messages
+    - Info Card
+    - Main Card (Filter, Table, Pagination)
+    - Modal (Create, Edit, Delete)
+-->
 
 <div class="max-w-7xl mx-auto px-4 py-6">
     <!-- Header Section -->
@@ -488,22 +567,15 @@ require __DIR__ . '/../inc/layout_nav.php';
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Kelola data <?= e(strtolower($title)) ?> dengan mudah</p>
         </div>
         <div class="flex flex-wrap gap-2 items-center">
-            <a class="px-4 py-2 bg-gradient-to-r from-primary-blue to-primary-red hover:from-primary-blue/90 hover:to-primary-red/90 text-white rounded-lg flex items-center text-sm transition-all shadow-md hover:shadow-lg"
-               href="export.php?<?= build_query(array_merge($_GET, ['fmt' => 'xlsx', 'sort' => $sort_column, 'order' => $sort_order])) ?>">
-                <i class="fas fa-file-excel mr-2"></i> Excel
-            </a>
-            <a class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center text-sm transition-all shadow-md hover:shadow-lg"
-               href="export.php?<?= build_query(array_merge($_GET, ['fmt' => 'csv', 'sort' => $sort_column, 'order' => $sort_order])) ?>">
-                <i class="fas fa-file-csv mr-2"></i> CSV
-            </a>
-            <a class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center text-sm transition-all shadow-md hover:shadow-lg"
-               href="export.php?<?= build_query(array_merge($_GET, ['fmt' => 'pdf', 'sort' => $sort_column, 'order' => $sort_order])) ?>">
-                <i class="fas fa-file-pdf mr-2"></i> PDF
+            <!-- Tombol Export Data -->
+            <a class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg flex items-center text-sm transition-all shadow-md hover:shadow-lg"
+                href="export_spout.php?t=<?= e($t) ?>">
+                <i class="fas fa-rocket mr-2"></i> Export (Spout)
             </a>
         </div>
     </div>
 
-    <!-- Alert Messages -->
+    <!-- Alert Messages (Error & Success) -->
     <?php if (isset($_SESSION['error'])): ?>
         <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg shadow-sm dark:bg-red-900/20 dark:border-red-400">
             <div class="flex items-start">
@@ -538,7 +610,7 @@ require __DIR__ . '/../inc/layout_nav.php';
         </div>
     <?php endif; ?>
 
-    <!-- Info Card -->
+    <!-- Info Card: Panduan Penggunaan -->
     <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-lg shadow-sm dark:bg-blue-900/20 dark:border-blue-400">
         <div class="flex items-start">
             <div class="flex-shrink-0">
@@ -563,7 +635,7 @@ require __DIR__ . '/../inc/layout_nav.php';
         </div>
     </div>
 
-    <!-- Main Card -->
+    <!-- Main Card: Filter, Table, dan Pagination -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-8 border border-gray-200 dark:border-gray-700">
         <!-- Filter Section -->
         <div class="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
@@ -572,7 +644,7 @@ require __DIR__ . '/../inc/layout_nav.php';
                 <input type="hidden" name="sort" value="<?= e($sort_column) ?>">
                 <input type="hidden" name="order" value="<?= e($sort_order) ?>">
                 
-                <!-- Search Input -->
+                <!-- Input Pencarian -->
                 <div class="col-span-full md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pencarian Cepat</label>
                     <div class="relative">
@@ -617,7 +689,7 @@ require __DIR__ . '/../inc/layout_nav.php';
                     </div>
                 <?php endforeach; ?>
 
-                <!-- Action Buttons -->
+                <!-- Tombol Aksi Filter dan Reset -->
                 <div class="col-span-full flex flex-col sm:flex-row gap-2 pt-2">
                     <button type="submit" class="px-4 py-2 bg-primary-blue hover:bg-primary-blue/90 text-white rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg">
                         <i class="fas fa-filter mr-2"></i> Terapkan Filter
@@ -630,7 +702,7 @@ require __DIR__ . '/../inc/layout_nav.php';
             </form>
         </div>
 
-        <!-- Table Controls -->
+        <!-- Table Controls: Info Total Data, Per Page, dan Tombol Tambah -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 border-b border-gray-100 dark:border-gray-700 gap-4">
             <div class="text-sm text-gray-600 dark:text-gray-400">
                 Total: <span class="font-semibold text-primary-blue dark:text-primary-red"><?= $total ?></span> data
@@ -646,7 +718,6 @@ require __DIR__ . '/../inc/layout_nav.php';
                         <option value="<?= $option ?>" <?= $per_page == $option ? 'selected' : '' ?>><?= $option ?></option>
                     <?php endforeach; ?>
                 </select>
-                
                 <?php if ($role === 'admin'): ?>
                     <button onclick="openCreateModal()" 
                         class="px-4 py-2 bg-gradient-to-r from-primary-blue to-primary-red hover:from-primary-blue/90 hover:to-primary-red/90 text-white rounded-lg flex items-center text-sm transition-all shadow-md hover:shadow-lg ml-2">
@@ -656,7 +727,7 @@ require __DIR__ . '/../inc/layout_nav.php';
             </div>
         </div>
 
-        <!-- Table Section -->
+        <!-- Table Section: Data Tabel -->
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-700">
@@ -668,7 +739,6 @@ require __DIR__ . '/../inc/layout_nav.php';
                             $is_current_sort = $sort_column === $col;
                             $new_order = $is_current_sort && $sort_order === 'DESC' ? 'ASC' : 'DESC';
                             $sort_icon = '';
-                            
                             if ($is_current_sort) {
                                 $sort_icon = $sort_order === 'ASC' ? '↑' : '↓';
                             }
@@ -756,40 +826,50 @@ require __DIR__ . '/../inc/layout_nav.php';
             </table>
         </div>
 
-        <!-- Pagination -->
+        <!-- Pagination Section -->
         <?php if ($total > 0): ?>
             <div class="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
                 <div class="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
                     <div class="text-sm text-gray-700 dark:text-gray-300">
                         Menampilkan <span class="font-medium"><?= $offset + 1 ?></span> - 
-                        <span class="font-medium"><?= min($offset + $per, $total) ?></span> dari 
+                        <span class="font-medium"><?= min($offset + $per_page, $total) ?></span> dari 
                         <span class="font-medium"><?= $total ?></span> data
                     </div>
                     <div class="flex items-center space-x-2">
                         <?php if ($page > 1): ?>
-                            <a href="?<?= build_query(['page' => $page - 1, 'per_page' => $per, 'q' => $q, 'sort' => $sort_column, 'order' => $sort_order] + array_filter($_GET, fn($k) => in_array($k, array_map(fn($f) => str_replace('/', '_', $f), $filters)), ARRAY_FILTER_USE_KEY)) ?>" 
+                            <a href="?<?= build_query(['t' => $t, 'page' => $page - 1, 'per_page' => $per_page, 'q' => $q, 'sort' => $sort_column, 'order' => $sort_order] + array_filter($_GET, fn($k) => in_array($k, array_map(fn($f) => str_replace('/', '_', $f), $filters)), ARRAY_FILTER_USE_KEY)) ?>" 
                                class="px-3 py-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
                                 <i class="fas fa-chevron-left mr-1"></i> Sebelumnya
                             </a>
                         <?php endif; ?>
-                        
                         <?php
+                        // Hitung range halaman untuk navigasi pagination
                         $start_page = max(1, $page - 2);
-                        $end_page = min($start_page + 4, ceil($total / $per));
+                        $end_page = min($start_page + 4, ceil($total / $per_page));
                         if ($end_page - $start_page < 4) {
                             $start_page = max(1, $end_page - 4);
                         }
                         ?>
-                        
                         <?php for ($p = $start_page; $p <= $end_page; $p++): ?>
-                            <a href="?<?= build_query(['page' => $p, 'per_page' => $per, 'q' => $q, 'sort' => $sort_column, 'order' => $sort_order] + array_filter($_GET, fn($k) => in_array($k, array_map(fn($f) => str_replace('/', '_', $f), $filters)), ARRAY_FILTER_USE_KEY)) ?>" 
-                               class="px-3 py-1 rounded-lg border <?= $p == $page ? 'border-primary-blue bg-primary-blue text-white' : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700' ?> transition-colors shadow-sm min-w-[2.5rem] text-center">
+                            <a href="?<?= build_query([
+                                't' => $t, 
+                                'page' => $p, 
+                                'per_page' => $per_page, 
+                                'q' => $q, 
+                                'sort' => $sort_column, 
+                                'order' => $sort_order
+                            ] + array_filter($_GET, function($k) use ($filters) {
+                                $filterNames = array_map(function($f) {
+                                    return str_replace('/', '_', $f);
+                                }, $filters);
+                                return in_array($k, $filterNames);
+                            }, ARRAY_FILTER_USE_KEY)) ?>" 
+                               class="px-3 py-1 rounded-lg border <?= $p == $page ? 'border-primary-blue bg-primary-blue text-white' : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700' ?>">
                                 <?= $p ?>
                             </a>
                         <?php endfor; ?>
-                        
-                        <?php if ($page < ceil($total / $per)): ?>
-                            <a href="?<?= build_query(['page' => $page + 1, 'per_page' => $per, 'q' => $q, 'sort' => $sort_column, 'order' => $sort_order] + array_filter($_GET, fn($k) => in_array($k, array_map(fn($f) => str_replace('/', '_', $f), $filters)), ARRAY_FILTER_USE_KEY)) ?>" 
+                        <?php if ($page < ceil($total / $per_page)): ?>
+                            <a href="?<?= build_query(['t' => $t, 'page' => $page + 1, 'per_page' => $per_page, 'q' => $q, 'sort' => $sort_column, 'order' => $sort_order] + array_filter($_GET, fn($k) => in_array($k, array_map(fn($f) => str_replace('/', '_', $f), $filters)), ARRAY_FILTER_USE_KEY)) ?>" 
                                class="px-3 py-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
                                 Selanjutnya <i class="fas fa-chevron-right ml-1"></i>
                             </a>
@@ -802,13 +882,14 @@ require __DIR__ . '/../inc/layout_nav.php';
 </div>
 
 <?php if ($role === 'admin'): ?>
-    <!-- Floating Action Button -->
-    <button onclick="openCreateModal()" class="fixed bottom-8 right-8 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110" title="Tambah Data Baru">
-        <i class="fas fa-plus text-xl"></i>
-    </button>
+    <!--
+        ============================
+        Modal Section (Create, Edit, Delete)
+        ============================
+    -->
 
-    <!-- Create Modal -->
-      <div id="createModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden transition-opacity">
+    <!-- Modal Tambah Data -->
+    <div id="createModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden transition-opacity">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto transform transition-transform">
             <div class="p-6 border-b border-gray-200 dark:border-gray-700">
                 <h3 class="text-xl font-semibold text-gray-800 dark:text-white">Tambah Data <?= e($title) ?></h3>
@@ -818,7 +899,7 @@ require __DIR__ . '/../inc/layout_nav.php';
                 <input type="hidden" name="action" value="create">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <?php foreach ($colLabels as $col => $label): 
-                        // Skip joined columns in create form
+                        // Lewati kolom hasil join pada form create
                         $isJoined = false;
                         foreach ($joins as $joinTable => $joinInfo) {
                             if (in_array($col, $joinInfo[2])) {
@@ -827,7 +908,6 @@ require __DIR__ . '/../inc/layout_nav.php';
                             }
                         }
                         if ($isJoined) continue;
-                        
                         $input_type = get_input_type($col);
                         $required = is_required_field($col, $pk);
                         $help_text = get_field_help($col);
@@ -874,7 +954,7 @@ require __DIR__ . '/../inc/layout_nav.php';
         </div>
     </div>
 
-    <!-- Edit Modal -->
+    <!-- Modal Edit Data -->
     <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden transition-opacity">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto transform transition-transform">
             <div class="p-6 border-b border-gray-200 dark:border-gray-700">
@@ -934,7 +1014,7 @@ require __DIR__ . '/../inc/layout_nav.php';
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
+    <!-- Modal Konfirmasi Hapus Data -->
     <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden transition-opacity">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md transform transition-transform">
             <div class="p-6 border-b border-gray-200 dark:border-gray-700">
@@ -958,16 +1038,40 @@ require __DIR__ . '/../inc/layout_nav.php';
     </div>
 <?php endif; ?>
 
+<!--
+    ============================
+    Bagian Script (Javascript)
+    ============================
+    - Handler per_page select
+    - Modal handler
+    - Sort handler
+    - Notification handler
+    - Keyboard shortcut
+    - Responsive table
+-->
+
 <script>
-// Per page selection
-document.getElementById('per_page_select').addEventListener('change', function() {
-    const url = new URL(window.location.href);
-    url.searchParams.set('per_page', this.value);
-    url.searchParams.set('page', '1'); // Reset to first page
-    window.location.href = url.toString();
+// Handler untuk perubahan baris per halaman (per_page)
+document.addEventListener('DOMContentLoaded', function() {
+    const perPageSelect = document.getElementById('per_page_select');
+    if (perPageSelect) {
+        perPageSelect.addEventListener('change', function() {
+            // Ambil semua parameter dari URL saat ini
+            const urlParams = new URLSearchParams(window.location.search);
+            // Update parameter per_page dan reset ke halaman 1
+            urlParams.set('per_page', this.value);
+            urlParams.set('page', '1');
+            // Pastikan parameter 't' tidak hilang
+            if (!urlParams.has('t')) {
+                urlParams.set('t', '<?= e($t) ?>');
+            }
+            // Redirect ke URL baru
+            window.location.href = `table.php?${urlParams.toString()}`;
+        });
+    }
 });
 
-// Modal functions
+// Fungsi untuk membuka modal tambah data
 function openCreateModal() {
     document.getElementById('createModal').classList.remove('hidden');
     setTimeout(() => {
@@ -976,6 +1080,7 @@ function openCreateModal() {
     }, 10);
 }
 
+// Fungsi untuk menutup modal tambah data
 function closeCreateModal() {
     document.getElementById('createModal').classList.remove('opacity-100');
     document.querySelector('#createModal > div').classList.remove('scale-100');
@@ -984,8 +1089,9 @@ function closeCreateModal() {
     }, 200);
 }
 
+// Fungsi untuk membuka modal edit data
 function openEditModal(id) {
-    // Fetch data for this ID
+    // Ambil data berdasarkan ID via AJAX
     fetch(`get_data.php?t=<?= e($t) ?>&id=${id}`)
         .then(response => response.json())
         .then(data => {
@@ -1012,6 +1118,7 @@ function openEditModal(id) {
         });
 }
 
+// Fungsi untuk menutup modal edit data
 function closeEditModal() {
     document.getElementById('editModal').classList.remove('opacity-100');
     document.querySelector('#editModal > div').classList.remove('scale-100');
@@ -1020,6 +1127,7 @@ function closeEditModal() {
     }, 200);
 }
 
+// Fungsi untuk membuka modal konfirmasi hapus
 function confirmDelete(id) {
     document.getElementById('deleteId').value = id;
     document.getElementById('deleteModal').classList.remove('hidden');
@@ -1029,6 +1137,7 @@ function confirmDelete(id) {
     }, 10);
 }
 
+// Fungsi untuk menutup modal konfirmasi hapus
 function closeDeleteModal() {
     document.getElementById('deleteModal').classList.remove('opacity-100');
     document.querySelector('#deleteModal > div').classList.remove('scale-100');
@@ -1037,23 +1146,21 @@ function closeDeleteModal() {
     }, 200);
 }
 
-// Sort function
+// Fungsi untuk sorting tabel berdasarkan kolom
 function sortTable(column) {
     const url = new URL(window.location.href);
     const currentSort = url.searchParams.get('sort');
     const currentOrder = url.searchParams.get('order');
-    
     let newOrder = 'DESC';
     if (currentSort === column) {
         newOrder = currentOrder === 'DESC' ? 'ASC' : 'DESC';
     }
-    
     url.searchParams.set('sort', column);
     url.searchParams.set('order', newOrder);
     window.location.href = url.toString();
 }
 
-// Notification function
+// Fungsi untuk menampilkan notifikasi (info, error, success)
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transform transition-transform duration-300 ${
@@ -1070,15 +1177,12 @@ function showNotification(message, type = 'info') {
             </button>
         </div>
     `;
-    
     document.body.appendChild(notification);
-    
-    // Animate in
+    // Animasi masuk
     setTimeout(() => {
         notification.classList.add('translate-x-0', 'opacity-100');
     }, 10);
-    
-    // Auto remove after 5 seconds
+    // Auto remove setelah 5 detik
     setTimeout(() => {
         notification.classList.remove('translate-x-0', 'opacity-100');
         setTimeout(() => {
@@ -1089,7 +1193,7 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-// Close modals when clicking outside
+// Handler: Tutup modal jika klik di luar area modal
 document.querySelectorAll('.fixed').forEach(modal => {
     modal.addEventListener('click', function(e) {
         if (e.target === this) {
@@ -1100,7 +1204,7 @@ document.querySelectorAll('.fixed').forEach(modal => {
     });
 });
 
-// Keyboard shortcuts
+// Handler: Keyboard shortcut (ESC untuk tutup modal, Ctrl+N untuk tambah data)
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeCreateModal();
@@ -1113,16 +1217,14 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Responsive table handling
+// Fungsi: Penanganan tabel responsif (opsional, bisa dikembangkan)
 function initResponsiveTable() {
     const table = document.querySelector('table');
     if (!table) return;
-    
-    // Add responsive container
+    // Tambahkan class container responsif
     const container = table.parentElement;
     container.classList.add('responsive-table-container');
-    
-    // Add scroll indicators for mobile
+    // Tambahkan indikator scroll untuk mobile
     const addScrollIndicators = () => {
         if (window.innerWidth < 768) {
             container.classList.add('has-scroll-indicators');
@@ -1130,17 +1232,14 @@ function initResponsiveTable() {
             container.classList.remove('has-scroll-indicators');
         }
     };
-    
     window.addEventListener('resize', addScrollIndicators);
     addScrollIndicators();
 }
-
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    initResponsiveTable();
-});
 </script>
 
 <?php
+// =======================================================
+// Tampilkan Footer Layout
+// =======================================================
 require __DIR__ . '/../inc/layout_footer.php';
 ?>

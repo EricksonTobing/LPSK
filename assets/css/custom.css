@@ -502,3 +502,94 @@ button {
     outline: 2px solid #3b82f6;
   }
 }
+
+/* Tambahkan CSS ini ke bagian <style> di dashboard.php */
+
+/* Enhanced Map Tooltip Styling */
+.datamaps-hoverover {
+  position: absolute !important;
+  z-index: 1001 !important;
+  pointer-events: none !important;
+  max-width: 300px !important;
+  opacity: 0 !important;
+  animation: tooltipFadeIn 0.2s ease-out forwards !important;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0 !important;
+    transform: scale(0.9) translateY(5px) !important;
+  }
+  to {
+    opacity: 1 !important;
+    transform: scale(1) translateY(0) !important;
+  }
+}
+
+.datamaps-hoverover .hoverinfo {
+  background: white !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  padding: 16px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  backdrop-filter: blur(10px) !important;
+  font-family: "Inter", sans-serif !important;
+  min-width: 200px !important;
+  transform: translateX(-50%) !important;
+}
+
+/* Dark mode support for tooltip */
+@media (prefers-color-scheme: dark) {
+  .datamaps-hoverover .hoverinfo {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+    color: #ffffff !important;
+  }
+
+  .datamaps-hoverover .hoverinfo h3 {
+    color: #ffffff !important;
+  }
+
+  .datamaps-hoverover .hoverinfo span {
+    color: #d1d5db !important;
+  }
+}
+
+/* Map container styling */
+#map-container {
+  position: relative;
+  min-height: 400px;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+}
+
+.dark #map-container {
+  background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+}
+
+#map-container svg {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: inherit;
+}
+
+/* Map path styling */
+#map-container .datamaps-subunit {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  stroke: #ffffff;
+  stroke-width: 1px;
+}
+
+#map-container .datamaps-subunit:hover {
+  stroke: #ffffff;
+  stroke-width: 2px;
+  filter: brightness(1.1);
+}
+
+/* Ensure proper positioning of tooltip */
+#map-container {
+  overflow: visible !important;
+}

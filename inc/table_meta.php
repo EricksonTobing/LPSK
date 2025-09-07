@@ -24,7 +24,7 @@ return [
         'provinsi_pemohon' => 'Provinsi Pemohon',
         'tempat_permohonan' => 'Tempat Permohonan'
     ],
-    'searchable' => ['no_reg_medan', 'nama_pemohon', 'tindak_pidana', 'media_pengajuan', 'jenis_perlindungan'],
+    'searchable' => ['no_reg_medan', 'nama_pemohon', 'tindak_pidana', 'media_pengajuan', 'jenis_perlindungan', 'pihak_perwakilan', 'provinsi', 'kab_kota_pemohon', 'provinsi_pemohon'],
     'filters' => ['jenis_kelamin', 'status_hukum', 'media_pengajuan', 'tempat_permohonan'],
     'joins' => [
         'pegawai' => ['id_pegawai', 'id_pegawai', ['nama_pegawai']]
@@ -53,8 +53,8 @@ return [
         'nama_ta_penalaahan' => 'Nama TA Penalaahan',
         'risalah_laporan' => 'Risalah_ Laporan'
     ],
-    'searchable' => ['no_registrasi', 'no_reg_medan', 'nama_pemohon', 'nama_ta_penalaahan'],
-    'filters' => ['proses_hukum', 'risalah_laporan', 'nama_ta_penalaahan'],
+    'searchable' => ['no_registrasi', 'no_reg_medan', 'nama_pemohon', 'nama_ta_penalaahan', 'proses_penalaahan', 'tindak_pidana', 'jenis_perlindungan'],
+    'filters' => ['proses_hukum', 'risalah_laporan', 'nama_ta_penalaahan', 'tindak_pidana'],
     'joins' => [
         'pegawai' => ['id_pegawai', 'id_pegawai', ['nama_pegawai']],
         'permohonan' => ['no_reg_medan', 'no_reg_medan', [

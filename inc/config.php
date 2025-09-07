@@ -1,5 +1,23 @@
 <?php
+
 declare(strict_types=1);
+
+header('X-Frame-Options: DENY');
+header('X-Content-Type-Options: nosniff');
+header('X-XSS-Protection: 1; mode=block');
+header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+
+session_set_cookie_params([
+    'lifetime' => 3600,                // Session berlaku 1 jam
+    'path' => '/',                     // Berlaku untuk seluruh path domain
+    'domain' => $_SERVER['HTTP_HOST'], // Hanya untuk domain ini
+    'secure' => true,                  // Hanya dikirim lewat HTTPS
+    'httponly' => true,                // Tidak bisa diakses JavaScript
+    'samesite' => 'Strict'             // Cegah CSRF, hanya dikirim di domain sendiri
+]);
+
+// Mulai session
+session_start();
 
 use Dotenv\Dotenv;
 
