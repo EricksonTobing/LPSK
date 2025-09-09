@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title><?= e($title ?? 'LPSK App') ?></title>
   
- <!-- <link rel="stylesheet" href="../assets/css/output.css"> -->
-   <link rel="stylesheet" href="../assets/css/build.css">
-<link rel="stylesheet" href="/assets/css/custom.css">
+<link rel="stylesheet" href="../assets/css/build.css">
+<link rel="stylesheet" href="../assets/css/custom.css">
+
+   <!-- <link rel="stylesheet" href="/assets/css/build.css"> -->
+<!-- <link rel="stylesheet" href="/assets/css/custom.css"> -->
   
   <!-- AlpineJS -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
