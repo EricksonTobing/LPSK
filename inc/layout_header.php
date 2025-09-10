@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title><?= e($title ?? 'LPSK App') ?></title>
   
-<link rel="stylesheet" href="../assets/css/build.css">
-<link rel="stylesheet" href="../assets/css/custom.css">
+<link rel="stylesheet" href="<?= base_url('assets/css/build.css') ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/custom.css') ?>">
 
    <!-- <link rel="stylesheet" href="/assets/css/build.css"> -->
 <!-- <link rel="stylesheet" href="/assets/css/custom.css"> -->

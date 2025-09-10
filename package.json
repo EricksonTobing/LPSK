@@ -3,14 +3,22 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "tailwindcss -i ./assets/css/input.css -o ./assets/css/build.css --minify",
-    "watch": "tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --watch"
+    "build": "tailwindcss -i ./public/assets/css/input.css -o ./public/assets/css/build.css --minify",
+    "watch": "tailwindcss -i ./public/assets/css/input.css -o ./public/assets/css/output.css --watch"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "devDependencies": {
     "tailwindcss": "^3.4.17"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EricksonTobing/LPSK.git"
+  },
+  "bugs": {
+    "url": "https://github.com/EricksonTobing/LPSK/issues"
+  },
+  "homepage": "https://github.com/EricksonTobing/LPSK#readme",
+  "description": ""
 }

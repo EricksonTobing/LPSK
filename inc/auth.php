@@ -2,7 +2,7 @@
 declare(strict_types=1);
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/csrf.php';
-
+require_once __DIR__ . '/helpers.php';
 function auth_user(): ?array {
     return $_SESSION['user'] ?? null;
 }

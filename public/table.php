@@ -238,7 +238,8 @@ function get_input_type($column, $value = '')
             'KS' => 'KS', 
             'PENGANIAYAAN BERAT' => 'Penganiayaan Berat', 
             'NARKOTIKA' => 'Narkotika', 
-            'TPL' => 'TPL'
+            'TPL' => 'TPL',
+            'TPPU' => 'TPPU'
         ],
         'nama_ta_layanan'       => ['AM' => 'AM', 'AJC' => 'AJC', 'RW' => 'RW', 'TP' => 'TP', 'SMW' => 'SMW'],
         'status'                => ['BERJALAN' => 'Berjalan', 'DIHENTIKAN' => 'Dihentikan', 'PERPANJANGAN' => 'Perpanjangan'],
@@ -274,7 +275,7 @@ function get_input_type($column, $value = '')
         try {
             $stmt = db()->query("SELECT id_pegawai, nama_pegawai FROM pegawai ORDER BY nama_pegawai");
             $pegawai = $stmt->fetchAll();
-            $options = ['' => '- Pilih -'];
+            $options = [];
             foreach ($pegawai as $p) {
                 $options[$p['id_pegawai']] = $p['nama_pegawai'];
             }
@@ -391,11 +392,7 @@ function is_required_field($column, $pk) {
     return in_array($column, $required_fields[$_GET['t'] ?? 'permohonan']) && $column !== $pk;
 }
 
-// =======================================================
-// Logging untuk Debugging Pagination dan Parameter GET
-// =======================================================
-error_log("Per page value: " . $per_page);
-error_log("GET parameters: " . print_r($_GET, true));
+
 
 // =======================================================
 // Konfigurasi Pilihan Baris per Halaman (Pagination)
@@ -406,6 +403,14 @@ $per_page = isset($_GET['per_page']) && in_array((int)$_GET['per_page'], $per_pa
     : 10;
 
 error_log("Final per page: " . $per_page);
+
+// =======================================================
+// Logging untuk Debugging Pagination dan Parameter GET
+// =======================================================
+error_log("Per page value: " . $per_page);
+error_log("GET parameters: " . print_r($_GET, true));
+
+
 
 // =======================================================
 // Ambil Parameter Sorting dari GET

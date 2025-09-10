@@ -1,23 +1,24 @@
 <?php
+define('BASE_PATH', dirname(__DIR__));
 /**
  * Memuat file konfigurasi utama aplikasi.
  */
-require_once __DIR__ . '/../inc/config.php';
+require_once BASE_PATH . '/inc/config.php';
 
 /**
  * Memuat fungsi-fungsi otentikasi pengguna.
  */
-require_once __DIR__ . '/../inc/auth.php';
+require_once BASE_PATH . '/inc/auth.php';
 
 /**
  * Memuat fungsi-fungsi untuk perlindungan CSRF.
  */
-require_once __DIR__ . '/../inc/csrf.php';
+require_once BASE_PATH . '/inc/csrf.php';
 
 /**
  * Memuat helper umum untuk aplikasi.
  */
-require_once __DIR__ . '/../inc/helpers.php';
+require_once BASE_PATH . '/inc/helpers.php';
 
 // Inisialisasi variabel error untuk menampung pesan error login
 $error = null;
@@ -45,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $title = 'Login - MEDAN MELINDUNGI';
 
 // Memuat layout header
-require __DIR__ . '/../inc/layout_header.php';
+require BASE_PATH . '/inc/layout_header.php';
 ?>
 
 <div class="bg-gray-50 dark:bg-gray-900 h-screen w-screen flex justify-center items-center p-4">
@@ -54,7 +55,7 @@ require __DIR__ . '/../inc/layout_header.php';
         <div class="flex flex-col items-center justify-center mb-6">
             <div class="w-16 h-16 bg-gradient-to-br from-primary-blue to-primary-red rounded-full flex items-center justify-center mb-3">
                 <!-- <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> -->
-                    <img src="../inc/img/logo.png" alt="MEDAN MELINDUNGI Logo">
+                    <img src="assets/img/logo.png" alt="MEDAN MELINDUNGI Logo">
                     <!-- <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg> -->
             </div>

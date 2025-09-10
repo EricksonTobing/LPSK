@@ -11,7 +11,7 @@ $u = auth_user(); $role = $u['role'] ?? 'user';
                     <button @click="sidebarOpen = !sidebarOpen" class="md:hidden p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition-colors">
                         <i class="fas fa-bars text-lg"></i>
                     </button>
-                    <a href="index.php" class="flex items-center space-x-2">
+                    <a href="dashboard.php" class="flex items-center space-x-2">
                         <div class="w-8 h-8 xs:w-10 xs:h-10 rounded-lg bg-gradient-to-br from-primary-blue to-primary-red flex items-center justify-center">
                             <i class="fas fa-shield-alt text-white text-sm xs:text-base"></i>
                         </div>

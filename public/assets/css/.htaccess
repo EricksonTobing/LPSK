@@ -1,0 +1,10 @@
+# Allow CSS files to be accessed
+<IfModule mod_headers.c>
+    Header set Content-Type "text/css"
+    Header set Access-Control-Allow-Origin "*"
+</IfModule>
+
+# Cache control
+<FilesMatch "\.(css)$">
+    Header set Cache-Control "max-age=2592000, public"
+</FilesMatch>

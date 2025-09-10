@@ -1,0 +1,46 @@
+# Aktifkan mod_rewrite
+Options -Indexes
+RewriteEngine On
+# RewriteBase /
+
+# =========================
+# 1. Blokir akses file sensitif
+# =========================
+
+<FilesMatch "(^\.env|composer\.json|composer\.lock|package\.json|package-lock\.json|tailwind\.config\.js)">
+    Require all denied
+</FilesMatch>
+# <FilesMatch "(^\.env|composer\.(json|lock)|package(-lock)?\.json|tailwind\.config\.js)">
+#     Require all denied
+# </FilesMatch>
+# Blokir folder inc/ agar tidak bisa diakses publik
+RewriteRule ^inc/ - [F,L]
+
+# =========================
+# 2. Routing URL cantik
+# =========================
+
+# Login, Dashboard, dll
+RewriteRule ^login$ public/login.php [L]
+RewriteRule ^dashboard$ public/dashboard.php [L]
+
+# Admin → segment
+RewriteRule ^admin/user$ public/admin_user.php [L]
+RewriteRule ^admin/pegawai$ public/admin_pegawai.php [L]
+
+# Tambahan mapping
+RewriteRule ^keuangan$ public/keuangan.php [L]
+RewriteRule ^logout$ public/logout.php [L]
+
+# =========================
+# 3. Fallback hanya jika file/folder tidak ada DAN bukan dari public/
+# =========================
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ public/$1 [L]
+
+# =========================
+# 4. Default Document
+# =========================
+DirectoryIndex public/index.php

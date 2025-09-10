@@ -151,7 +151,7 @@ require __DIR__ . '/../inc/layout_nav.php';
               <span class="inline-block">0</span>
             </p>
             <p class="text-xs text-blue-600 dark:text-blue-400 mt-2 font-medium" id="permohonan-change">
-    <?php echo $counts['permohonan_change'] >= 0 ? '+' : '' ?><?php echo $counts['permohonan_change'] ?>% dari bulan lalu
+    +0% dari bulan lalu <!-- Placeholder, akan diupdate oleh JavaScript -->
 </p>
           </div>
         </div>
@@ -180,7 +180,7 @@ require __DIR__ . '/../inc/layout_nav.php';
               <span class="inline-block">0</span>
             </p>
             <p class="text-xs text-green-600 dark:text-green-400 mt-2 font-medium" id="penelaahan-change">
-    <?php echo $counts['penelaahan_change'] >= 0 ? '+' : '' ?><?php echo $counts['penelaahan_change'] ?>% dari bulan lalu
+    +0% dari bulan lalu
 </p>
           </div>
         </div>
@@ -209,7 +209,7 @@ require __DIR__ . '/../inc/layout_nav.php';
               <span class="inline-block">0</span>
             </p>
             <p class="text-xs text-amber-600 dark:text-amber-400 mt-2 font-medium" id="layanan-change">
-    <?php echo $counts['layanan_change'] >= 0 ? '+' : '' ?><?php echo $counts['layanan_change'] ?>% dari bulan lalu
+    +0% dari bulan lalu
 </p>
           </div>
         </div>
@@ -238,7 +238,7 @@ require __DIR__ . '/../inc/layout_nav.php';
               <span class="inline-block">Rp 0</span>
             </p>
             <p class="text-xs text-red-600 dark:text-red-400 mt-2 font-medium" id="pengeluaran-change">
-    <?php echo $counts['pengeluaran_change'] >= 0 ? '+' : '' ?><?php echo $counts['pengeluaran_change'] ?>% dari bulan lalu
+    +0% dari bulan lalu
 </p>
           </div>
         </div>

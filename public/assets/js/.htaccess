@@ -1,0 +1,10 @@
+# Allow JavaScript files to be accessed
+<IfModule mod_headers.c>
+    Header set Content-Type "application/javascript"
+    Header set Access-Control-Allow-Origin "*"
+</IfModule>
+
+# Cache control
+<FilesMatch "\.(js)$">
+    Header set Cache-Control "max-age=2592000, public"
+</FilesMatch>

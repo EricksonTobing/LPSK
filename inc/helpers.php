@@ -41,9 +41,39 @@ function debug_log($message) {
     error_log(date('Y-m-d H:i:s') . ' - ' . $message);
 }
 
+function error_log_message($message, $level = 'ERROR') {
+    $logMessage = sprintf(
+        "[%s] %s: %s",
+        date('Y-m-d H:i:s'),
+        $level,
+        $message
+    );
+    
+    // Gunakan sanitasi dari config.php jika tersedia
+    if (function_exists('sanitizeForLog')) {
+        $logMessage = sanitizeForLog($logMessage);
+    }
+    
+    // Gunakan rate limiting dari config.php jika tersedia
+    if (class_exists('LogRateLimiter') && !LogRateLimiter::shouldLog()) {
+        return;
+    }
+    
+    // Tulis ke file log
+    error_log($logMessage . PHP_EOL, 3, LOG_PATH);
+}
+
 function is_assoc(array $arr) {
     if (array() === $arr) return false;
     return array_keys($arr) !== range(0, count($arr) - 1);
+}
+
+function base_url($path = '') {
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+    $domain = $_SERVER['HTTP_HOST'];
+    $base = str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
+    
+    return $protocol . $domain . $base . $path;
 }
 
 function redirect(string $url): void { header("Location: $url"); exit; }
