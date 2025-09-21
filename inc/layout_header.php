@@ -4,7 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title><?= e($title ?? 'LPSK App') ?></title>
+  <meta name="description" content="Sistem Informasi Manajemen LPSK">
+  <meta name="author" content="Intern Students Of The Faculty of Computer Science, Catholic University of Santo Tomas">
   
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="<?= base_url('assets/img/logo.png') ?>">
+  <!-- <link rel="icon" type="image/png" href="/assets/images/favicon.png"> -->
 <link rel="stylesheet" href="<?= base_url('assets/css/build.css') ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/custom.css') ?>">
 

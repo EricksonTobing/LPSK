@@ -593,3 +593,13 @@ button {
 #map-container {
   overflow: visible !important;
 }
+
+/* Style untuk modal view */
+#viewContent dt {
+  font-weight: 600;
+}
+
+#viewContent dd {
+  margin-bottom: 1rem;
+  word-break: break-word;
+}

@@ -1,0 +1,39 @@
+<?php
+echo "<h1>Test Access</h1>";
+
+// Test include files
+echo "<h2>Testing Include Files</h2>";
+
+$include_files = ['config.php', 'db.php', 'auth.php'];
+foreach ($include_files as $file) {
+    $path = 'inc/' . $file;
+    if (file_exists($path)) {
+        // Coba include
+        ob_start();
+        try {
+            include $path;
+            $result = "INCLUDE_SUCCESS";
+        } catch (Exception $e) {
+            $result = "INCLUDE_ERROR: " . $e->getMessage();
+        }
+        ob_end_clean();
+        echo "<p>$path: $result</p>";
+    } else {
+        echo "<p>$path: NOT_FOUND</p>";
+    }
+}
+
+// Test URL access
+echo "<h2>Testing URL Access</h2>";
+$urls = [
+    '/lpsk/login',
+    '/lpsk/dashboard',
+    '/lpsk/public/login.php', // Should work now
+    '/lpsk/inc/config.php'    // Should be blocked
+];
+
+foreach ($urls as $url) {
+    $full_url = 'http://' . $_SERVER['HTTP_HOST'] . $url;
+    echo "<p><a href='$full_url' target='_blank'>$url</a></p>";
+}
+?>

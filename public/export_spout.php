@@ -73,8 +73,9 @@ if (!isset($_GET['fmt'])) {
                         <div class="flex items-center p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
                             <input type="radio" id="format_xlsx" name="fmt" value="xlsx" checked class="mr-3 text-blue-600">
                             <div class="flex-1">
-                                <label for="format_xlsx" class="text-gray-700 dark:text-gray-300 font-medium cursor-pointer">(XLSX)</label>
-                                <p class="text-xs text-gray-500 mt-1">Optimal untuk data besar, dengan formatting yang baik</p> <span class="text-red-500">Masih perbaikan </span>
+                                <label for="format_xlsx" class="text-gray-700 dark:text-gray-300 font-medium cursor-pointer">Excel (XLSX)</label>
+                                <p class="text-xs text-gray-500 mt-1">Optimal untuk data besar, dengan formatting yang baik </p>
+                                <span class="text-red-500 font-medium">MASIH DALAM PERBAIKAN</span>
                             </div>
                             <i class="fas fa-file-excel text-green-600"></i>
                         </div>
@@ -90,7 +91,8 @@ if (!isset($_GET['fmt'])) {
                             <input type="radio" id="format_ods" name="fmt" value="ods" class="mr-3 text-blue-600">
                             <div class="flex-1">
                                 <label for="format_ods" class="text-gray-700 dark:text-gray-300 font-medium cursor-pointer">OpenDocument (ODS)</label>
-                                <p class="text-xs text-gray-500 mt-1">Format terbuka, kompatibel dengan LibreOffice</p><span class="text-red-500">Masih perbaikan </span>
+                                <p class="text-xs text-gray-500 mt-1">Format terbuka, kompatibel dengan LibreOffice</p>
+                                <span class="text-red-500 font-medium">MASIH DALAM PERBAIKAN</span>
                             </div>
                             <i class="fas fa-file-alt text-orange-600"></i>
                         </div>
@@ -224,6 +226,20 @@ function cleanOutputBuffers() {
         }
         ob_end_clean();
     }
+}
+
+// Fungsi untuk membuat header yang benar dengan penanganan khusus untuk id_pegawai
+function createExportHeaders($headers, $headerKeys, $tableName) {
+    $exportHeaders = [];
+    foreach ($headers as $index => $header) {
+        // Ganti label untuk kolom id_pegawai
+        if ($headerKeys[$index] === 'id_pegawai') {
+            $exportHeaders[] = ($tableName === 'permohonan') ? 'Petugas Penerima' : 'Case Manager';
+        } else {
+            $exportHeaders[] = $header;
+        }
+    }
+    return $exportHeaders;
 }
 
 if ($t === 'ringkasan') {
@@ -362,7 +378,7 @@ if (!isset($tables[$t])) {
     exit('Tabel tidak ditemukan');
 }
 
-function fetchDataSpout(string $t, array $tables, string $periode, string $start_date = '', string $end_date = ''): array {
+function fetchDataSpout($t, $tables, $periode, $start_date = '', $end_date = '') {
     try {
         // Tentukan rentang tanggal berdasarkan periode
         $current_year = date('Y');
@@ -427,114 +443,98 @@ function fetchDataSpout(string $t, array $tables, string $periode, string $start
             throw new Exception('Format tanggal akhir tidak valid');
         }
         
-        
         $meta = $tables[$t];
         $searchable = $meta['searchable'] ?? [];
         $filters = $meta['filters'] ?? [];
         $joins = $meta['joins'] ?? [];
         $colLabels = $meta['columns'] ?? [];
         
-        // Build SELECT clause with joins - PERBAIKAN KHUSUS UNTUK PENGELUARAN
-        if ($t === 'pengeluaran') {
-            // Query khusus untuk pengeluaran dengan JOIN yang benar
-            $selectColumns = [
-                "p.nomor_kuintasi",
-                "p.kode_anggaran", 
-                "p.tahun",
-                "p.jumlah",
-                "p.tanggal",
-                "p.kode_mak",
-                "p.keterangan",
-                "a.nama_anggaran",
-                "m.nama_mak"
-            ];
-            $selectSql = implode(', ', $selectColumns);
-            $joinSql = "LEFT JOIN anggaran a ON p.kode_anggaran = a.kode_anggaran AND p.tahun = a.tahun 
-                       LEFT JOIN mak m ON p.kode_mak = m.kode_mak";
-        } else {
-            // Logic JOIN original untuk tabel lain
-            $selectColumns = ["$t.*"];
-            $joinClauses = [];
-            
-            foreach ($joins as $joinTable => $joinInfo) {
-                list($localKey, $foreignKey, $columns) = $joinInfo;
-                foreach ($columns as $col) {
-                    $selectColumns[] = "$joinTable.$col AS {$joinTable}_$col";
+        // Build SELECT clause with joins
+        $selectColumns = ["$t.*"];
+        $joinClauses = [];
+        
+        // Handle joins for all tables
+        foreach ($joins as $joinTable => $joinInfo) {
+            list($localKey, $foreignKey, $columns) = $joinInfo;
+            foreach ($columns as $col) {
+                $selectColumns[] = "$joinTable.$col AS {$joinTable}_$col";
+            }
+            $joinClauses[] = "LEFT JOIN $joinTable ON $t.$localKey = $joinTable.$foreignKey";
+        }
+        
+        // Special handling for id_pegawai column
+        if (in_array('id_pegawai', array_keys($colLabels))) {
+            $hasPegawaiJoin = false;
+            foreach ($joinClauses as $joinClause) {
+                if (strpos($joinClause, 'pegawai') !== false) {
+                    $hasPegawaiJoin = true;
+                    break;
                 }
-                $joinClauses[] = "LEFT JOIN $joinTable ON $t.$localKey = $joinTable.$foreignKey";
             }
             
-            $selectSql = implode(', ', $selectColumns);
-            $joinSql = implode(' ', $joinClauses);
+            if (!$hasPegawaiJoin) {
+                $selectColumns[] = "pegawai.nama_pegawai AS pegawai_nama_pegawai";
+                $joinClauses[] = "LEFT JOIN pegawai ON $t.id_pegawai = pegawai.id_pegawai";
+            }
         }
+
+        // Special handling for jenis_perlindungan - join dengan tabel jenis_perlindungan
+        if (in_array('jenis_perlindungan', array_keys($colLabels))) {
+            // Untuk tabel permohonan dan layanan, kita perlu join dengan permohonan_perlindungan/layanan_perlindungan
+            // dan kemudian dengan jenis_perlindungan
+            if ($t === 'permohonan') {
+                $selectColumns[] = "GROUP_CONCAT(jp.sub_pilihan SEPARATOR ', ') AS jenis_perlindungan_names";
+                $joinClauses[] = "LEFT JOIN permohonan_perlindungan pp ON $t.no_reg_medan = pp.no_reg_medan";
+                $joinClauses[] = "LEFT JOIN jenis_perlindungan jp ON pp.id_perlindungan = jp.id";
+            } elseif ($t === 'layanan') {
+                $selectColumns[] = "GROUP_CONCAT(jp.sub_pilihan SEPARATOR ', ') AS jenis_perlindungan_names";
+                $joinClauses[] = "LEFT JOIN layanan_perlindungan lp ON $t.no_kep_smpl = lp.no_kep_smpl";
+                $joinClauses[] = "LEFT JOIN jenis_perlindungan jp ON lp.id_perlindungan = jp.id";
+            }
+        }
+        
+        $selectSql = implode(', ', $selectColumns);
+        $joinSql = implode(' ', $joinClauses);
         
         $where = [];
         $params = [];
         $q = trim((string)($_GET['q'] ?? ''));
         
-        // Search functionality - PERBAIKAN UNTUK PENGELUARAN
+        // Search functionality
         if ($q !== '' && !empty($searchable)) {
             $like = "%$q%";
             $searchParts = [];
             foreach ($searchable as $searchCol) {
-                if ($t === 'pengeluaran') {
-                    // Mapping kolom pencarian untuk pengeluaran
-                    $searchMapping = [
-                        'nomor_kuintasi' => 'p.nomor_kuintasi',
-                        'kode_anggaran' => 'p.kode_anggaran',
-                        'keterangan' => 'p.keterangan'
-                    ];
-                    if (isset($searchMapping[$searchCol])) {
-                        $searchParts[] = $searchMapping[$searchCol] . " LIKE ?";
-                        $params[] = $like;
+                $searchTable = $t;
+                foreach ($joins as $joinTable => $joinInfo) {
+                    if (in_array($searchCol, $joinInfo[2])) {
+                        $searchTable = $joinTable;
+                        break;
                     }
-                } else {
-                    // Logic original untuk tabel lain
-                    $searchTable = $t;
-                    foreach ($joins as $joinTable => $joinInfo) {
-                        if (in_array($searchCol, $joinInfo[2])) {
-                            $searchTable = $joinTable;
-                            break;
-                        }
-                    }
-                    $searchParts[] = "$searchTable.$searchCol LIKE ?";
-                    $params[] = $like;
                 }
+                $searchParts[] = "$searchTable.$searchCol LIKE ?";
+                $params[] = $like;
             }
             if (!empty($searchParts)) {
                 $where[] = '(' . implode(' OR ', $searchParts) . ')';
             }
         }
         
-        // Filter functionality - PERBAIKAN UNTUK PENGELUARAN
+        // Filter functionality
         foreach ($filters as $filterCol) {
             $filterName = str_replace('/', '_', $filterCol);
             $filterValue = trim((string)($_GET[$filterName] ?? ''));
             
             if ($filterValue !== '') {
-                if ($t === 'pengeluaran') {
-                    // Mapping filter untuk pengeluaran
-                    $filterMapping = [
-                        'kode_anggaran' => 'p.kode_anggaran',
-                        'kode_mak' => 'p.kode_mak',
-                        'tahun' => 'p.tahun'
-                    ];
-                    if (isset($filterMapping[$filterCol])) {
-                        $where[] = $filterMapping[$filterCol] . " = ?";
-                        $params[] = $filterValue;
+                $filterTable = $t;
+                foreach ($joins as $joinTable => $joinInfo) {
+                    if (in_array($filterCol, $joinInfo[2])) {
+                        $filterTable = $joinTable;
+                        break;
                     }
-                } else {
-                    // Logic original untuk tabel lain
-                    $filterTable = $t;
-                    foreach ($joins as $joinTable => $joinInfo) {
-                        if (in_array($filterCol, $joinInfo[2])) {
-                            $filterTable = $joinTable;
-                            break;
-                        }
-                    }
-                    $where[] = "$filterTable.$filterCol = ?";
-                    $params[] = $filterValue;
                 }
+                $where[] = "$filterTable.$filterCol = ?";
+                $params[] = $filterValue;
             }
         }
         
@@ -544,7 +544,7 @@ function fetchDataSpout(string $t, array $tables, string $periode, string $start
                 'permohonan' => 'tgl_pengajuan',
                 'penelaahan' => 'tanggal_dispo', 
                 'layanan' => 'tgl_mulai_layanan',
-                'pengeluaran' => 'p.tanggal' // PERBAIKAN: gunakan alias p
+                'pengeluaran' => 'tanggal'
             ];
             
             if (isset($date_columns_map[$t])) {
@@ -554,55 +554,47 @@ function fetchDataSpout(string $t, array $tables, string $periode, string $start
                 $params[] = $end_date;
             }
         }
-        
+
+        // Untuk tabel permohonan dan layanan,group by karena ada join many-to-many
+        if ($t === 'permohonan' || $t === 'layanan') {
+            $groupBySql = " GROUP BY $t." . $meta['pk'];
+        } else {
+            $groupBySql = "";
+        }
+
+
         $whereSql = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
         
-        // Build final query - PERBAIKAN ORDER BY
-        if ($t === 'pengeluaran') {
-    $finalQuery = "SELECT $selectSql FROM pengeluaran p $joinSql $whereSql ORDER BY p.tanggal DESC, p.nomor_kuintasi DESC";
-} else {
-    // Tentukan kolom tanggal default berdasarkan nama tabel
-    $dateColumnMap = [
-        'permohonan' => 'tgl_pengajuan',
-        'penelaahan' => 'tanggal_dispo',
-        'layanan' => 'tgl_mulai_layanan',
-        'anggaran' => 'tahun', // atau 'tahun' jika ingin tahun
-    ];
-
-    $orderColumn = $dateColumnMap[$t] ?? 'created_at'; // fallback ke created_at
-
-    $finalQuery = "SELECT DISTINCT $selectSql FROM $t $joinSql $whereSql ORDER BY $orderColumn DESC";
-}
+        // Build final query
         $dateColumnMap = [
-    'permohonan'    => 'tgl_pengajuan',
-    'penelaahan'    => 'tanggal_dispo',
-    'layanan'       => 'tgl_mulai_layanan',
-    'pengeluaran'   => 'tanggal',
-    'anggaran'      => 'tahun',
-    'mak'           => 'created_at',
-    'pegawai'       => 'created_at',
-    'users'         => 'created_at',
-];
+            'permohonan' => 'tgl_pengajuan',
+            'penelaahan' => 'tanggal_dispo',
+            'layanan' => 'tgl_mulai_layanan',
+            'pengeluaran' => 'tanggal',
+            'anggaran' => 'tahun',
+            'mak' => 'created_at',
+            'pegawai' => 'created_at',
+            'users' => 'created_at',
+        ];
 
+        $orderColumn = $dateColumnMap[$t] ?? 'created_at';
+        $finalQuery = "SELECT $selectSql FROM $t $joinSql $whereSql $groupBySql ORDER BY $orderColumn DESC";
+        
         error_log("Spout Export Query: " . $finalQuery);
         error_log("Spout Export Params: " . print_r($params, true));
         
         $stmt = db()->prepare($finalQuery);
         $stmt->execute($params);
         
-        // Hitung total untuk summary - PERBAIKAN COUNT
-        if ($t === 'pengeluaran') {
-            $totalStmt = db()->prepare("SELECT COUNT(*) FROM pengeluaran p $joinSql $whereSql");
-        } else {
-            $totalStmt = db()->prepare("SELECT COUNT(DISTINCT $t.{$meta['pk']}) FROM $t $joinSql $whereSql");
-        }
+        // Hitung total untuk summary
+        $totalStmt = db()->prepare("SELECT COUNT(DISTINCT $t.{$meta['pk']}) FROM $t $joinSql $whereSql");
         $totalStmt->execute($params);
         $totalRows = (int)$totalStmt->fetchColumn();
         
         $headers = array_values($colLabels);
         $headerKeys = array_keys($colLabels);
         
-        return [$stmt, $headers, $headerKeys, $totalRows, $start_date, $end_date, $joins];
+        return array($stmt, $headers, $headerKeys, $totalRows, $start_date, $end_date, $joins);
         
     } catch (Exception $e) {
         error_log("Error in fetchDataSpout: " . $e->getMessage());
@@ -611,7 +603,7 @@ function fetchDataSpout(string $t, array $tables, string $periode, string $start
 }
 
 try {
-    [$stmt, $headers, $headerKeys, $totalRows, $start_date, $end_date, $joins] = fetchDataSpout($t, $tables, $periode, $start_date, $end_date);
+    list($stmt, $headers, $headerKeys, $totalRows, $start_date, $end_date, $joins) = fetchDataSpout($t, $tables, $periode, $start_date, $end_date);
     
     $filename = ($t ?: 'data') . '-' . date('Ymd-His');
     $meta = $tables[$t];
@@ -666,6 +658,9 @@ try {
             ->build();
     }
     
+    // Buat header yang benar
+    $exportHeaders = createExportHeaders($headers, $headerKeys, $t);
+    
     // Tulis informasi summary jika diminta
     if ($include_summary && $fmt !== 'csv') {
         $summaryData = [
@@ -684,57 +679,34 @@ try {
     }
     
     // Tulis header kolom
-    $headerRow = WriterEntityFactory::createRowFromArray($headers);
+    $headerRow = WriterEntityFactory::createRowFromArray($exportHeaders);
     if ($fmt !== 'csv' && isset($headerStyle)) {
-        $headerRow = WriterEntityFactory::createRowFromArray($headers, $headerStyle);
+        $headerRow->setStyle($headerStyle);
     }
     $writer->addRow($headerRow);
     
     // Tulis data secara streaming
     $rowCount = 0;
-$batchSize = 1000;
+    $batchSize = 1000;
 
-while ($row = $stmt->fetch()) {
-    $processedRow = [];
-    
-    foreach ($headerKeys as $col) {
-        $value = '';
+    while ($row = $stmt->fetch()) {
+        $processedRow = [];
         
-        // PERBAIKAN: Mapping khusus untuk pengeluaran
-        if ($t === 'pengeluaran') {
-            switch($col) {
-                case 'nomor_kuintasi':
-                    $value = $row['nomor_kuintasi'] ?? '';
-                    break;
-                case 'kode_anggaran':
-                    $value = $row['kode_anggaran'] ?? '';
-                    break;
-                case 'tahun':
-                    $value = $row['tahun'] ?? '';
-                    break;
-                case 'jumlah':
-                    $value = $row['jumlah'] ?? '';
-                    break;
-                case 'tanggal':
-                    $value = $row['tanggal'] ?? '';
-                    break;
-                case 'kode_mak':
-                    $value = $row['kode_mak'] ?? '';
-                    break;
-                case 'keterangan':
-                    $value = $row['keterangan'] ?? '';
-                    break;
-                case 'nama_anggaran':
-                    $value = $row['nama_anggaran'] ?? '';
-                    break;
-                case 'nama_mak':
-                    $value = $row['nama_mak'] ?? '';
-                    break;
-                default:
-                    $value = $row[$col] ?? '';
-            }
-        } else {
-            // Logic original untuk tabel lain
+        foreach ($headerKeys as $col) {
+            $value = '';
+            
+            // Penanganan khusus untuk kolom id_pegawai
+            if ($col === 'id_pegawai') {
+                // Prioritaskan nama_pegawai dari JOIN
+                $value = $row['pegawai_nama_pegawai'] ?? $row['nama_pegawai'] ?? $row[$col] ?? '';
+            } 
+             // Penanganan khusus untuk kolom jenis_perlindungan
+        elseif ($col === 'jenis_perlindungan') {
+            // Gunakan nama sub_pilihan dari join jika tersedia
+            $value = $row['jenis_perlindungan_names'] ?? $row[$col] ?? '';
+        } 
+            else {
+                // Logic untuk kolom lainnya
             $value = $row[$col] ?? '';
             
             if (($value === '' || $value === null) && !empty($joins)) {
@@ -747,8 +719,8 @@ while ($row = $stmt->fetch()) {
                 }
             }
         }
-        
-        // Format nilai sesuai tipe kolom
+            
+            // Format nilai sesuai tipe kolom
         if ($format_numbers) {
             // Format tanggal
             if (strpos($col, 'tgl') !== false || strpos($col, 'tanggal') !== false) {

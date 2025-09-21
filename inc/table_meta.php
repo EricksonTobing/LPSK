@@ -27,7 +27,8 @@ return [
     'searchable' => ['no_reg_medan', 'nama_pemohon', 'tindak_pidana', 'media_pengajuan', 'jenis_perlindungan', 'pihak_perwakilan', 'provinsi', 'kab_kota_pemohon', 'provinsi_pemohon'],
     'filters' => ['jenis_kelamin', 'status_hukum', 'media_pengajuan', 'tempat_permohonan'],
     'joins' => [
-        'pegawai' => ['id_pegawai', 'id_pegawai', ['nama_pegawai']]
+        'pegawai' => ['id_pegawai', 'id_pegawai', ['nama_pegawai']],
+        // 'jenis_perlindungan' => ['no_reg_medan', 'no_reg_medan', ['kategori', 'sub_pilihan']]
     ]
 ],
   'penelaahan' => [
@@ -97,7 +98,7 @@ return [
         'permohonan' => ['no_reg_medan', 'no_reg_medan', [
             'status_hukum', 'kab_kota_pemohon', 'provinsi_pemohon'
         ]],
-        'penelaahan' => ['no_registrasi', 'no_registrasi', []]
+        'penelaahan' => ['no_registrasi', 'no_registrasi', []],
     ]
 ],
   'pegawai' => [

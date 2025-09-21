@@ -13,41 +13,40 @@ try {
     $pdo = db();
 
     // --- Validasi dan sanitasi tahun yang dipilih ---
-   // --- Validasi dan sanitasi tahun yang dipilih ---
-$selectedYear = isset($_GET['year']) && is_numeric($_GET['year']) 
-    ? (int)$_GET['year'] 
-    : (int)date('Y');
+    $selectedYear = isset($_GET['year']) && is_numeric($_GET['year']) 
+        ? (int)$_GET['year'] 
+        : (int)date('Y');
 
-// Cek apakah tahun tersedia di database
-$stmt = $pdo->prepare("
-    SELECT EXISTS(
-        SELECT 1 FROM (
-            SELECT YEAR(tgl_pengajuan) as tahun FROM permohonan
-            UNION SELECT YEAR(tanggal_dispo) FROM penelaahan
-            UNION SELECT YEAR(tanggal) FROM pengeluaran
-            UNION SELECT YEAR(tgl_mulai_layanan) FROM layanan
-            UNION SELECT tahun FROM anggaran
-        ) years 
-        WHERE tahun = ?
-    ) as tahun_ada
-");
-$stmt->execute([$selectedYear]);
-$tahunValid = (bool)$stmt->fetchColumn();
-
-// Jika tahun tidak valid, cari tahun terdekat yang ada data
-if (!$tahunValid) {
-    $stmt = $pdo->query("
-        SELECT MAX(tahun) as max_tahun 
-        FROM (
-            SELECT YEAR(tgl_pengajuan) as tahun FROM permohonan
-            UNION SELECT YEAR(tanggal_dispo) FROM penelaahan
-            UNION SELECT YEAR(tanggal) FROM pengeluaran
-            UNION SELECT YEAR(tgl_mulai_layanan) FROM layanan
-            UNION SELECT tahun FROM anggaran
-        ) years
+    // Cek apakah tahun tersedia di database
+    $stmt = $pdo->prepare("
+        SELECT EXISTS(
+            SELECT 1 FROM (
+                SELECT YEAR(tgl_pengajuan) as tahun FROM permohonan
+                UNION SELECT YEAR(tanggal_dispo) FROM penelaahan
+                UNION SELECT YEAR(tanggal) FROM pengeluaran
+                UNION SELECT YEAR(tgl_mulai_layanan) FROM layanan
+                UNION SELECT tahun FROM anggaran
+            ) years 
+            WHERE tahun = ?
+        ) as tahun_ada
     ");
-    $selectedYear = $stmt->fetchColumn() ?: (int)date('Y');
-}
+    $stmt->execute([$selectedYear]);
+    $tahunValid = (bool)$stmt->fetchColumn();
+
+    // Jika tahun tidak valid, cari tahun terdekat yang ada data
+    if (!$tahunValid) {
+        $stmt = $pdo->query("
+            SELECT MAX(tahun) as max_tahun 
+            FROM (
+                SELECT YEAR(tgl_pengajuan) as tahun FROM permohonan
+                UNION SELECT YEAR(tanggal_dispo) FROM penelaahan
+                UNION SELECT YEAR(tanggal) FROM pengeluaran
+                UNION SELECT YEAR(tgl_mulai_layanan) FROM layanan
+                UNION SELECT tahun FROM anggaran
+            ) years
+        ");
+        $selectedYear = $stmt->fetchColumn() ?: (int)date('Y');
+    }
 
     // --- Fungsi helper untuk query database ---
     function executeQuery($pdo, $sql, $params = []) {
@@ -73,9 +72,10 @@ if (!$tahunValid) {
     }
 
     // --- Hitung ringkasan data utama ---
+    // HANYA PERMOHONAN YANG DIFILTER (tambah kondisi tempat_permohonan != 'JAKARTA')
     $permohonanCount = getCount(
         $pdo, 
-        "SELECT COUNT(*) FROM permohonan WHERE YEAR(tgl_pengajuan) = ?", 
+        "SELECT COUNT(*) FROM permohonan WHERE YEAR(tgl_pengajuan) = ? AND tempat_permohonan != 'JAKARTA'", 
         [$selectedYear]
     );
 
@@ -150,11 +150,12 @@ if (!$tahunValid) {
     }
 
     // Query untuk data bulanan
+    // HANYA DATA PERMOHONAN YANG DIFILTER (tambah kondisi tempat_permohonan != 'JAKARTA')
     $permohonanMonthly = fetchMonthlyData(
         $pdo,
         "SELECT DATE_FORMAT(tgl_pengajuan, '%Y-%m') as ym, COUNT(*) as c 
          FROM permohonan 
-         WHERE YEAR(tgl_pengajuan) = ? 
+         WHERE YEAR(tgl_pengajuan) = ? AND tempat_permohonan != 'JAKARTA'
          GROUP BY ym 
          ORDER BY ym",
         $selectedYear
@@ -241,117 +242,115 @@ if (!$tahunValid) {
     }
 
     // --- Data Sisa Anggaran per Kode ---
-$stmt = executeQuery(
-    $pdo,
-    "SELECT 
-        a.kode_anggaran,
-        a.nama_anggaran,
-        a.total_anggaran,
-        COALESCE(SUM(p.jumlah), 0) as total_pengeluaran,
-        (a.total_anggaran - COALESCE(SUM(p.jumlah), 0)) as sisa_anggaran
-    FROM anggaran a
-    LEFT JOIN pengeluaran p ON a.kode_anggaran = p.kode_anggaran 
-        AND YEAR(p.tanggal) = ?
-    WHERE a.tahun = ?
-    GROUP BY a.kode_anggaran, a.nama_anggaran, a.total_anggaran
-    ORDER BY a.kode_anggaran",
-    [$selectedYear, $selectedYear]
-);
-$anggaranData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = executeQuery(
+        $pdo,
+        "SELECT 
+            a.kode_anggaran,
+            a.nama_anggaran,
+            a.total_anggaran,
+            COALESCE(SUM(p.jumlah), 0) as total_pengeluaran,
+            (a.total_anggaran - COALESCE(SUM(p.jumlah), 0)) as sisa_anggaran
+        FROM anggaran a
+        LEFT JOIN pengeluaran p ON a.kode_anggaran = p.kode_anggaran 
+            AND YEAR(p.tanggal) = ?
+        WHERE a.tahun = ?
+        GROUP BY a.kode_anggaran, a.nama_anggaran, a.total_anggaran
+        ORDER BY a.kode_anggaran",
+        [$selectedYear, $selectedYear]
+    );
+    $anggaranData = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Hitung total keseluruhan
-$totalAnggaran = 0;
-$totalPengeluaran = 0;
-$totalSisa = 0;
-$anggaranPerKode = [];
+    // Hitung total keseluruhan
+    $totalAnggaran = 0;
+    $totalPengeluaran = 0;
+    $totalSisa = 0;
+    $anggaranPerKode = [];
 
-foreach ($anggaranData as $item) {
-    $anggaran = (float)$item['total_anggaran'];
-    $pengeluaran = (float)$item['total_pengeluaran'];
-    $sisa = (float)$item['sisa_anggaran'];
+    foreach ($anggaranData as $item) {
+        $anggaran = (float)$item['total_anggaran'];
+        $pengeluaran = (float)$item['total_pengeluaran'];
+        $sisa = (float)$item['sisa_anggaran'];
 
-    $totalAnggaran += $anggaran;
-    $totalPengeluaran += $pengeluaran;
-    $totalSisa += $sisa;
+        $totalAnggaran += $anggaran;
+        $totalPengeluaran += $pengeluaran;
+        $totalSisa += $sisa;
 
-    $anggaranPerKode[] = [
-        'kode' => $item['kode_anggaran'],
-        'nama' => $item['nama_anggaran'],
-        'total' => $anggaran,
-        'total_fmt' => number_format($anggaran, 0, ',', '.'),
-        'pengeluaran' => $pengeluaran,
-        'pengeluaran_fmt' => number_format($pengeluaran, 0, ',', '.'),
-        'sisa' => $sisa,
-        'sisa_fmt' => number_format($sisa, 0, ',', '.'),
-        'persentase_penggunaan' => $anggaran > 0 ? round(($pengeluaran / $anggaran) * 100, 2) : 0
+        $anggaranPerKode[] = [
+            'kode' => $item['kode_anggaran'],
+            'nama' => $item['nama_anggaran'],
+            'total' => $anggaran,
+            'total_fmt' => number_format($anggaran, 0, ',', '.'),
+            'pengeluaran' => $pengeluaran,
+            'pengeluaran_fmt' => number_format($pengeluaran, 0, ',', '.'),
+            'sisa' => $sisa,
+            'sisa_fmt' => number_format($sisa, 0, ',', '.'),
+            'persentase_penggunaan' => $anggaran > 0 ? round(($pengeluaran / $anggaran) * 100, 2) : 0
+        ];
+    }
+
+    $anggaranSummary = [
+        'total' => $totalAnggaran,
+        'total_fmt' => number_format($totalAnggaran, 0, ',', '.'),
+        'pengeluaran' => $totalPengeluaran,
+        'pengeluaran_fmt' => number_format($totalPengeluaran, 0, ',', '.'),
+        'sisa' => $totalSisa,
+        'sisa_fmt' => number_format($totalSisa, 0, ',', '.'),
+        'persentase_penggunaan' => $totalAnggaran > 0 ? round(($totalPengeluaran / $totalAnggaran) * 100, 2) : 0,
+        'per_kode' => $anggaranPerKode
     ];
-}
 
-$anggaranSummary = [
-    'total' => $totalAnggaran,
-    'total_fmt' => number_format($totalAnggaran, 0, ',', '.'),
-    'pengeluaran' => $totalPengeluaran,
-    'pengeluaran_fmt' => number_format($totalPengeluaran, 0, ',', '.'),
-    'sisa' => $totalSisa,
-    'sisa_fmt' => number_format($totalSisa, 0, ',', '.'),
-    'persentase_penggunaan' => $totalAnggaran > 0 ? round(($totalPengeluaran / $totalAnggaran) * 100, 2) : 0,
-    'per_kode' => $anggaranPerKode
-];
+    // --- Data Beban Kerja Pegawai ---
+    $stmt = executeQuery(
+        $pdo,
+        "SELECT 
+            pg.id_pegawai,
+            pg.nama_pegawai,
+            COUNT(DISTINCT pm.no_reg_medan) as jumlah_permohonan,
+            COUNT(DISTINCT pn.no_registrasi) as jumlah_penelaahan, 
+            COUNT(DISTINCT ly.no_kep_smpl) as jumlah_layanan
+        FROM pegawai pg
+        LEFT JOIN permohonan pm ON pg.id_pegawai = pm.id_pegawai AND YEAR(pm.tgl_pengajuan) = ?
+        LEFT JOIN penelaahan pn ON pg.id_pegawai = pn.id_pegawai AND YEAR(pn.tanggal_dispo) = ?
+        LEFT JOIN layanan ly ON pg.id_pegawai = ly.id_pegawai AND (YEAR(ly.tanggal_disposisi) = ? OR (ly.tanggal_disposisi IS NULL AND YEAR(ly.tgl_mulai_layanan) = ?))
+        GROUP BY pg.id_pegawai, pg.nama_pegawai
+        ORDER BY pg.nama_pegawai",
+        [$selectedYear, $selectedYear, $selectedYear, $selectedYear]
+    );
+    $bebanKerjaPegawai = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // Format data untuk chart
+    $pegawaiLabels = [];
+    $permohonanData = [];
+    $penelaahanData = [];
+    $layananData = [];
 
-// --- Data Beban Kerja Pegawai ---
-// --- Data Beban Kerja Pegawai ---
-$stmt = executeQuery(
-    $pdo,
-    "SELECT 
-        pg.id_pegawai,
-        pg.nama_pegawai,
-        COUNT(DISTINCT pm.no_reg_medan) as jumlah_permohonan,
-        COUNT(DISTINCT pn.no_registrasi) as jumlah_penelaahan, 
-        COUNT(DISTINCT ly.no_kep_smpl) as jumlah_layanan
-    FROM pegawai pg
-    LEFT JOIN permohonan pm ON pg.id_pegawai = pm.id_pegawai AND YEAR(pm.tgl_pengajuan) = ?
-    LEFT JOIN penelaahan pn ON pg.id_pegawai = pn.id_pegawai AND YEAR(pn.tanggal_dispo) = ?
-    LEFT JOIN layanan ly ON pg.id_pegawai = ly.id_pegawai AND (YEAR(ly.tanggal_disposisi) = ? OR (ly.tanggal_disposisi IS NULL AND YEAR(ly.tgl_mulai_layanan) = ?))
-    GROUP BY pg.id_pegawai, pg.nama_pegawai
-    ORDER BY pg.nama_pegawai",
-    [$selectedYear, $selectedYear, $selectedYear, $selectedYear]
-);
-$bebanKerjaPegawai = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($bebanKerjaPegawai as $pegawai) {
+        $pegawaiLabels[] = $pegawai['nama_pegawai'];
+        $permohonanData[] = (int)$pegawai['jumlah_permohonan'];
+        $penelaahanData[] = (int)$pegawai['jumlah_penelaahan'];
+        $layananData[] = (int)$pegawai['jumlah_layanan'];
+    }
 
-// Format data untuk chart
-$pegawaiLabels = [];
-$permohonanData = [];
-$penelaahanData = [];
-$layananData = [];
-
-foreach ($bebanKerjaPegawai as $pegawai) {
-    $pegawaiLabels[] = $pegawai['nama_pegawai'];
-    $permohonanData[] = (int)$pegawai['jumlah_permohonan'];
-    $penelaahanData[] = (int)$pegawai['jumlah_penelaahan'];
-    $layananData[] = (int)$pegawai['jumlah_layanan'];
-}
-
-$bebanKerjaChart = [
-    'labels' => $pegawaiLabels,
-    'datasets' => [
-        [
-            'label' => 'Permohonan',
-            'data' => $permohonanData,
-            'backgroundColor' => 'rgba(59, 130, 246, 0.7)'
-        ],
-        [
-            'label' => 'Penelaahan',
-            'data' => $penelaahanData,
-            'backgroundColor' => 'rgba(16, 185, 129, 0.7)'
-        ],
-        [
-            'label' => 'Layanan',
-            'data' => $layananData,
-            'backgroundColor' => 'rgba(245, 158, 11, 0.7)'
+    $bebanKerjaChart = [
+        'labels' => $pegawaiLabels,
+        'datasets' => [
+            [
+                'label' => 'Permohonan',
+                'data' => $permohonanData,
+                'backgroundColor' => 'rgba(59, 130, 246, 0.7)'
+            ],
+            [
+                'label' => 'Penelaahan',
+                'data' => $penelaahanData,
+                'backgroundColor' => 'rgba(16, 185, 129, 0.7)'
+            ],
+            [
+                'label' => 'Layanan',
+                'data' => $layananData,
+                'backgroundColor' => 'rgba(245, 158, 11, 0.7)'
+            ]
         ]
-    ]
-];
+    ];
 
     // --- Data untuk Peta Provinsi ---
     $stmt = executeQuery(
@@ -407,184 +406,237 @@ $bebanKerjaChart = [
         }
     }
 
-// --- Hitung persentase perubahan dari bulan sebelumnya ---
-function calculateMonthOverMonthChange($monthlyData, $selectedYear) {
-    $currentMonth = (int)date('n');
-    $currentYear = (int)date('Y');
-    
-    // Jika tahun yang dipilih bukan tahun berjalan, gunakan Desember sebagai bulan "berjalan"
-    if ($selectedYear != $currentYear) {
-        $currentMonth = 12;
-    }
-    
-    $previousMonth = $currentMonth - 1;
-    $previousYear = $selectedYear;
-    
-    // Jika bulan sebelumnya adalah 0 (Januari), gunakan Desember tahun sebelumnya
-    if ($previousMonth < 1) {
-        $previousMonth = 12;
-        $previousYear = $selectedYear - 1;
-    }
-    
-    // Cek apakah data untuk bulan berjalan tersedia
-    $currentValue = 0;
-    $currentMonthKey = $selectedYear . '-' . str_pad($currentMonth, 2, '0', STR_PAD_LEFT);
-    foreach ($monthlyData as $data) {
-        if ($data['ym'] == $currentMonthKey) {
-            $currentValue = (float)$data['c'];
-            break;
-        }
-    }
-    
-    // Cek apakah data untuk bulan sebelumnya tersedia
-    $previousValue = 0;
-    $previousMonthKey = $previousYear . '-' . str_pad($previousMonth, 2, '0', STR_PAD_LEFT);
-    
-    // Untuk data bulan sebelumnya, kita perlu query ulang jika tahun berbeda
-    if ($previousYear != $selectedYear) {
-        $stmt = executeQuery(
-            $pdo,
-            "SELECT DATE_FORMAT(tanggal, '%Y-%m') as ym, SUM(jumlah) as c 
-             FROM pengeluaran 
-             WHERE YEAR(tanggal) = ? 
-             GROUP BY ym 
-             ORDER BY ym",
-            [$previousYear]
-        );
-        $previousYearData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // --- Hitung persentase perubahan dari bulan sebelumnya ---
+    function calculateMonthOverMonthChange($pdo, $monthlyData, $selectedYear) {
+        $currentMonth = (int)date('n');
+        $currentYear = (int)date('Y');
         
-        foreach ($previousYearData as $data) {
-            if ($data['ym'] == $previousMonthKey) {
-                $previousValue = (float)$data['c'];
-                break;
-            }
+        if ($selectedYear != $currentYear) {
+            $currentMonth = 12;
         }
-    } else {
+        
+        $previousMonth = $currentMonth - 1;
+        $previousYear = $selectedYear;
+        
+        if ($previousMonth < 1) {
+            $previousMonth = 12;
+            $previousYear = $selectedYear - 1;
+        }
+        
+        $currentValue = 0;
+        $currentMonthKey = $selectedYear . '-' . str_pad($currentMonth, 2, '0', STR_PAD_LEFT);
         foreach ($monthlyData as $data) {
-            if ($data['ym'] == $previousMonthKey) {
-                $previousValue = (float)$data['c'];
+            if ($data['ym'] == $currentMonthKey) {
+                $currentValue = (float)$data['c'];
                 break;
             }
         }
+        
+        $previousValue = 0;
+        $previousMonthKey = $previousYear . '-' . str_pad($previousMonth, 2, '0', STR_PAD_LEFT);
+        
+        if ($previousYear != $selectedYear) {
+            $stmt = executeQuery(
+                $pdo,
+                "SELECT DATE_FORMAT(tgl_pengajuan, '%Y-%m') as ym, COUNT(*) as c 
+                 FROM permohonan 
+                 WHERE YEAR(tgl_pengajuan) = ? AND tempat_permohonan != 'JAKARTA'
+                 GROUP BY ym 
+                 ORDER BY ym",
+                [$previousYear]
+            );
+            $previousYearData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            foreach ($previousYearData as $data) {
+                if ($data['ym'] == $previousMonthKey) {
+                    $previousValue = (float)$data['c'];
+                    break;
+                }
+            }
+        } else {
+            foreach ($monthlyData as $data) {
+                if ($data['ym'] == $previousMonthKey) {
+                    $previousValue = (float)$data['c'];
+                    break;
+                }
+            }
+        }
+        
+        if ($previousValue == 0) {
+            return $currentValue > 0 ? 100 : 0;
+        }
+        
+        return (($currentValue - $previousValue) / $previousValue) * 100;
     }
-    
-    // Hitung persentase perubahan
-    if ($previousValue == 0) {
-        return $currentValue > 0 ? 100 : 0;
+
+    // Hitung persentase perubahan untuk setiap metrik
+    $permohonanChange = calculateMonthOverMonthChange($pdo, $permohonanMonthly, $selectedYear);
+    $penelaahanChange = calculateMonthOverMonthChange($pdo, $penelaahanMonthly, $selectedYear);
+    $layananChange = calculateMonthOverMonthChange($pdo, $layananMonthly, $selectedYear);
+    $pengeluaranChange = calculateMonthOverMonthChange($pdo, $pengeluaranMonthly, $selectedYear);
+
+    // Tambahkan ke counts
+    $counts['permohonan_change'] = round($permohonanChange, 1);
+    $counts['penelaahan_change'] = round($penelaahanChange, 1);
+    $counts['layanan_change'] = round($layananChange, 1);
+    $counts['pengeluaran_change'] = round($pengeluaranChange, 1);
+
+    // --- Data Jenis Kelamin Permohonan ---
+    // HANYA DATA PERMOHONAN YANG DIFILTER (tambah kondisi tempat_permohonan != 'JAKARTA')
+    $stmt = executeQuery(
+        $pdo,
+        "SELECT 
+            jenis_kelamin,
+            COUNT(*) as jumlah
+         FROM permohonan 
+         WHERE YEAR(tgl_pengajuan) = ? AND tempat_permohonan != 'JAKARTA'
+         GROUP BY jenis_kelamin",
+        [$selectedYear]
+    );
+    $genderPermohonan = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+    // Format data jenis kelamin
+    $genderLabels = ['L' => 'Laki-laki', 'P' => 'Perempuan'];
+    $genderDataPermohonan = [
+        'labels' => [],
+        'data' => [],
+        'total' => 0
+    ];
+
+    foreach ($genderLabels as $code => $label) {
+        $count = $genderPermohonan[$code] ?? 0;
+        $genderDataPermohonan['labels'][] = $label;
+        $genderDataPermohonan['data'][] = $count;
+        $genderDataPermohonan['total'] += $count;
     }
-    
-    return (($currentValue - $previousValue) / $previousValue) * 100;
-}
 
-// Hitung persentase perubahan untuk setiap metrik
-$permohonanChange = calculateMonthOverMonthChange($permohonanMonthly, $selectedYear);
-$penelaahanChange = calculateMonthOverMonthChange($penelaahanMonthly, $selectedYear);
-$layananChange = calculateMonthOverMonthChange($layananMonthly, $selectedYear);
-$pengeluaranChange = calculateMonthOverMonthChange($pengeluaranMonthly, $selectedYear);
+    // --- Data Jenis Kelamin Layanan ---
+    $stmt = executeQuery(
+        $pdo,
+        "SELECT 
+            p.jenis_kelamin,
+            COUNT(*) as jumlah
+         FROM layanan l
+         JOIN permohonan p ON l.no_reg_medan = p.no_reg_medan
+         WHERE (YEAR(l.tgl_mulai_layanan) = ? OR (l.tanggal_disposisi IS NOT NULL AND YEAR(l.tanggal_disposisi) = ?))
+         GROUP BY p.jenis_kelamin",
+        [$selectedYear, $selectedYear]
+    );
+    $genderLayanan = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 
-// Tambahkan ke counts
-$counts['permohonan_change'] = round($permohonanChange, 1);
-$counts['penelaahan_change'] = round($penelaahanChange, 1);
-$counts['layanan_change'] = round($layananChange, 1);
-$counts['pengeluaran_change'] = round($pengeluaranChange, 1);
+    $genderDataLayanan = [
+        'labels' => [],
+        'data' => [],
+        'total' => 0
+    ];
 
-// --- Data Aktivitas Terbaru ---
-$stmt = executeQuery(
-    $pdo,
-    "(
-        SELECT 
-            'permohonan' as jenis,
-            no_reg_medan as nomor,
-            tgl_pengajuan as tanggal,
-            nama_pemohon,
-            'Permohonan baru diterima' as aktivitas,
-            'blue' as warna,
-            'fa-file-import' as icon
-        FROM permohonan 
-        WHERE YEAR(tgl_pengajuan) = ?
-        ORDER BY tgl_pengajuan DESC 
-        LIMIT 5
-    )
-    UNION ALL
-    (
-        SELECT 
-            'penelaahan' as jenis,
-            no_registrasi as nomor,
-            tanggal_dispo as tanggal,
-            '' as nama_pemohon,
-            'Penelaahan selesai' as aktivitas,
-            'green' as warna,
-            'fa-check-circle' as icon
-        FROM penelaahan 
-        WHERE YEAR(tanggal_dispo) = ?
-        ORDER BY tanggal_dispo DESC 
-        LIMIT 5
-    )
-    UNION ALL
-    (
-        SELECT 
-            'pengeluaran' as jenis,
-            nomor_kuintasi as nomor,
-            tanggal,
-            '' as nama_pemohon,
-            'Pengeluaran baru dicatat' as aktivitas,
-            'amber' as warna,
-            'fa-coins' as icon
-        FROM pengeluaran 
-        WHERE YEAR(tanggal) = ?
+    foreach ($genderLabels as $code => $label) {
+        $count = $genderLayanan[$code] ?? 0;
+        $genderDataLayanan['labels'][] = $label;
+        $genderDataLayanan['data'][] = $count;
+        $genderDataLayanan['total'] += $count;
+    }
+
+    // --- Data Aktivitas Terbaru ---
+    $stmt = executeQuery(
+        $pdo,
+        "(
+            SELECT 
+                'permohonan' as jenis,
+                no_reg_medan as nomor,
+                tgl_pengajuan as tanggal,
+                nama_pemohon,
+                'Permohonan baru diterima' as aktivitas,
+                'blue' as warna,
+                'fa-file-import' as icon
+            FROM permohonan 
+            WHERE YEAR(tgl_pengajuan) = ? AND tempat_permohonan != 'JAKARTA'
+            ORDER BY tgl_pengajuan DESC 
+            LIMIT 5
+        )
+        UNION ALL
+        (
+            SELECT 
+                'penelaahan' as jenis,
+                no_registrasi as nomor,
+                tanggal_dispo as tanggal,
+                '' as nama_pemohon,
+                'Penelaahan selesai' as aktivitas,
+                'green' as warna,
+                'fa-check-circle' as icon
+            FROM penelaahan 
+            WHERE YEAR(tanggal_dispo) = ?
+            ORDER BY tanggal_dispo DESC 
+            LIMIT 5
+        )
+        UNION ALL
+        (
+            SELECT 
+                'pengeluaran' as jenis,
+                nomor_kuintasi as nomor,
+                tanggal,
+                '' as nama_pemohon,
+                'Pengeluaran baru dicatat' as aktivitas,
+                'amber' as warna,
+                'fa-coins' as icon
+            FROM pengeluaran 
+            WHERE YEAR(tanggal) = ?
+            ORDER BY tanggal DESC 
+            LIMIT 5
+        )
         ORDER BY tanggal DESC 
-        LIMIT 5
-    )
-    ORDER BY tanggal DESC 
-    LIMIT 5",
-    [$selectedYear, $selectedYear, $selectedYear]
-);
-$aktivitasTerbaru = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        LIMIT 5",
+        [$selectedYear, $selectedYear, $selectedYear]
+    );
+    $aktivitasTerbaru = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Format waktu relatif
-foreach ($aktivitasTerbaru as &$aktivitas) {
-    $waktu = new DateTime($aktivitas['tanggal']);
-    $sekarang = new DateTime();
-    $selisih = $sekarang->diff($waktu);
-    
-    if ($selisih->y > 0) {
-        $aktivitas['waktu'] = $selisih->y . ' tahun yang lalu';
-    } elseif ($selisih->m > 0) {
-        $aktivitas['waktu'] = $selisih->m . ' bulan yang lalu';
-    } elseif ($selisih->d > 0) {
-        $aktivitas['waktu'] = $selisih->d . ' hari yang lalu';
-    } elseif ($selisih->h > 0) {
-        $aktivitas['waktu'] = $selisih->h . ' jam yang lalu';
-    } else {
-        $aktivitas['waktu'] = 'Beberapa menit yang lalu';
+    // Format waktu relatif
+    foreach ($aktivitasTerbaru as &$aktivitas) {
+        $waktu = new DateTime($aktivitas['tanggal']);
+        $sekarang = new DateTime();
+        $selisih = $sekarang->diff($waktu);
+        
+        if ($selisih->y > 0) {
+            $aktivitas['waktu'] = $selisih->y . ' tahun yang lalu';
+        } elseif ($selisih->m > 0) {
+            $aktivitas['waktu'] = $selisih->m . ' bulan yang lalu';
+        } elseif ($selisih->d > 0) {
+            $aktivitas['waktu'] = $selisih->d . ' hari yang lalu';
+        } elseif ($selisih->h > 0) {
+            $aktivitas['waktu'] = $selisih->h . ' jam yang lalu';
+        } else {
+            $aktivitas['waktu'] = 'Beberapa menit yang lalu';
+        }
     }
-}
 
-
-$response = [
-    'success' => true,
-    'selectedYear' => $selectedYear,
-    'counts' => $counts,
-    'anggaran' => $anggaranSummary,
-    'aktivitas_terbaru' => $aktivitasTerbaru,
-    'charts' => [
-        'permohonan_line' => [
-            'labels' => $labelsPermohonan,
-            'permohonan' => $dataPermohonan,
-            'penelaahan' => $dataPenelaahan,
-            'layanan' => $dataLayanan,
+    $response = [
+        'success' => true,
+        'selectedYear' => $selectedYear,
+        'counts' => $counts,
+        'anggaran' => $anggaranSummary,
+        'aktivitas_terbaru' => $aktivitasTerbaru,
+        'charts' => [
+            'permohonan_line' => [
+                'labels' => $labelsPermohonan,
+                'permohonan' => $dataPermohonan,
+                'penelaahan' => $dataPenelaahan,
+                'layanan' => $dataLayanan,
+            ],
+            'pengeluaran' => [
+                'labels' => $labelsPengeluaran,
+                'data' => $dataPengeluaran,
+            ],
+            'beban_kerja' => $bebanKerjaChart,
+            'gender_distribution' => [ 
+                'permohonan' => $genderDataPermohonan,
+                'layanan' => $genderDataLayanan
+            ]
         ],
-        'pengeluaran' => [
-            'labels' => $labelsPengeluaran,
-            'data' => $dataPengeluaran,
-        ],
-        'beban_kerja' => $bebanKerjaChart
-    ],
-    'map' => [
-        'provinsi_counts' => $provinsiCounts,
-        'provinsi_fillkeys' => $fillKeys
-    ]
-];
+        'map' => [
+            'provinsi_counts' => $provinsiCounts,
+            'provinsi_fillkeys' => $fillKeys
+        ]
+    ];
 
     echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 

@@ -76,4 +76,6 @@ function base_url($path = '') {
     return $protocol . $domain . $base . $path;
 }
 
+
+
 function redirect(string $url): void { header("Location: $url"); exit; }

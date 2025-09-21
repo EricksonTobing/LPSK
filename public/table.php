@@ -68,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // -----------------------------------------------
         if ($action === 'create' || $action === 'update') {
             $data = [];
+            $selectedJenisPerlindungan = []; // Inisialisasi array untuk menyimpan pilihan jenis_perlindungan
             foreach (array_keys($colLabels) as $c) {
                 // Lewati kolom hasil join (read-only)
                 $isJoined = false;
@@ -78,6 +79,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
                 if ($isJoined) continue;
+                 // Penanganan khusus untuk jenis_perlindungan (checkbox array)
+                if ($c === 'jenis_perlindungan') {
+                    $selectedOptions = $_POST[$c] ?? [];
+                    $selectedJenisPerlindungan = $selectedOptions; // Simpan untuk pemrosesan relasi
+                    $data[$c] = !empty($selectedOptions) ? implode(',', $selectedOptions) : null;
+                    continue;
+                }
 
                 // Ambil nilai dari POST, gunakan nama kolom asli
                 $v = $_POST[$c] ?? null;
@@ -103,8 +111,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 error_log("Params: " . print_r(array_values($data), true));
                 $stmt = db()->prepare($sql);
                 $stmt->execute(array_values($data));
+                
+                 // Simpan ke tabel relasi permohonan_perlindungan
+                if ($t === 'permohonan' && !empty($selectedJenisPerlindungan)) {
+                    foreach ($selectedJenisPerlindungan as $idPerlindungan) {
+                        $sqlRelasi = "INSERT INTO permohonan_perlindungan (no_reg_medan, id_perlindungan) VALUES (?, ?)";
+                        db()->prepare($sqlRelasi)->execute([$data['no_reg_medan'], $idPerlindungan]);
+                    }
+                }
+                
+                // Simpan ke tabel relasi layanan_perlindungan
+                if ($t === 'layanan' && !empty($selectedJenisPerlindungan)) {
+                    foreach ($selectedJenisPerlindungan as $idPerlindungan) {
+                        $sqlRelasi = "INSERT INTO layanan_perlindungan (no_kep_smpl, id_perlindungan) VALUES (?, ?)";
+                        db()->prepare($sqlRelasi)->execute([$data['no_kep_smpl'], $idPerlindungan]);
+                    }
+                }
+                
                 $_SESSION['success'] = "Data created successfully";
             } else {
+                
                 // ---------------------------------------
                 // Query Update Data Berdasarkan Primary Key
                 // ---------------------------------------
@@ -125,6 +151,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 error_log("Params: " . print_r($params, true));
                 $stmt = db()->prepare($sql);
                 $stmt->execute($params);
+                
+                // Hapus dan insert ulang relasi untuk update
+                if ($t === 'permohonan') {
+                    // Hapus relasi lama
+                    $sqlDelete = "DELETE FROM permohonan_perlindungan WHERE no_reg_medan = ?";
+                    db()->prepare($sqlDelete)->execute([$id]);
+                    
+                    // Insert relasi baru
+                    if (!empty($selectedJenisPerlindungan)) {
+                        foreach ($selectedJenisPerlindungan as $idPerlindungan) {
+                            $sqlInsert = "INSERT INTO permohonan_perlindungan (no_reg_medan, id_perlindungan) VALUES (?, ?)";
+                            db()->prepare($sqlInsert)->execute([$id, $idPerlindungan]);
+                        }
+                    }
+                }
+                
+                // Lakukan hal serupa untuk layanan_perlindungan
+                if ($t === 'layanan') {
+                    // Hapus relasi lama
+                    $sqlDelete = "DELETE FROM layanan_perlindungan WHERE no_kep_smpl = ?";
+                    db()->prepare($sqlDelete)->execute([$id]);
+                    
+                    // Insert relasi baru
+                    if (!empty($selectedJenisPerlindungan)) {
+                        foreach ($selectedJenisPerlindungan as $idPerlindungan) {
+                            $sqlInsert = "INSERT INTO layanan_perlindungan (no_kep_smpl, id_perlindungan) VALUES (?, ?)";
+                            db()->prepare($sqlInsert)->execute([$id, $idPerlindungan]);
+                        }
+                    }
+                }
+                
                 $_SESSION['success'] = "Data updated successfully";
             }
         }
@@ -132,24 +189,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Proses Delete Data
         // -----------------------------------------------
         elseif ($action === 'delete') {
-            $id = $_POST[$pk] ?? null;
-            if ($id) {
-                // Cek foreign key sebelum hapus pada tabel permohonan
-                if ($t === 'permohonan') {
-                    $checkLayanan = db()->prepare("SELECT COUNT(*) FROM layanan WHERE no_reg_medan = ?");
-                    $checkLayanan->execute([$id]);
-                    $checkPenelaahan = db()->prepare("SELECT COUNT(*) FROM penelaahan WHERE no_reg_medan = ?");
-                    $checkPenelaahan->execute([$id]);
-                    if ($checkLayanan->fetchColumn() > 0 || $checkPenelaahan->fetchColumn() > 0) {
-                        $_SESSION['error'] = "Cannot delete: Data is referenced in other tables";
-                        redirect("table.php?t=$t");
-                    }
-                }
-                $sql = "DELETE FROM $t WHERE $pk=?";
-                db()->prepare($sql)->execute([$id]);
-                $_SESSION['success'] = "Data deleted successfully";
+    $id = $_POST[$pk] ?? null;
+    if ($id) {
+        try {
+            // START TRANSACTION
+            db()->beginTransaction();
+
+            // HAPUS DATA TERKAIT BERDASARKAN TABEL
+            switch ($t) {
+                case 'permohonan':
+                    $stmt1 = db()->prepare("DELETE FROM permohonan_perlindungan WHERE no_reg_medan = ?");
+                    $stmt1->execute([$id]);
+                    break;
+                    
+                case 'layanan':
+                    $stmt1 = db()->prepare("DELETE FROM layanan_perlindungan WHERE no_kep_smpl = ?");
+                    $stmt1->execute([$id]);
+                    break;
+                    
+                case 'penelaahan':
+                    // Biarkan database handle constraints
+                    break;
             }
+
+            // HAPUS DATA UTAMA
+            $sql = "DELETE FROM $t WHERE $pk=?";
+            $stmt = db()->prepare($sql);
+            $stmt->execute([$id]);
+            
+            // COMMIT TRANSACTION
+            db()->commit();
+            
+            $_SESSION['success'] = "Data berhasil dihapus";
+            
+        } catch (PDOException $e) {
+            // ROLLBACK jika ada error
+            if (db()->inTransaction()) {
+                db()->rollBack();
+            }
+            
+            error_log("Database error in delete: " . $e->getMessage());
+            
+            // Pesan error yang lebih spesifik
+            if (strpos($e->getMessage(), 'foreign key constraint') !== false) {
+                $_SESSION['error'] = "Tidak dapat menghapus: Data masih digunakan di tabel lain. Silakan hapus data terkait terlebih dahulu.";
+            } else {
+                $_SESSION['error'] = "Terjadi kesalahan database: " . $e->getMessage();
+            }
+            
+            redirect("table.php?t=$t");
         }
+    }
+}
     } catch (PDOException $e) {
         error_log("Database error: " . $e->getMessage());
         // Penanganan error database yang user-friendly
@@ -180,13 +271,16 @@ function get_input_type($column, $value = '')
 
     // Daftar enum kolom beserta opsi-nya
     $enum_columns = [
-        'jenis_kelamin'         => ['L' => 'Laki-laki', 'P' => 'Perempuan'],
+        'jenis_kelamin'         => [
+            'laki-laki' => 'Laki-laki', 
+            'perempuan' => 'Perempuan'],
         'status_hukum'          => [
             'Saksi' => 'Saksi', 
             'Korban' => 'Korban', 
             'Ahli' => 'Ahli', 
             'Pelapor' => 'Pelapor', 
-            'Saksi Pelaku' => 'Saksi Pelaku'
+            'Saksi Pelaku' => 'Saksi Pelaku',
+            'Anak Korban' => 'Anak Korban'
         ],
         'pihak_perwakilan'      => [
             'KELUARGA' => 'Keluarga', 
@@ -206,14 +300,16 @@ function get_input_type($column, $value = '')
             'PENGANIAYAAN BERAT' => 'Penganiayaan Berat', 
             'NARKOTIKA' => 'Narkotika', 
             'TPL' => 'TPL', 
-            'TPPU' => 'TPPU'
+            'TPPU' => 'TPPU',
+            'PENGANIAYAAN' => 'Penganiayaan'
         ],
         'media_pengajuan'       => [
             'DATANG LANGSUNG' => 'Datang Langsung', 
             'WA' => 'WhatsApp', 
             'EMAIL' => 'Email', 
             'SURAT' => 'Surat', 
-            'MPP' => 'MPP'
+            'MPP' => 'MPP',
+            'Pro Aktif' => 'Pro Aktif'
         ],
         'tempat_permohonan'     => ['MEDAN' => 'Medan', 'JAKARTA' => 'Jakarta'],
         'risalah_laporan'       => ['BELUM' => 'Belum', 'SUDAH' => 'Sudah'],
@@ -239,7 +335,8 @@ function get_input_type($column, $value = '')
             'PENGANIAYAAN BERAT' => 'Penganiayaan Berat', 
             'NARKOTIKA' => 'Narkotika', 
             'TPL' => 'TPL',
-            'TPPU' => 'TPPU'
+            'TPPU' => 'TPPU',
+            'PENGANIAYAAN' => 'Penganiayaan'
         ],
         'nama_ta_layanan'       => ['AM' => 'AM', 'AJC' => 'AJC', 'RW' => 'RW', 'TP' => 'TP', 'SMW' => 'SMW'],
         'status'                => ['BERJALAN' => 'Berjalan', 'DIHENTIKAN' => 'Dihentikan', 'PERPANJANGAN' => 'Perpanjangan'],
@@ -270,6 +367,25 @@ function get_input_type($column, $value = '')
         return ['type' => 'number', 'step' => '0.01'];
     }
 
+    // Kolom jenis_perlindungan: dropdown checkbox dengan kategori
+    if ($column === 'jenis_perlindungan') {
+        try {
+            $stmt = db()->query("SELECT id, kategori, sub_pilihan FROM jenis_perlindungan ORDER BY kategori, sub_pilihan");
+            $jenisPerlindungan = $stmt->fetchAll();
+            
+            // Kelompokkan berdasarkan kategori
+            $optionsByCategory = [];
+            foreach ($jenisPerlindungan as $jp) {
+                $optionsByCategory[$jp['kategori']][$jp['id']] = $jp['sub_pilihan'];
+            }
+            
+            return ['type' => 'checkbox-category', 'options' => $optionsByCategory];
+        } catch (Exception $e) {
+            error_log("Error loading jenis_perlindungan: " . $e->getMessage());
+            return ['type' => 'text'];
+        }
+    }
+    
     // Kolom foreign key: id_pegawai
     if ($column === 'id_pegawai') {
         try {
@@ -456,6 +572,7 @@ $params = [];
 $selectColumns = ["$t.*"];
 $joinClauses   = [];
 $joinParams    = [];
+
 
 foreach ($joins as $joinTable => $joinInfo) {
     list($localKey, $foreignKey, $columns) = $joinInfo;
@@ -778,37 +895,58 @@ require __DIR__ . '/../inc/layout_nav.php';
                                 <?= $row_number++ ?>
                             </td>
                             <?php foreach ($colLabels as $col => $label): ?>
-                                <td class="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 max-w-xs truncate group relative" title="<?= e((string)($r[$col] ?? '')) ?>">
-                                    <?php if ($col === 'id_pegawai' && !empty($r['pegawai_nama_pegawai'])): ?>
-                                        <?= e($r['pegawai_nama_pegawai']) ?>
-                                    <?php elseif ($col === 'link_berkas_permohonan' && !empty($r[$col])): ?>
-                                        <a href="<?= e($r[$col]) ?>" target="_blank" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline flex items-center transition-colors">
-                                            <i class="fas fa-external-link-alt mr-1 text-xs"></i> Lihat Berkas
-                                        </a>
-                                    <?php else: ?>
-                                        <?= e(truncate_text((string)($r[$col] ?? ''), 50)) ?>
-                                        <?php if (strlen((string)($r[$col] ?? '')) > 50): ?>
-                                            <div class="absolute inset-0 bg-gradient-to-l from-transparent to-white dark:to-gray-800 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-                                        <?php endif; ?>
-                                    <?php endif; ?>
-                                </td>
-                            <?php endforeach; ?>
-                            <?php if ($role === 'admin'): ?>
-                                <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium sticky right-0 bg-white dark:bg-gray-800 z-10">
-                                    <div class="flex justify-end space-x-2">
-                                        <button onclick="openEditModal('<?= e($r[$pk]) ?>')" 
-                                            class="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400 transition-colors p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                                            title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button onclick="confirmDelete('<?= e($r[$pk]) ?>')" 
-                                            class="text-red-600 hover:text-red-900 dark:hover:text-red-400 transition-colors p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
-                                            title="Hapus">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            <?php endif; ?>
+<td class="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 max-w-xs truncate group relative" title="<?= e((string)($r[$col] ?? '')) ?>">
+    <?php if ($col === 'id_pegawai' && !empty($r['pegawai_nama_pegawai'])): ?>
+        <?= e($r['pegawai_nama_pegawai']) ?>
+    <?php elseif ($col === 'jenis_perlindungan' && !empty($r[$col])): ?>
+        <?php
+        // Ambil detail jenis perlindungan dari database
+        $ids = explode(',', $r[$col]);
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = db()->prepare("SELECT sub_pilihan FROM jenis_perlindungan WHERE id IN ($placeholders)");
+        $stmt->execute($ids);
+        $jenisList = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        ?>
+        <?= e(implode(', ', $jenisList)) ?>
+    <?php else: ?>
+        <!-- Tampilan normal untuk kolom lainnya -->
+        <?php if ($col === 'link_berkas_permohonan' && !empty($r[$col])): ?>
+            <a href="<?= e($r[$col]) ?>" target="_blank" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline flex items-center transition-colors">
+                <i class="fas fa-external-link-alt mr-1 text-xs"></i> Lihat Berkas
+            </a>
+        <?php else: ?>
+            <?= e(truncate_text((string)($r[$col] ?? ''), 50)) ?>
+            <?php if (strlen((string)($r[$col] ?? '')) > 50): ?>
+                <div class="absolute inset-0 bg-gradient-to-l from-transparent to-white dark:to-gray-800 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+            <?php endif; ?>
+        <?php endif; ?>
+    <?php endif; ?>
+</td>
+<?php endforeach; ?>
+                            <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium sticky right-0 bg-white dark:bg-gray-800 z-10">
+    <div class="flex justify-end space-x-2">
+        <!-- Tombol View - tersedia untuk semua user -->
+        <button onclick="openViewModal('<?= e($r[$pk]) ?>')" 
+            class="text-green-600 hover:text-green-900 dark:hover:text-green-400 transition-colors p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20"
+            title="Lihat Detail">
+            <i class="fas fa-eye"></i>
+        </button>
+        
+        <?php if ($role === 'admin'): ?>
+            <!-- Tombol Edit dan Hapus - hanya untuk admin -->
+            <button onclick="openEditModal('<?= e($r[$pk]) ?>')" 
+                class="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400 transition-colors p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                title="Edit">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button onclick="confirmDelete('<?= e($r[$pk]) ?>')" 
+                class="text-red-600 hover:text-red-900 dark:hover:text-red-400 transition-colors p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
+                title="Hapus">
+                <i class="fas fa-trash"></i>
+            </button>
+        <?php endif; ?>
+    </div>
+</td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -904,48 +1042,81 @@ require __DIR__ . '/../inc/layout_nav.php';
                 <input type="hidden" name="action" value="create">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <?php foreach ($colLabels as $col => $label): 
-                        // Lewati kolom hasil join pada form create
-                        $isJoined = false;
-                        foreach ($joins as $joinTable => $joinInfo) {
-                            if (in_array($col, $joinInfo[2])) {
-                                $isJoined = true;
-                                break;
-                            }
-                        }
-                        if ($isJoined) continue;
-                        $input_type = get_input_type($col);
-                        $required = is_required_field($col, $pk);
-                        $help_text = get_field_help($col);
-                    ?>
-                        <div class="space-y-1">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                <?= e($label) ?>
-                                <?php if ($required): ?>
-                                    <span class="text-red-500">*</span>
-                                <?php endif; ?>
+
+
+    // Lewati kolom hasil join pada form create
+    $isJoined = false;
+    foreach ($joins as $joinTable => $joinInfo) {
+        if (in_array($col, $joinInfo[2])) {
+            $isJoined = true;
+            break;
+        }
+    }
+    if ($isJoined) continue;
+    
+    $input_type = get_input_type($col);
+    $required = is_required_field($col, $pk);
+    $help_text = get_field_help($col);
+    
+    // Penanganan khusus untuk jenis_perlindungan
+    if ($input_type['type'] === 'checkbox-category'): ?>
+        <div class="space-y-1 col-span-full">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <?= e($label) ?>
+                <?php if ($required): ?>
+                    <span class="text-red-500">*</span>
+                <?php endif; ?>
+            </label>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 border border-gray-300 dark:border-gray-600 rounded-lg">
+                <?php foreach ($input_type['options'] as $category => $options): ?>
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700 dark:text-gray-300 border-b pb-1"><?= e($category) ?></h4>
+                        <?php foreach ($options as $id => $subPilihan): ?>
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" 
+                                    name="<?= e($col) ?>[]" 
+                                    value="<?= e($id) ?>"
+                                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600">
+                                <span class="text-sm text-gray-700 dark:text-gray-300"><?= e($subPilihan) ?></span>
                             </label>
-                            <?php if ($input_type['type'] === 'select'): ?>
-                                <select name="<?= e($col) ?>" 
-                                    <?= $required ? 'required' : '' ?>
-                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                                    title="<?= e($help_text) ?>">
-                                    <option value="">- Pilih -</option>
-                                    <?php foreach ($input_type['options'] as $key => $option): ?>
-                                        <option value="<?= e($key) ?>"><?= e($option) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            <?php else: ?>
-                                <input type="<?= e($input_type['type']) ?>" 
-                                    name="<?= e($col) ?>" 
-                                    <?= $required ? 'required' : '' ?>
-                                    <?php if (isset($input_type['step'])): ?>step="<?= e($input_type['step']) ?>"<?php endif; ?>
-                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                                    placeholder="<?= e($label) ?>"
-                                    title="<?= e($help_text) ?>">
-                            <?php endif; ?>
-                            <p class="text-xs text-gray-500 dark:text-gray-400"><?= e($help_text) ?></p>
-                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400"><?= e($help_text) ?></p>
+        </div>
+    <?php else: ?>
+        <!-- Tampilan normal untuk tipe input lainnya -->
+        <div class="space-y-1">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <?= e($label) ?>
+                <?php if ($required): ?>
+                    <span class="text-red-500">*</span>
+                <?php endif; ?>
+            </label>
+            <?php if ($input_type['type'] === 'select'): ?>
+                <select name="<?= e($col) ?>" 
+                    <?= $required ? 'required' : '' ?>
+                    class="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                    title="<?= e($help_text) ?>">
+                    <option value="">- Pilih -</option>
+                    <?php foreach ($input_type['options'] as $key => $option): ?>
+                        <option value="<?= e($key) ?>"><?= e($option) ?></option>
                     <?php endforeach; ?>
+                </select>
+            <?php else: ?>
+                <input type="<?= e($input_type['type']) ?>" 
+                    name="<?= e($col) ?>" 
+                    <?= $required ? 'required' : '' ?>
+                    <?php if (isset($input_type['step'])): ?>step="<?= e($input_type['step']) ?>"<?php endif; ?>
+                    class="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="<?= e($label) ?>"
+                    title="<?= e($help_text) ?>">
+            <?php endif; ?>
+            <p class="text-xs text-gray-500 dark:text-gray-400"><?= e($help_text) ?></p>
+        </div>
+    <?php endif; ?>
+<?php endforeach; ?>
                 </div>
                 <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                     <button type="button" onclick="closeCreateModal()" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white border border-gray-300 dark:border-gray-600 rounded-lg transition-colors">
@@ -960,21 +1131,61 @@ require __DIR__ . '/../inc/layout_nav.php';
     </div>
 
     <!-- Modal Edit Data -->
-    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden transition-opacity">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto transform transition-transform">
-            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="text-xl font-semibold text-gray-800 dark:text-white">Edit Data <?= e($title) ?></h3>
-            </div>
-            <form id="editForm" method="post" class="p-6 space-y-4">
-                <?= csrf_field() ?>
-                <input type="hidden" name="action" value="update">
-                <input type="hidden" name="<?= e($pk) ?>" id="editId">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <?php foreach ($colLabels as $col => $label): 
-                        $input_type = get_input_type($col);
-                        $required = is_required_field($col, $pk);
-                        $help_text = get_field_help($col);
-                    ?>
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden transition-opacity">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto transform transition-transform">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-xl font-semibold text-gray-800 dark:text-white">Edit Data <?= e($title) ?></h3>
+        </div>
+        <form id="editForm" method="post" class="p-6 space-y-4">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="update">
+            <input type="hidden" name="<?= e($pk) ?>" id="editId">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <?php foreach ($colLabels as $col => $label): 
+                    // Lewati kolom hasil join pada form edit
+                    $isJoined = false;
+                    foreach ($joins as $joinTable => $joinInfo) {
+                        if (in_array($col, $joinInfo[2])) {
+                            $isJoined = true;
+                            break;
+                        }
+                    }
+                    if ($isJoined) continue;
+                    
+                    $input_type = get_input_type($col);
+                    $required = is_required_field($col, $pk);
+                    $help_text = get_field_help($col);
+                ?>
+                    
+                    <?php if ($input_type['type'] === 'checkbox-category'): ?>
+                        <div class="space-y-1 col-span-full">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <?= e($label) ?>
+                                <?php if ($required): ?>
+                                    <span class="text-red-500">*</span>
+                                <?php endif; ?>
+                            </label>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 border border-gray-300 dark:border-gray-600 rounded-lg" 
+                                 id="edit_<?= e($col) ?>_container">
+                                <?php foreach ($input_type['options'] as $category => $options): ?>
+                                    <div class="space-y-2">
+                                        <h4 class="font-semibold text-gray-700 dark:text-gray-300 border-b pb-1"><?= e($category) ?></h4>
+                                        <?php foreach ($options as $id => $subPilihan): ?>
+                                            <label class="flex items-center space-x-2">
+                                                <input type="checkbox" 
+                                                    name="<?= e($col) ?>[]" 
+                                                    value="<?= e($id) ?>"
+                                                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600">
+                                                <span class="text-sm text-gray-700 dark:text-gray-300"><?= e($subPilihan) ?></span>
+                                            </label>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400"><?= e($help_text) ?></p>
+                        </div>
+                    <?php else: ?>
+                        <!-- Tampilan normal untuk tipe input lainnya -->
                         <div class="space-y-1">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                 <?= e($label) ?>
@@ -1005,19 +1216,42 @@ require __DIR__ . '/../inc/layout_nav.php';
                             <?php endif; ?>
                             <p class="text-xs text-gray-500 dark:text-gray-400"><?= e($help_text) ?></p>
                         </div>
-                    <?php endforeach; ?>
-                </div>
-                <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <button type="button" onclick="closeEditModal()" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white border border-gray-300 dark:border-gray-600 rounded-lg transition-colors">
-                        Batal
-                    </button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
-                        Update
-                    </button>
-                </div>
-            </form>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <button type="button" onclick="closeEditModal()" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white border border-gray-300 dark:border-gray-600 rounded-lg transition-colors">
+                    Batal
+                </button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                    Update
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal View Data -->
+<div id="viewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden transition-opacity">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto transform transition-transform">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <h3 class="text-xl font-semibold text-gray-800 dark:text-white">Detail Data <?= e($title) ?></h3>
+            <button onclick="closeViewModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-6">
+            <div id="viewContent" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Konten akan diisi oleh JavaScript -->
+            </div>
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700 mt-4">
+                <button type="button" onclick="closeViewModal()" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white border border-gray-300 dark:border-gray-600 rounded-lg transition-colors">
+                    Tutup
+                </button>
+            </div>
         </div>
     </div>
+</div>
 
     <!-- Modal Konfirmasi Hapus Data -->
     <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden transition-opacity">
@@ -1094,32 +1328,48 @@ function closeCreateModal() {
     }, 200);
 }
 
-// Fungsi untuk membuka modal edit data
+// Fungsi untuk membuka modal edit
 function openEditModal(id) {
-    // Ambil data berdasarkan ID via AJAX
-    fetch(`get_data.php?t=<?= e($t) ?>&id=${id}`)
-        .then(response => response.json())
+    console.log('Opening edit modal for ID:', id);
+    
+    const modal = document.getElementById('editModal');
+    if (!modal) {
+        console.error('Edit modal element not found!');
+        return;
+    }
+    
+    // Tampilkan modal
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.classList.add('opacity-100');
+        const modalContent = modal.querySelector('div');
+        if (modalContent) {
+            modalContent.classList.add('scale-100');
+        }
+    }, 10);
+    
+    // Set ID terlebih dahulu
+    document.getElementById('editId').value = id;
+    
+    // Fetch data
+    fetch(`get_data.php?t=<?= e($t) ?>&id=${encodeURIComponent(id)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
-                document.getElementById('editId').value = id;
-                <?php foreach ($colLabels as $col => $label): ?>
-                    const <?= e($col) ?>Input = document.getElementById('edit_<?= e($col) ?>');
-                    if (<?= e($col) ?>Input) {
-                        <?= e($col) ?>Input.value = data.data.<?= e($col) ?> || '';
-                    }
-                <?php endforeach; ?>
-                document.getElementById('editModal').classList.remove('hidden');
-                setTimeout(() => {
-                    document.getElementById('editModal').classList.add('opacity-100');
-                    document.querySelector('#editModal > div').classList.add('scale-100');
-                }, 10);
+                populateEditForm(id, data.data);
             } else {
-                showNotification('Gagal memuat data', 'error');
+                throw new Error(data.message || 'Gagal memuat data');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            showNotification('Terjadi kesalahan saat memuat data', 'error');
+            console.error('Error loading data:', error);
+            alert('Gagal memuat data: ' + error.message);
+            closeEditModal();
         });
 }
 
@@ -1131,6 +1381,255 @@ function closeEditModal() {
         document.getElementById('editModal').classList.add('hidden');
     }, 200);
 }
+
+// Fungsi untuk mengisi form edit
+function populateEditForm(id, data) {
+    console.log('Populating form with data:', data);
+    
+    // Set ID
+    document.getElementById('editId').value = id;
+    
+    // Set nilai untuk setiap field
+    Object.keys(data).forEach(col => {
+        try {
+            const inputElement = document.getElementById(`edit_${col}`);
+            const containerElement = document.getElementById(`edit_${col}_container`);
+            
+            if (inputElement) {
+                inputElement.value = data[col] || '';
+            }
+            
+            // Handle jenis_perlindungan checkbox
+            if (containerElement && col === 'jenis_perlindungan') {
+                // Reset semua checkbox
+                const checkboxes = containerElement.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                // Centang yang sesuai
+                if (data[col] && data[col] !== '' && data[col] !== null) {
+                    const selectedIds = data[col].toString().split(',');
+                    selectedIds.forEach(selectedId => {
+                        const trimmedId = selectedId.trim();
+                        if (trimmedId) {
+                            const checkbox = containerElement.querySelector(`input[value="${trimmedId}"]`);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                            }
+                        }
+                    });
+                }
+            }
+        } catch (error) {
+            console.error(`Error setting value for ${col}:`, error);
+        }
+    });
+}
+
+// Fungsi untuk membuka modal view
+function openViewModal(id) {
+    console.log('Opening view modal for ID:', id);
+    
+    const modal = document.getElementById('viewModal');
+    if (!modal) {
+        console.error('View modal element not found!');
+        return;
+    }
+    
+    const viewContent = document.getElementById('viewContent');
+    if (!viewContent) {
+        console.error('View content element not found!');
+        return;
+    }
+    
+    // Tampilkan loading state
+    viewContent.innerHTML = '<div class="col-span-full text-center py-8"><i class="fas fa-spinner fa-spin text-2xl text-blue-500"></i><p class="mt-2">Memuat data...</p></div>';
+    
+    // Tampilkan modal
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.classList.add('opacity-100');
+        const modalContent = modal.querySelector('div');
+        if (modalContent) {
+            modalContent.classList.add('scale-100');
+        }
+    }, 10);
+    
+    // Fetch data
+    fetch(`get_data.php?t=<?= e($t) ?>&id=${encodeURIComponent(id)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                renderViewData(data.data);
+            } else {
+                throw new Error(data.message || 'Gagal memuat data');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading data for view:', error);
+            viewContent.innerHTML = `
+                <div class="col-span-full text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-2xl text-red-500"></i>
+                    <p class="mt-2 text-red-600">Terjadi kesalahan saat memuat data</p>
+                    <p class="text-sm text-gray-500">${error.message}</p>
+                </div>
+            `;
+        });
+}
+
+
+// Fungsi untuk merender data di modal view
+// Fungsi untuk merender data di modal view
+function renderViewData(data) {
+    const viewContent = document.getElementById('viewContent');
+    viewContent.innerHTML = '';
+    
+    console.log('Data received for view:', data);
+
+    // Mapping untuk label khusus
+    const specialLabels = {
+        'id_pegawai': 'Petugas Penerima / Case Manager',
+        'jenis_perlindungan': 'Jenis Perlindungan'
+    };
+
+    // Format dan tampilkan data
+    Object.keys(data).forEach(col => {
+        // Skip kolom yang tidak perlu ditampilkan
+        if (col.includes('_at') || data[col] === null || data[col] === '' || 
+            col === 'created_at' || col === 'updated_at' || col === 'pegawai_nama_pegawai') return;
+        
+        const label = specialLabels[col] || <?= json_encode($colLabels) ?>[col] || col.replace(/_/g, ' ').toUpperCase();
+        let value = data[col];
+        
+        // Handle nilai null atau kosong
+        if (value === null || value === '') {
+            value = '<span class="text-gray-400">-</span>';
+        }
+        // Khusus untuk id_pegawai, tampilkan nama pegawai
+        else if (col === 'id_pegawai' && data['pegawai_nama_pegawai']) {
+            value = data['pegawai_nama_pegawai'];
+        }
+        // Khusus untuk jenis_perlindungan, ambil nama jenisnya
+        else if (col === 'jenis_perlindungan') {
+            // Jika ada data jenis_perlindungan, fetch nama-namanya
+            if (value && value !== '') {
+                fetchJenisPerlindunganNames(value).then(names => {
+                    const jenisElement = document.querySelector(`[data-field="${col}"] dd`);
+                    if (jenisElement) {
+                        jenisElement.innerHTML = names.join(', ') || '<span class="text-gray-400">-</span>';
+                    }
+                }).catch(error => {
+                    console.error('Error fetching jenis perlindungan:', error);
+                });
+                value = '<i class="fas fa-spinner fa-spin text-blue-500"></i> Memuat...';
+            } else {
+                value = '<span class="text-gray-400">-</span>';
+            }
+        }
+        // Khusus untuk link
+        else if (col === 'link_berkas_permohonan' && value && value !== '-') {
+            value = `<a href="${value}" target="_blank" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline truncate block">${value}</a>`;
+        }
+        // Untuk teks panjang, truncate
+        else if (typeof value === 'string' && value.length > 50) {
+            value = `<span title="${value.replace(/"/g, '&quot;')}">${value.substring(0, 50)}...</span>`;
+        }
+        
+        // Tampilkan data
+        const row = document.createElement('div');
+        row.className = 'space-y-1';
+        row.innerHTML = `
+            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">${label}</dt>
+            <dd class="text-sm text-gray-900 dark:text-white break-words" data-field="${col}">${value}</dd>
+        `;
+        viewContent.appendChild(row);
+    });
+    
+    if (viewContent.children.length === 0) {
+        viewContent.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">Tidak ada data untuk ditampilkan</div>';
+    }
+}
+
+// Fungsi untuk mengambil nama jenis perlindungan
+async function fetchJenisPerlindunganNames(ids) {
+    try {
+        const response = await fetch(`get_jenis_perlindungan.php?ids=${encodeURIComponent(ids)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            return data.names;
+        } else {
+            throw new Error(data.message || 'Gagal memuat nama jenis perlindungan');
+        }
+    } catch (error) {
+        console.error('Error fetching jenis perlindungan names:', error);
+        return ['Error loading data'];
+    }
+}
+// Fungsi untuk menutup modal view data
+function closeViewModal() {
+    document.getElementById('viewModal').classList.remove('opacity-100');
+    document.querySelector('#viewModal > div').classList.remove('scale-100');
+    setTimeout(() => {
+        document.getElementById('viewModal').classList.add('hidden');
+    }, 200);
+}
+
+
+// Test function untuk debugging
+function testModalFunctionality() {
+    console.log('=== Testing Modal Functionality ===');
+    
+    // Test modal elements
+    const editModal = document.getElementById('editModal');
+    const viewModal = document.getElementById('viewModal');
+    const viewContent = document.getElementById('viewContent');
+    
+    console.log('Edit modal found:', !!editModal);
+    console.log('View modal found:', !!viewModal);
+    console.log('View content found:', !!viewContent);
+    
+    // Test fetch endpoints
+    const testId = 'REG-2026-017'; // Ganti dengan ID yang ada di database
+    
+    console.log('Testing fetch to get_data.php...');
+    fetch(`get_data.php?t=<?= e($t) ?>&id=${testId}`)
+        .then(response => {
+            console.log('get_data.php response status:', response.status);
+            return response.text();
+        })
+        .then(text => {
+            console.log('get_data.php raw response:', text);
+        })
+        .catch(error => {
+            console.error('get_data.php error:', error);
+        });
+        
+    console.log('Testing fetch to get_jenis_perlindungan.php...');
+    fetch(`get_jenis_perlindungan.php?ids=25,21`)
+        .then(response => {
+            console.log('get_jenis_perlindungan.php response status:', response.status);
+            return response.text();
+        })
+        .then(text => {
+            console.log('get_jenis_perlindungan.php raw response:', text);
+        })
+        .catch(error => {
+            console.error('get_jenis_perlindungan.php error:', error);
+        });
+}
+
+// Jalankan test saat halaman dimuat
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, running modal test...');
+    testModalFunctionality();
+});
 
 // Fungsi untuk membuka modal konfirmasi hapus
 function confirmDelete(id) {
@@ -1240,6 +1739,11 @@ function initResponsiveTable() {
     window.addEventListener('resize', addScrollIndicators);
     addScrollIndicators();
 }
+
+// Inisialisasi ketika dokumen siap
+document.addEventListener('DOMContentLoaded', function() {
+    initResponsiveTable();
+});
 </script>
 
 <?php
