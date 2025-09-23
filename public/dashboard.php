@@ -316,7 +316,152 @@ require __DIR__ . '/../inc/layout_nav.php';
         </div>
       </div>
     </div>
-  
+
+
+    <!-- Status Hukum Chart Section -->
+<div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl mb-8">
+    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Status Hukum Pemohon</h2>
+            <p class="text-gray-600 dark:text-gray-400">Distribusi berdasarkan status hukum dalam proses</p>
+        </div>
+        <div class="flex items-center space-x-2 bg-indigo-50 dark:bg-indigo-900/20 px-3 py-2 rounded-xl">
+            <div class="w-3 h-3 rounded-full bg-indigo-500"></div>
+            <span class="text-indigo-700 dark:text-indigo-300 font-medium">Total: <span id="total-status-hukum">0</span> pemohon</span>
+        </div>
+    </div>
+    <div class="relative">
+        <canvas id="chartStatusHukum" class="w-full h-96"></canvas>
+        <div id="loading-chart-status-hukum" class="absolute inset-0 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 rounded-3xl backdrop-blur">
+            <div class="text-center">
+                <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-500 rounded-full animate-spin mx-auto mb-4"></div>
+                <p class="text-gray-600 dark:text-gray-400">Memuat data status hukum...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Tindak Pidana Chart Section -->
+<div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl mb-8">
+    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Jenis Tindak Pidana</h2>
+            <p class="text-gray-600 dark:text-gray-400">Distribusi berdasarkan jenis kejahatan</p>
+        </div>
+        <div class="flex items-center space-x-2 bg-purple-50 dark:bg-purple-900/20 px-3 py-2 rounded-xl">
+            <div class="w-3 h-3 rounded-full bg-purple-500"></div>
+            <span class="text-purple-700 dark:text-purple-300 font-medium">Total: <span id="total-tindak-pidana">0</span> kasus</span>
+        </div>
+    </div>
+    <div class="relative">
+        <canvas id="chartTindakPidana" class="w-full h-96"></canvas>
+        <div id="loading-chart-tindak-pidana" class="absolute inset-0 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 rounded-3xl backdrop-blur">
+            <div class="text-center">
+                <div class="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
+                <p class="text-gray-600 dark:text-gray-400">Memuat data tindak pidana...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Jenis Perlindungan Charts -->
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
+    <!-- Chart Perbandingan Jenis Perlindungan -->
+    <div class="xl:col-span-2 backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl">
+        <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 gap-4">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Perbandingan Jenis Perlindungan</h2>
+                <p class="text-gray-600 dark:text-gray-400">Permohonan vs Layanan yang Diberikan</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 text-sm">
+                <div class="flex items-center space-x-2 bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-xl">
+                    <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+                    <span class="text-blue-700 dark:text-blue-300 font-medium">Permohonan</span>
+                </div>
+                <div class="flex items-center space-x-2 bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-xl">
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span class="text-green-700 dark:text-green-300 font-medium">Layanan</span>
+                </div>
+            </div>
+        </div>
+        <div class="relative">
+            <canvas id="chartPerlindunganComparison" class="w-full h-96"></canvas>
+            <div id="loading-chart-perlindungan-comparison" class="absolute inset-0 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 rounded-3xl backdrop-blur">
+                <div class="text-center">
+                    <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-500 rounded-full animate-spin mx-auto mb-4"></div>
+                    <p class="text-gray-600 dark:text-gray-400">Memuat data perbandingan...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Distribusi Jenis Perlindungan Permohonan -->
+<div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl">
+    <div class="text-center mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Jenis Perlindungan - Permohonan</h2>
+        <p class="text-gray-600 dark:text-gray-400">Jenis perlindungan yang diminta</p>
+        <div class="mt-4 flex justify-center">
+            <div class="bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-xl inline-flex items-center space-x-2">
+                <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+                <span class="text-blue-700 dark:text-blue-300 font-medium">
+                    Total: <span id="total-perlindungan-permohonan">0</span> jenis perlindungan diminta
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="relative">
+        <canvas id="chartPerlindunganPermohonan" class="w-full h-64"></canvas>
+        <div id="perlindungan-permohonan-center-text" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <div class="text-center">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Total</p>
+                <div class="text-xl lg:text-2xl font-bold text-gray-800 dark:text-white" id="total-permohonan-text">0</div>
+            </div>
+        </div>
+        <div id="loading-chart-perlindungan-permohonan" class="absolute inset-0 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 rounded-3xl backdrop-blur">
+            <div class="text-center">
+                <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
+                <p class="text-gray-600 dark:text-gray-400">Memuat data permohonan...</p>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Chart Distribusi Jenis Perlindungan Layanan -->
+<div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl">
+    <div class="text-center mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Jenis Perlindungan - Layanan</h2>
+        <p class="text-gray-600 dark:text-gray-400">Jenis perlindungan yang diberikan</p>
+        <div class="mt-4 flex justify-center">
+            <div class="bg-green-50 dark:bg-green-900/20 px-4 py-2 rounded-xl inline-flex items-center space-x-2">
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                <span class="text-green-700 dark:text-green-300 font-medium">
+                    Total: <span id="total-perlindungan-layanan">0</span> jenis perlindungan diberikan
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="relative">
+        <canvas id="chartPerlindunganLayanan" class="w-full h-64"></canvas>
+        <div id="perlindungan-layanan-center-text" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <div class="text-center">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Total</p>
+                <div class="text-xl lg:text-2xl font-bold text-gray-800 dark:text-white" id="total-layanan-text">0</div>
+            </div>
+        </div>
+        <div id="loading-chart-perlindungan-layanan" class="absolute inset-0 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 rounded-3xl backdrop-blur">
+            <div class="text-center">
+                <div class="w-12 h-12 border-4 border-green-200 border-t-green-500 rounded-full animate-spin mx-auto mb-4"></div>
+                <p class="text-gray-600 dark:text-gray-400">Memuat data layanan...</p>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+
+
+
   <!-- NEW: Gender Distribution Chart -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
   <!-- Existing Workload Chart -->
@@ -504,7 +649,11 @@ class DashboardManager {
       permohonan: null,
       anggaran: null,
       bebanKerja: null,
-      gender: null
+      gender: null,
+      tindakPidana: null,
+      statusHukum: null,
+      perlindunganComparison: null,
+      perlindunganLayanan: null
     };
     
     this.colors = {
@@ -605,7 +754,12 @@ class DashboardManager {
       'loading-chart-anggaran', 
       'loading-chart-beban-kerja',
       'loading-chart-gender-permohonan',
-    'loading-chart-gender-layanan'
+      'loading-chart-gender-layanan',
+      'loading-chart-tindak-pidana',
+      'loading-chart-status-hukum',
+      'loading-chart-perlindungan-comparison',
+      'loading-chart-perlindungan-permohonan',
+      'loading-chart-perlindungan-layanan'
     ];
     
     loadingElements.forEach(id => {
@@ -629,7 +783,14 @@ class DashboardManager {
       'loading-chart-anggaran', 
       'loading-chart-beban-kerja',
       'loading-chart-gender-permohonan',
-    'loading-chart-gender-layanan'
+      'loading-chart-gender-layanan',
+      'loading-chart-tindak-pidana',
+      'loading-chart-status-hukum',
+      'loading-chart-perlindungan-comparison',
+      'loading-chart-perlindungan-permohonan',
+      'loading-chart-perlindungan-layanan'
+
+
     ];
     
     loadingElements.forEach(id => {
@@ -808,7 +969,13 @@ updateChangeIndicator(elementId, changeValue, color) {
     this.renderAnggaranChart(data.anggaran);
     this.renderBebanKerjaChart(data.charts.beban_kerja);
     this.renderGenderCharts(data.charts);
-  }
+    
+    this.renderStatusHukumChart(data.charts.status_hukum);
+    this.renderTindakPidanaChart(data.charts.tindak_pidana);
+    this.renderPerlindunganComparisonChart(data.charts.perlindungan_comparison);
+    this.renderPerlindunganPermohonanChart(data.charts.perlindungan_permohonan);
+    this.renderPerlindunganLayananChart(data.charts.perlindungan_layanan);
+}
 
 
 // Perbaikan untuk method renderGenderCharts di dashboard.php
@@ -963,6 +1130,765 @@ renderEmptyChart(ctx, message) {
         }
     });
 }
+
+
+renderTindakPidanaChart(chartData) {
+    const ctx = document.getElementById('chartTindakPidana');
+    if (!ctx) {
+        console.error('Canvas chartTindakPidana tidak ditemukan');
+        return;
+    }
+
+    // Destroy existing chart
+    if (this.charts.tindakPidana) {
+        this.charts.tindakPidana.destroy();
+    }
+
+    // Hide loading
+    const loadingElement = document.getElementById('loading-chart-tindak-pidana');
+    if (loadingElement) {
+        loadingElement.style.display = 'none';
+    }
+
+    // Check if data is available
+    if (!chartData || !chartData.labels || chartData.labels.length === 0) {
+        console.warn('Data tindak pidana tidak tersedia');
+        
+        // Show empty state
+        this.charts.tindakPidana = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Tidak ada data'],
+                datasets: [{
+                    label: 'Jumlah Kasus',
+                    data: [0],
+                    backgroundColor: '#e5e7eb'
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                }
+            }
+        });
+        
+        // Update total count to 0
+        const totalElement = document.getElementById('total-tindak-pidana');
+        if (totalElement) {
+            totalElement.textContent = '0';
+        }
+        return;
+    }
+
+    // Update total count
+    const totalElement = document.getElementById('total-tindak-pidana');
+    if (totalElement && chartData.total) {
+        totalElement.textContent = chartData.total.toLocaleString('id-ID');
+    }
+
+    // Create the chart
+    this.charts.tindakPidana = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartData.labels || [],
+            datasets: [{
+                label: 'Jumlah Kasus',
+                data: chartData.data || [],
+                backgroundColor: chartData.labels.map((_, index) => 
+                    this.colors.primary[index % this.colors.primary.length]
+                ),
+                borderColor: chartData.labels.map((_, index) => 
+                    this.colors.primary[index % this.colors.primary.length]
+                ),
+                borderWidth: 2,
+                borderRadius: 6,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#374151',
+                    borderWidth: 2,
+                    cornerRadius: 12,
+                    displayColors: true,
+                    usePointStyle: true,
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    padding: 12,
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw || 0;
+                            const total = chartData.data.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                            return `${value} kasus (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0,
+                        color: '#6B7280',
+                        font: {
+                            size: 12
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(229, 231, 235, 0.8)',
+                        drawBorder: false
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: '#6B7280',
+                        font: {
+                            size: 12
+                        }
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+}
+
+
+renderStatusHukumChart(chartData) {
+    const ctx = document.getElementById('chartStatusHukum');
+    if (!ctx) {
+        console.error('Canvas chartStatusHukum tidak ditemukan');
+        return;
+    }
+
+    // Destroy existing chart
+    if (this.charts.statusHukum) {
+        this.charts.statusHukum.destroy();
+    }
+
+    // Hide loading
+    const loadingElement = document.getElementById('loading-chart-status-hukum');
+    if (loadingElement) {
+        loadingElement.style.display = 'none';
+    }
+
+    // Check if data is available
+    if (!chartData || !chartData.labels || chartData.labels.length === 0) {
+        console.warn('Data status hukum tidak tersedia');
+        
+        // Show empty state
+        this.charts.statusHukum = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Tidak ada data'],
+                datasets: [{
+                    data: [1],
+                    backgroundColor: ['#e5e7eb']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                }
+            }
+        });
+        
+        // Update total count to 0
+        const totalElement = document.getElementById('total-status-hukum');
+        if (totalElement) {
+            totalElement.textContent = '0';
+        }
+        return;
+    }
+
+    // Update total count
+    const totalElement = document.getElementById('total-status-hukum');
+    if (totalElement && chartData.total) {
+        totalElement.textContent = chartData.total.toLocaleString('id-ID');
+    }
+
+    // Create the chart - menggunakan pie chart untuk variasi
+    this.charts.statusHukum = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: chartData.labels || [],
+            datasets: [{
+                data: chartData.data || [],
+                backgroundColor: chartData.labels.map((_, index) => 
+                    this.colors.primary[index % this.colors.primary.length]
+                ),
+                borderColor: '#ffffff',
+                borderWidth: 3,
+                hoverBorderWidth: 4,
+                hoverOffset: 15
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        color: '#6B7280',
+                        font: {
+                            size: 12,
+                            weight: '600'
+                        },
+                        generateLabels: function(chart) {
+                            const data = chart.data;
+                            if (data.labels.length && data.datasets.length) {
+                                return data.labels.map((label, i) => {
+                                    const value = data.datasets[0].data[i];
+                                    const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    
+                                    return {
+                                        text: `${label}: ${value} (${percentage}%)`,
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        strokeStyle: data.datasets[0].borderColor,
+                                        lineWidth: data.datasets[0].borderWidth,
+                                        pointStyle: 'circle',
+                                        hidden: false,
+                                        index: i
+                                    };
+                                });
+                            }
+                            return [];
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#374151',
+                    borderWidth: 2,
+                    cornerRadius: 12,
+                    displayColors: true,
+                    usePointStyle: true,
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    padding: 12,
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            animation: {
+                animateRotate: true,
+                animateScale: true,
+                duration: 2000,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+}
+
+
+
+// Method untuk merender chart perbandingan jenis perlindungan
+renderPerlindunganComparisonChart(chartData) {
+    const ctx = document.getElementById('chartPerlindunganComparison');
+    if (!ctx) return;
+
+    // Destroy existing chart
+    if (this.charts.perlindunganComparison) {
+        this.charts.perlindunganComparison.destroy();
+    }
+
+    // Hide loading
+    const loadingElement = document.getElementById('loading-chart-perlindungan-comparison');
+    if (loadingElement) {
+        loadingElement.style.display = 'none';
+    }
+
+    // Calculate totals and ratio
+    const totalPermohonan = chartData.permohonan ? chartData.permohonan.reduce((a, b) => a + b, 0) : 0;
+    const totalLayanan = chartData.layanan ? chartData.layanan.reduce((a, b) => a + b, 0) : 0;
+    const rasioPemenuhan = totalPermohonan > 0 ? Math.round((totalLayanan / totalPermohonan) * 100) : 0;
+
+    // Update total counters
+    const totalPermohonanElement = document.getElementById('total-permohonan-comparison');
+    const totalLayananElement = document.getElementById('total-layanan-comparison');
+    const rasioElement = document.getElementById('rasio-pemenuhan');
+
+    if (totalPermohonanElement) {
+        totalPermohonanElement.textContent = `Permohonan: ${totalPermohonan.toLocaleString('id-ID')}`;
+    }
+    if (totalLayananElement) {
+        totalLayananElement.textContent = `Layanan: ${totalLayanan.toLocaleString('id-ID')}`;
+    }
+    if (rasioElement) {
+        rasioElement.textContent = `Rasio: ${rasioPemenuhan}%`;
+        
+        // Warna berdasarkan rasio pemenuhan
+        if (rasioPemenuhan >= 80) {
+            rasioElement.className = 'text-green-700 dark:text-green-300 font-medium';
+        } else if (rasioPemenuhan >= 60) {
+            rasioElement.className = 'text-amber-700 dark:text-amber-300 font-medium';
+        } else {
+            rasioElement.className = 'text-red-700 dark:text-red-300 font-medium';
+        }
+    }
+
+    // Check if data is available
+    if (!chartData || !chartData.labels || chartData.labels.length === 0) {
+        this.renderEmptyChart(ctx, 'Tidak ada data perbandingan');
+        return;
+    }
+
+    this.charts.perlindunganComparison = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartData.labels || [],
+            datasets: [
+                {
+                    label: 'Permohonan',
+                    data: chartData.permohonan || [],
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 2,
+                    borderRadius: 6
+                },
+                {
+                    label: 'Layanan',
+                    data: chartData.layanan || [],
+                    backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 2,
+                    borderRadius: 6
+                }
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        color: '#6B7280',
+                        font: {
+                            size: 12,
+                            weight: '600'
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#374151',
+                    borderWidth: 2,
+                    cornerRadius: 12,
+                    displayColors: true,
+                    usePointStyle: true,
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw || 0;
+                            const totalDataset = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = totalDataset > 0 ? ((value / totalDataset) * 100).toFixed(1) : 0;
+                            return `${context.dataset.label}: ${value} (${percentage}%)`;
+                        },
+                        afterLabel: function(context) {
+                            if (context.datasetIndex === 1) { // Hanya untuk dataset layanan
+                                const permohonanValue = chartData.permohonan[context.dataIndex] || 0;
+                                const layananValue = context.raw || 0;
+                                if (permohonanValue > 0) {
+                                    const pemenuhan = Math.round((layananValue / permohonanValue) * 100);
+                                    return `Tingkat pemenuhan: ${pemenuhan}%`;
+                                }
+                            }
+                            return null;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    stacked: false,
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0,
+                        color: '#6B7280'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Jumlah',
+                        color: '#6B7280'
+                    }
+                },
+                y: {
+                    stacked: false,
+                    ticks: {
+                        color: '#6B7280',
+                        font: {
+                            size: 11
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+
+// Method untuk merender chart jenis perlindungan permohonan
+renderPerlindunganPermohonanChart(chartData) {
+    const ctx = document.getElementById('chartPerlindunganPermohonan');
+    if (!ctx) return;
+
+    // Destroy existing chart
+    if (this.charts.perlindunganPermohonan) {
+        this.charts.perlindunganPermohonan.destroy();
+    }
+
+    // Hide loading
+    const loadingElement = document.getElementById('loading-chart-perlindungan-permohonan');
+    if (loadingElement) {
+        loadingElement.style.display = 'none';
+    }
+
+    // Update total counter di header
+    const totalHeaderElement = document.getElementById('total-perlindungan-permohonan');
+    const totalCenterElement = document.getElementById('total-permohonan-text');
+    
+    if (totalHeaderElement) {
+        totalHeaderElement.textContent = chartData.total ? chartData.total.toLocaleString('id-ID') : '0';
+    }
+    if (totalCenterElement) {
+        totalCenterElement.textContent = chartData.total ? chartData.total.toLocaleString('id-ID') : '0';
+    }
+
+    // Check if data is available
+    if (!chartData || !chartData.sub_pilihan || chartData.sub_pilihan.length === 0) {
+        this.renderEmptyChart(ctx, 'Tidak ada data permohonan');
+        this.renderPerlindunganPermohonanDetail([]);
+        return;
+    }
+
+    // Create doughnut chart untuk permohonan
+    this.charts.perlindunganPermohonan = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: chartData.sub_pilihan || [],
+            datasets: [{
+                data: chartData.data || [],
+                backgroundColor: chartData.sub_pilihan.map((_, index) => 
+                    this.colors.primary[index % this.colors.primary.length]
+                ),
+                borderWidth: 0,
+                borderRadius: 8,
+                hoverOffset: 15
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                            return `${context.label}: ${value} permohonan (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Render detail permohonan
+    this.renderPerlindunganPermohonanDetail(chartData);
+}
+
+
+// Method untuk merender detail jenis perlindungan permohonan
+renderPerlindunganPermohonanDetail(chartData) {
+    const container = document.getElementById('perlindungan-permohonan-detail');
+    if (!container) return;
+
+    let html = '';
+
+    if (!chartData.sub_pilihan || chartData.sub_pilihan.length === 0) {
+        html = '<div class="text-sm text-gray-500 dark:text-gray-400 text-center py-8">Tidak ada data jenis perlindungan</div>';
+    } else {
+        const total = chartData.data.reduce((sum, val) => sum + val, 0);
+        
+        // Group by kategori
+        const groupedByKategori = {};
+        chartData.sub_pilihan.forEach((subPilihan, index) => {
+            const kategori = chartData.kategori[index];
+            const jumlah = chartData.data[index];
+            
+            if (!groupedByKategori[kategori]) {
+                groupedByKategori[kategori] = [];
+            }
+            
+            groupedByKategori[kategori].push({
+                subPilihan,
+                jumlah,
+                percentage: total > 0 ? ((jumlah / total) * 100).toFixed(1) : 0
+            });
+        });
+
+        // Generate HTML
+        Object.keys(groupedByKategori).forEach(kategori => {
+            html += `
+                <div class="mb-4">
+                    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 border-b pb-1">${kategori}</h4>
+                    <div class="space-y-2">
+            `;
+            
+            groupedByKategori[kategori].forEach(item => {
+                html += `
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-gray-600 dark:text-gray-400 truncate flex-1">${item.subPilihan}</span>
+                        <div class="text-right ml-2">
+                            <div class="font-medium text-gray-800 dark:text-white">${item.jumlah}</div>
+                            <div class="text-gray-500 dark:text-gray-400">${item.percentage}%</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `</div></div>`;
+        });
+
+        // Tambahkan total di bagian bawah
+        html += `
+            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="font-semibold text-gray-700 dark:text-gray-300">Total Permohonan:</span>
+                    <span class="font-bold text-blue-600 dark:text-blue-400">${total}</span>
+                </div>
+            </div>
+        `;
+
+        html += `
+    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 space-y-2">
+        <div class="flex justify-between items-center text-sm">
+            <span class="font-semibold text-gray-700 dark:text-gray-300">Total Permohonan:</span>
+            <span class="font-bold text-blue-600 dark:text-blue-400">${total}</span>
+        </div>
+        <div class="flex justify-between items-center text-sm">
+            <span class="font-semibold text-gray-700 dark:text-gray-300">Jenis Perlindungan:</span>
+            <span class="font-bold text-blue-600 dark:text-blue-400">${chartData.sub_pilihan.length}</span>
+        </div>
+        <div class="flex justify-between items-center text-sm">
+            <span class="font-semibold text-gray-700 dark:text-gray-300">Kategori:</span>
+            <span class="font-bold text-blue-600 dark:text-blue-400">${new Set(chartData.kategori).size}</span>
+        </div>
+    </div>
+`;
+
+    }
+
+    container.innerHTML = html;
+}
+
+
+
+// Method untuk merender chart jenis perlindungan layanan
+renderPerlindunganLayananChart(chartData) {
+    const ctx = document.getElementById('chartPerlindunganLayanan');
+    if (!ctx) return;
+
+    // Destroy existing chart
+    if (this.charts.perlindunganLayanan) {
+        this.charts.perlindunganLayanan.destroy();
+    }
+
+    // Hide loading
+    const loadingElement = document.getElementById('loading-chart-perlindungan-layanan');
+    if (loadingElement) {
+        loadingElement.style.display = 'none';
+    }
+
+    // Update total counter di header
+    const totalHeaderElement = document.getElementById('total-perlindungan-layanan');
+    const totalCenterElement = document.getElementById('total-layanan-text');
+    
+    if (totalHeaderElement) {
+        totalHeaderElement.textContent = chartData.total ? chartData.total.toLocaleString('id-ID') : '0';
+    }
+    if (totalCenterElement) {
+        totalCenterElement.textContent = chartData.total ? chartData.total.toLocaleString('id-ID') : '0';
+    }
+
+    // Check if data is available
+    if (!chartData || !chartData.sub_pilihan || chartData.sub_pilihan.length === 0) {
+        this.renderEmptyChart(ctx, 'Tidak ada data layanan');
+        this.renderPerlindunganLayananDetail([]);
+        return;
+    }
+
+    // Create doughnut chart untuk layanan
+    this.charts.perlindunganLayanan = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: chartData.sub_pilihan || [],
+            datasets: [{
+                data: chartData.data || [],
+                backgroundColor: chartData.sub_pilihan.map((_, index) => 
+                    this.colors.primary[index % this.colors.primary.length]
+                ),
+                borderWidth: 0,
+                borderRadius: 8,
+                hoverOffset: 15
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                            return `${context.label}: ${value} layanan (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Render detail layanan
+    this.renderPerlindunganLayananDetail(chartData);
+}
+
+// Method untuk merender detail jenis perlindungan layanan (update yang sudah ada)
+renderPerlindunganLayananDetail(chartData) {
+    const container = document.getElementById('perlindungan-layanan-detail');
+    if (!container) return;
+
+    let html = '';
+
+    if (!chartData.sub_pilihan || chartData.sub_pilihan.length === 0) {
+        html = '<div class="text-sm text-gray-500 dark:text-gray-400 text-center py-8">Tidak ada data jenis perlindungan</div>';
+    } else {
+        const total = chartData.data.reduce((sum, val) => sum + val, 0);
+        
+        // Group by kategori
+        const groupedByKategori = {};
+        chartData.sub_pilihan.forEach((subPilihan, index) => {
+            const kategori = chartData.kategori[index];
+            const jumlah = chartData.data[index];
+            
+            if (!groupedByKategori[kategori]) {
+                groupedByKategori[kategori] = [];
+            }
+            
+            groupedByKategori[kategori].push({
+                subPilihan,
+                jumlah,
+                percentage: total > 0 ? ((jumlah / total) * 100).toFixed(1) : 0
+            });
+        });
+
+        // Generate HTML
+        Object.keys(groupedByKategori).forEach(kategori => {
+            html += `
+                <div class="mb-4">
+                    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 border-b pb-1">${kategori}</h4>
+                    <div class="space-y-2">
+            `;
+            
+            groupedByKategori[kategori].forEach(item => {
+                html += `
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-gray-600 dark:text-gray-400 truncate flex-1">${item.subPilihan}</span>
+                        <div class="text-right ml-2">
+                            <div class="font-medium text-gray-800 dark:text-white">${item.jumlah}</div>
+                            <div class="text-gray-500 dark:text-gray-400">${item.percentage}%</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `</div></div>`;
+        });
+
+        html += `
+    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 space-y-2">
+        <div class="flex justify-between items-center text-sm">
+            <span class="font-semibold text-gray-700 dark:text-gray-300">Total Layanan:</span>
+            <span class="font-bold text-green-600 dark:text-green-400">${total}</span>
+        </div>
+        <div class="flex justify-between items-center text-sm">
+            <span class="font-semibold text-gray-700 dark:text-gray-300">Jenis Perlindungan:</span>
+            <span class="font-bold text-green-600 dark:text-green-400">${chartData.sub_pilihan.length}</span>
+        </div>
+        <div class="flex justify-between items-center text-sm">
+            <span class="font-semibold text-gray-700 dark:text-gray-300">Kategori:</span>
+            <span class="font-bold text-green-600 dark:text-green-400">${new Set(chartData.kategori).size}</span>
+        </div>
+    </div>
+`;
+    }
+
+    container.innerHTML = html;
+}
+
 
   renderPermohonanChart(chartData) {
     // Destroy existing chart

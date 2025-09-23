@@ -496,7 +496,7 @@ try {
     $genderPermohonan = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 
     // Format data jenis kelamin
-    $genderLabels = ['L' => 'Laki-laki', 'P' => 'Perempuan'];
+    $genderLabels = ['Laki-laki' => 'Laki-laki', 'Perempuan' => 'Perempuan'];
     $genderDataPermohonan = [
         'labels' => [],
         'data' => [],
@@ -536,6 +536,174 @@ try {
         $genderDataLayanan['data'][] = $count;
         $genderDataLayanan['total'] += $count;
     }
+
+
+// --- Data Jenis Tindak Pidana ---
+// Daftar semua nilai enum yang mungkin (hardcode berdasarkan struktur database)
+$allTindakPidana = [
+    'KSA', 'PENYIKSAAN', 'KORUPSI', 'TPPO', 'PHB', 'TERORISME', 
+    'KS', 'PENGANIAYAAN BERAT', 'NARKOTIKA', 'TPL', 'TPPU', 'PENGANIAYAAN'
+];
+
+$tindakPidanaChart = [
+    'labels' => [],
+    'data' => [],
+    'total' => 0
+];
+
+// Query untuk setiap jenis tindak pidana
+foreach ($allTindakPidana as $jenis) {
+    $stmt = executeQuery(
+        $pdo,
+        "SELECT COUNT(*) as jumlah 
+         FROM permohonan 
+         WHERE tindak_pidana = ? 
+         AND YEAR(tgl_pengajuan) = ? 
+         AND tempat_permohonan != 'JAKARTA'",
+        [$jenis, $selectedYear]
+    );
+    
+    $jumlah = (int)$stmt->fetchColumn();
+    
+    $tindakPidanaChart['labels'][] = $jenis;
+    $tindakPidanaChart['data'][] = $jumlah;
+    $tindakPidanaChart['total'] += $jumlah;
+}
+
+// Urutkan berdasarkan jumlah descending
+array_multisort($tindakPidanaChart['data'], SORT_DESC, $tindakPidanaChart['labels']);
+
+
+
+// --- Data Status Hukum ---
+$stmt = executeQuery(
+    $pdo,
+    "SELECT 
+        status_hukum,
+        COUNT(*) as jumlah
+     FROM permohonan 
+     WHERE YEAR(tgl_pengajuan) = ? AND tempat_permohonan != 'JAKARTA'
+     GROUP BY status_hukum",
+    [$selectedYear]
+);
+$statusHukumData = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+// Format data status hukum
+$statusHukumChart = [
+    'labels' => [],
+    'data' => [],
+    'total' => 0
+];
+
+if (!empty($statusHukumData)) {
+    foreach ($statusHukumData as $status => $jumlah) {
+        $statusHukumChart['labels'][] = $status;
+        $statusHukumChart['data'][] = (int)$jumlah;
+        $statusHukumChart['total'] += (int)$jumlah;
+    }
+}
+
+
+// --- Data Jenis Perlindungan Permohonan ---
+$stmt = executeQuery(
+    $pdo,
+    "SELECT 
+        jp.kategori,
+        jp.sub_pilihan,
+        COUNT(pp.id) as jumlah
+     FROM permohonan_perlindungan pp
+     JOIN jenis_perlindungan jp ON pp.id_perlindungan = jp.id
+     JOIN permohonan p ON pp.no_reg_medan = p.no_reg_medan
+     WHERE YEAR(p.tgl_pengajuan) = ? AND p.tempat_permohonan != 'JAKARTA'
+     GROUP BY jp.kategori, jp.sub_pilihan
+     ORDER BY jp.kategori, jumlah DESC",
+    [$selectedYear]
+);
+$jenisPerlindunganPermohonan = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Format data jenis perlindungan permohonan
+$perlindunganPermohonanChart = [
+    'kategori' => [],
+    'sub_pilihan' => [],
+    'data' => [],
+    'total' => 0
+];
+
+foreach ($jenisPerlindunganPermohonan as $item) {
+    $perlindunganPermohonanChart['kategori'][] = $item['kategori'];
+    $perlindunganPermohonanChart['sub_pilihan'][] = $item['sub_pilihan'];
+    $perlindunganPermohonanChart['data'][] = (int)$item['jumlah'];
+    $perlindunganPermohonanChart['total'] += (int)$item['jumlah'];
+}
+
+
+
+// --- Data Jenis Perlindungan Layanan ---
+$stmt = executeQuery(
+    $pdo,
+    "SELECT 
+        jp.kategori,
+        jp.sub_pilihan,
+        COUNT(lp.id) as jumlah
+     FROM layanan_perlindungan lp
+     JOIN jenis_perlindungan jp ON lp.id_perlindungan = jp.id
+     JOIN layanan l ON lp.no_kep_smpl = l.no_kep_smpl
+     WHERE (YEAR(l.tgl_mulai_layanan) = ? OR (l.tanggal_disposisi IS NOT NULL AND YEAR(l.tanggal_disposisi) = ?))
+     GROUP BY jp.kategori, jp.sub_pilihan
+     ORDER BY jp.kategori, jumlah DESC",
+    [$selectedYear, $selectedYear]
+);
+$jenisPerlindunganLayanan = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Format data jenis perlindungan layanan
+$perlindunganLayananChart = [
+    'kategori' => [],
+    'sub_pilihan' => [],
+    'data' => [],
+    'total' => 0
+];
+
+foreach ($jenisPerlindunganLayanan as $item) {
+    $perlindunganLayananChart['kategori'][] = $item['kategori'];
+    $perlindunganLayananChart['sub_pilihan'][] = $item['sub_pilihan'];
+    $perlindunganLayananChart['data'][] = (int)$item['jumlah'];
+    $perlindunganLayananChart['total'] += (int)$item['jumlah'];
+}
+
+// --- Data Gabungan untuk Chart Perbandingan ---
+// Ambil semua jenis perlindungan yang ada
+$stmt = executeQuery($pdo, "SELECT id, kategori, sub_pilihan FROM jenis_perlindungan ORDER BY kategori, sub_pilihan");
+$allJenisPerlindungan = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$perlindunganComparisonChart = [
+    'labels' => [],
+    'permohonan' => [],
+    'layanan' => []
+];
+
+// Mapping data permohonan
+$permohonanMap = [];
+foreach ($jenisPerlindunganPermohonan as $item) {
+    $key = $item['kategori'] . ' - ' . $item['sub_pilihan'];
+    $permohonanMap[$key] = (int)$item['jumlah'];
+}
+
+// Mapping data layanan
+$layananMap = [];
+foreach ($jenisPerlindunganLayanan as $item) {
+    $key = $item['kategori'] . ' - ' . $item['sub_pilihan'];
+    $layananMap[$key] = (int)$item['jumlah'];
+}
+
+// Gabungkan semua jenis perlindungan
+foreach ($allJenisPerlindungan as $jenis) {
+    $key = $jenis['kategori'] . ' - ' . $jenis['sub_pilihan'];
+    $perlindunganComparisonChart['labels'][] = $key;
+    $perlindunganComparisonChart['permohonan'][] = $permohonanMap[$key] ?? 0;
+    $perlindunganComparisonChart['layanan'][] = $layananMap[$key] ?? 0;
+}
+
+
 
     // --- Data Aktivitas Terbaru ---
     $stmt = executeQuery(
@@ -630,7 +798,12 @@ try {
             'gender_distribution' => [ 
                 'permohonan' => $genderDataPermohonan,
                 'layanan' => $genderDataLayanan
-            ]
+            ],
+            'tindak_pidana' => $tindakPidanaChart,
+            'status_hukum' => $statusHukumChart,
+            'perlindungan_permohonan' => $perlindunganPermohonanChart,
+            'perlindungan_layanan' => $perlindunganLayananChart,
+            'perlindungan_comparison' => $perlindunganComparisonChart
         ],
         'map' => [
             'provinsi_counts' => $provinsiCounts,
