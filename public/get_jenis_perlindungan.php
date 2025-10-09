@@ -91,7 +91,9 @@ try {
 
     error_log("Final result: " . json_encode($result, JSON_UNESCAPED_UNICODE));
 
-    sendJsonSuccess($result);
+    // sendJsonSuccess($result);
+    echo json_encode(['success' => true, 'names' => $result]);
+exit;
 
 } catch (PDOException $e) {
     error_log("Database error in get_jenis_perlindungan.php: " . $e->getMessage());

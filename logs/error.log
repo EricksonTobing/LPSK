@@ -1618,3 +1618,448 @@
 [23-Sep-2025 19:48:56 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
 [23-Sep-2025 19:48:56 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
 [23-Sep-2025 19:48:56 UTC] Final processed data: {"jenis_perlindungan":""}
+[26-Sep-2025 20:05:49 UTC] Final per page: 10
+[26-Sep-2025 20:05:49 UTC] Per page value: 10
+[26-Sep-2025 20:05:49 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[26-Sep-2025 20:05:49 UTC] Page: 1, Per Page: 10, Offset: 0
+[26-Sep-2025 20:05:49 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[26-Sep-2025 20:05:49 UTC] Final processed data: {"jenis_perlindungan":""}
+[26-Sep-2025 20:05:50 UTC] Processing jenis_perlindungan IDs: 25, 21
+[26-Sep-2025 20:05:50 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[26-Sep-2025 20:05:50 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[26-Sep-2025 20:05:50 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[26-Sep-2025 20:05:52 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-MDN-2025-001
+[26-Sep-2025 20:05:52 UTC] Final processed data: {"no_reg_medan":"REG-MDN-2025-001","nama_pemohon":"ERIKSON","jenis_kelamin":"Laki-laki","status_hukum":"Anak Korban","tgl_pengajuan":"2025-09-21","pihak_perwakilan":"KELUARGA","tindak_pidana":"TPPU","id_pegawai":6,"kelengkapan_berkas":"Berkas kurang","media_pengajuan":"MPP","link_berkas_permohonan":"https:\/\/limo.lpsk.go.id\/apps\/files\/files","jenis_perlindungan":"24,25,21,8,2,15,16","kab_kot_locus":"Banda Aceh","provinsi":"Aceh","kab_kota_pemohon":"Banda Aceh selatan","provinsi_pemohon":"Aceh","tempat_permohonan":"MEDAN","created_at":"2025-09-21 23:30:16","updated_at":"2025-09-24 02:48:56","pegawai_nama_pegawai":"Viviani Octaria Parhusip, S.IP","nama_pegawai":"Viviani Octaria Parhusip, S.IP"}
+[26-Sep-2025 20:05:52 UTC] Processing jenis_perlindungan IDs: 24, 25, 21, 8, 2, 15, 16
+[26-Sep-2025 20:05:52 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?,?,?,?,?,?) ORDER BY kategori, sub_pilihan
+[26-Sep-2025 20:05:52 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Psikologis"},{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"},{"kategori":"Pemenuhan Hak Prosedural","sub_pilihan":"Pendampingan"},{"kategori":"Perlindungan Fisik","sub_pilihan":"Pengamanan Melekat"},{"kategori":"Perlindungan Hukum","sub_pilihan":"Penundaan Tuntutan Hukum"},{"kategori":"Perlindungan Hukum","sub_pilihan":"Tidak Dapat Dituntut Secara Hukum"}]
+[26-Sep-2025 20:05:52 UTC] Final result: ["Psikologis","Rehabilitasi Psikososial","Restitusi","Pendampingan","Pengamanan Melekat","Penundaan Tuntutan Hukum","Tidak Dapat Dituntut Secara Hukum"]
+[26-Sep-2025 20:26:02 UTC] API Stats Error: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it
+[27-Sep-2025 08:33:03 UTC] Final per page: 10
+[27-Sep-2025 08:33:03 UTC] Per page value: 10
+[27-Sep-2025 08:33:03 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[27-Sep-2025 08:33:03 UTC] Page: 1, Per Page: 10, Offset: 0
+[27-Sep-2025 08:33:03 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[27-Sep-2025 08:33:03 UTC] Final processed data: {"jenis_perlindungan":""}
+[27-Sep-2025 08:33:04 UTC] Processing jenis_perlindungan IDs: 25, 21
+[27-Sep-2025 08:33:04 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[27-Sep-2025 08:33:04 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[27-Sep-2025 08:33:04 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[27-Sep-2025 08:34:51 UTC] Final per page: 10
+[27-Sep-2025 08:34:51 UTC] Per page value: 10
+[27-Sep-2025 08:34:51 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[27-Sep-2025 08:34:51 UTC] Page: 1, Per Page: 10, Offset: 0
+[27-Sep-2025 08:34:51 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[27-Sep-2025 08:34:51 UTC] Final processed data: {"jenis_perlindungan":""}
+[27-Sep-2025 08:34:52 UTC] Processing jenis_perlindungan IDs: 25, 21
+[27-Sep-2025 08:34:52 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[27-Sep-2025 08:34:52 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[27-Sep-2025 08:34:52 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[27-Sep-2025 08:35:08 UTC] Spout Export Query: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, GROUP_CONCAT(jp.sub_pilihan SEPARATOR ', ') AS jenis_perlindungan_names FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan_perlindungan pp ON permohonan.no_reg_medan = pp.no_reg_medan LEFT JOIN jenis_perlindungan jp ON pp.id_perlindungan = jp.id   GROUP BY permohonan.no_reg_medan ORDER BY tgl_pengajuan DESC
+[27-Sep-2025 08:35:08 UTC] Spout Export Params: Array
+(
+)
+
+[27-Sep-2025 20:11:04 UTC] Final per page: 10
+[27-Sep-2025 20:11:04 UTC] Per page value: 10
+[27-Sep-2025 20:11:04 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[27-Sep-2025 20:11:04 UTC] Page: 1, Per Page: 10, Offset: 0
+[27-Sep-2025 20:11:04 UTC] Processing jenis_perlindungan IDs: 25, 21
+[27-Sep-2025 20:11:04 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[27-Sep-2025 20:11:04 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[27-Sep-2025 20:11:04 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[27-Sep-2025 20:11:05 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[27-Sep-2025 20:11:05 UTC] Final processed data: {"jenis_perlindungan":""}
+[27-Sep-2025 20:46:22 UTC] Final per page: 10
+[27-Sep-2025 20:46:22 UTC] Per page value: 10
+[27-Sep-2025 20:46:22 UTC] GET parameters: Array
+(
+    [t] => penelaahan
+)
+
+[27-Sep-2025 20:46:22 UTC] Page: 1, Per Page: 10, Offset: 0
+[27-Sep-2025 20:46:22 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-2026-017
+[27-Sep-2025 20:46:22 UTC] Final processed data: false
+[27-Sep-2025 20:46:23 UTC] Processing jenis_perlindungan IDs: 25, 21
+[27-Sep-2025 20:46:23 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[27-Sep-2025 20:46:23 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[27-Sep-2025 20:46:23 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[02-Oct-2025 08:28:55 UTC] PHP Warning:  Undefined array key "user_id" in C:\laragon\www\LPSK\public\admin_users.php on line 94
+[02-Oct-2025 08:29:04 UTC] PHP Warning:  Undefined array key "user_id" in C:\laragon\www\LPSK\public\admin_users.php on line 94
+[02-Oct-2025 10:29:29 UTC] PHP Warning:  Undefined array key "user_id" in C:\laragon\www\LPSK\public\admin_users.php on line 281
+[02-Oct-2025 10:29:53 UTC] PHP Warning:  Undefined array key "role" in C:\laragon\www\LPSK\public\admin_users.php on line 73
+[02-Oct-2025 10:29:53 UTC] PHP Warning:  Undefined array key "user_id" in C:\laragon\www\LPSK\public\admin_users.php on line 281
+[02-Oct-2025 10:32:42 UTC] PHP Warning:  Undefined array key "role" in C:\laragon\www\LPSK\public\admin_users.php on line 73
+[02-Oct-2025 10:32:42 UTC] PHP Warning:  Undefined array key "user_id" in C:\laragon\www\LPSK\public\admin_users.php on line 281
+[02-Oct-2025 10:33:35 UTC] PHP Warning:  Undefined array key "user_id" in C:\laragon\www\LPSK\public\admin_users.php on line 281
+[02-Oct-2025 10:33:35 UTC] PHP Warning:  Undefined array key "user_id" in C:\laragon\www\LPSK\public\admin_users.php on line 281
+[02-Oct-2025 10:33:46 UTC] PHP Warning:  Undefined array key "user_id" in C:\laragon\www\LPSK\public\admin_users.php on line 281
+[02-Oct-2025 10:33:46 UTC] PHP Warning:  Undefined array key "user_id" in C:\laragon\www\LPSK\public\admin_users.php on line 281
+[02-Oct-2025 10:34:43 UTC] PHP Warning:  Undefined array key "user_id" in C:\laragon\www\LPSK\public\admin_users.php on line 281
+[02-Oct-2025 10:34:43 UTC] PHP Warning:  Undefined array key "user_id" in C:\laragon\www\LPSK\public\admin_users.php on line 281
+[02-Oct-2025 10:35:53 UTC] Final per page: 10
+[02-Oct-2025 10:35:53 UTC] Per page value: 10
+[02-Oct-2025 10:35:53 UTC] GET parameters: Array
+(
+    [t] => layanan
+)
+
+[02-Oct-2025 10:35:53 UTC] Page: 1, Per Page: 10, Offset: 0
+[02-Oct-2025 10:35:53 UTC] Executing SQL: SELECT layanan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon FROM layanan LEFT JOIN pegawai ON layanan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON layanan.no_reg_medan = permohonan.no_reg_medan LEFT JOIN penelaahan ON layanan.no_registrasi = penelaahan.no_registrasi WHERE layanan.no_kep_smpl = ? LIMIT 1 with ID: REG-2026-017
+[02-Oct-2025 10:35:53 UTC] Final processed data: {"jenis_perlindungan":""}
+[02-Oct-2025 10:35:54 UTC] Processing jenis_perlindungan IDs: 25, 21
+[02-Oct-2025 10:35:54 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[02-Oct-2025 10:35:54 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[02-Oct-2025 10:35:54 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[02-Oct-2025 10:36:57 UTC] PHP Warning:  Undefined array key "user_id" in C:\laragon\www\LPSK\public\admin_users.php on line 281
+[02-Oct-2025 10:36:57 UTC] PHP Warning:  Undefined array key "user_id" in C:\laragon\www\LPSK\public\admin_users.php on line 281
+[06-Oct-2025 07:56:13 UTC] PHP Warning:  Undefined array key "user_id" in C:\laragon\www\LPSK\public\admin_users.php on line 281
+[06-Oct-2025 07:56:13 UTC] PHP Warning:  Undefined array key "user_id" in C:\laragon\www\LPSK\public\admin_users.php on line 281
+[06-Oct-2025 07:59:02 UTC] Final per page: 10
+[06-Oct-2025 07:59:02 UTC] Per page value: 10
+[06-Oct-2025 07:59:02 UTC] GET parameters: Array
+(
+    [t] => penelaahan
+)
+
+[06-Oct-2025 07:59:02 UTC] Page: 1, Per Page: 10, Offset: 0
+[06-Oct-2025 07:59:02 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-2026-017
+[06-Oct-2025 07:59:02 UTC] Final processed data: false
+[06-Oct-2025 07:59:02 UTC] Final per page: 10
+[06-Oct-2025 07:59:02 UTC] Per page value: 10
+[06-Oct-2025 07:59:02 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[06-Oct-2025 07:59:02 UTC] Page: 1, Per Page: 10, Offset: 0
+[06-Oct-2025 07:59:03 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[06-Oct-2025 07:59:03 UTC] Final processed data: {"jenis_perlindungan":""}
+[06-Oct-2025 07:59:03 UTC] Processing jenis_perlindungan IDs: 25, 21
+[06-Oct-2025 07:59:03 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[06-Oct-2025 07:59:03 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[06-Oct-2025 07:59:03 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[06-Oct-2025 07:59:04 UTC] Processing jenis_perlindungan IDs: 25, 21
+[06-Oct-2025 07:59:04 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[06-Oct-2025 07:59:04 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[06-Oct-2025 07:59:04 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[06-Oct-2025 07:59:05 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: 105/P.MDN-LPSK/11/2024
+[06-Oct-2025 07:59:05 UTC] Final processed data: {"no_reg_medan":"105\/P.MDN-LPSK\/11\/2024","nama_pemohon":"Sepadan Sembiring","jenis_kelamin":"Laki-laki","status_hukum":"Korban","tgl_pengajuan":"2024-11-29","pihak_perwakilan":"DIRI SENDIRI","tindak_pidana":"TPPU","id_pegawai":4,"kelengkapan_berkas":"ADA","media_pengajuan":"MPP","link_berkas_permohonan":null,"jenis_perlindungan":"20,21","kab_kot_locus":"Kab_Deli Serdang","provinsi":"Sumatera Utara","kab_kota_pemohon":"Kab_Deli Serdang","provinsi_pemohon":"Sumatera Utara","tempat_permohonan":"MEDAN","created_at":"2025-09-16 14:40:56","updated_at":"2025-09-24 02:28:08","pegawai_nama_pegawai":"Fikri Anugrah, S.H.","nama_pegawai":"Fikri Anugrah, S.H."}
+[06-Oct-2025 07:59:05 UTC] Processing jenis_perlindungan IDs: 20, 21
+[06-Oct-2025 07:59:05 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[06-Oct-2025 07:59:05 UTC] Query result: [{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Kompensasi"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[06-Oct-2025 07:59:05 UTC] Final result: ["Kompensasi","Restitusi"]
+[07-Oct-2025 08:04:00 UTC] Final per page: 10
+[07-Oct-2025 08:04:00 UTC] Per page value: 10
+[07-Oct-2025 08:04:00 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[07-Oct-2025 08:04:00 UTC] Page: 1, Per Page: 10, Offset: 0
+[07-Oct-2025 08:04:00 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[07-Oct-2025 08:04:00 UTC] Final processed data: {"jenis_perlindungan":""}
+[07-Oct-2025 08:04:01 UTC] Processing jenis_perlindungan IDs: 25, 21
+[07-Oct-2025 08:04:01 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[07-Oct-2025 08:04:01 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[07-Oct-2025 08:04:01 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[07-Oct-2025 08:04:17 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-MDN-2025-001
+[07-Oct-2025 08:04:17 UTC] Final processed data: {"no_reg_medan":"REG-MDN-2025-001","nama_pemohon":"ERIKSON","jenis_kelamin":"Laki-laki","status_hukum":"Anak Korban","tgl_pengajuan":"2025-09-21","pihak_perwakilan":"KELUARGA","tindak_pidana":"TPPU","id_pegawai":6,"kelengkapan_berkas":"Berkas kurang","media_pengajuan":"MPP","link_berkas_permohonan":"https:\/\/limo.lpsk.go.id\/apps\/files\/files","jenis_perlindungan":"24,25,21,8,2,15,16","kab_kot_locus":"Banda Aceh","provinsi":"Aceh","kab_kota_pemohon":"Banda Aceh selatan","provinsi_pemohon":"Aceh","tempat_permohonan":"MEDAN","created_at":"2025-09-21 23:30:16","updated_at":"2025-09-24 02:48:56","pegawai_nama_pegawai":"Viviani Octaria Parhusip, S.IP","nama_pegawai":"Viviani Octaria Parhusip, S.IP"}
+[07-Oct-2025 08:04:17 UTC] Processing jenis_perlindungan IDs: 24, 25, 21, 8, 2, 15, 16
+[07-Oct-2025 08:04:17 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?,?,?,?,?,?) ORDER BY kategori, sub_pilihan
+[07-Oct-2025 08:04:17 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Psikologis"},{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"},{"kategori":"Pemenuhan Hak Prosedural","sub_pilihan":"Pendampingan"},{"kategori":"Perlindungan Fisik","sub_pilihan":"Pengamanan Melekat"},{"kategori":"Perlindungan Hukum","sub_pilihan":"Penundaan Tuntutan Hukum"},{"kategori":"Perlindungan Hukum","sub_pilihan":"Tidak Dapat Dituntut Secara Hukum"}]
+[07-Oct-2025 08:04:17 UTC] Final result: ["Psikologis","Rehabilitasi Psikososial","Restitusi","Pendampingan","Pengamanan Melekat","Penundaan Tuntutan Hukum","Tidak Dapat Dituntut Secara Hukum"]
+[07-Oct-2025 08:09:39 UTC] Final per page: 10
+[07-Oct-2025 08:09:39 UTC] Per page value: 10
+[07-Oct-2025 08:09:39 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[07-Oct-2025 08:09:39 UTC] Page: 1, Per Page: 10, Offset: 0
+[07-Oct-2025 08:09:39 UTC] Processing jenis_perlindungan IDs: 25, 21
+[07-Oct-2025 08:09:39 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[07-Oct-2025 08:09:39 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[07-Oct-2025 08:09:39 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[07-Oct-2025 08:09:40 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[07-Oct-2025 08:09:40 UTC] Final processed data: {"jenis_perlindungan":""}
+[07-Oct-2025 08:09:41 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-MDN-2025-001
+[07-Oct-2025 08:09:41 UTC] Final processed data: {"no_reg_medan":"REG-MDN-2025-001","nama_pemohon":"ERIKSON","jenis_kelamin":"Laki-laki","status_hukum":"Anak Korban","tgl_pengajuan":"2025-09-21","pihak_perwakilan":"KELUARGA","tindak_pidana":"TPPU","id_pegawai":6,"kelengkapan_berkas":"Berkas kurang","media_pengajuan":"MPP","link_berkas_permohonan":"https:\/\/limo.lpsk.go.id\/apps\/files\/files","jenis_perlindungan":"24,25,21,8,2,15,16","kab_kot_locus":"Banda Aceh","provinsi":"Aceh","kab_kota_pemohon":"Banda Aceh selatan","provinsi_pemohon":"Aceh","tempat_permohonan":"MEDAN","created_at":"2025-09-21 23:30:16","updated_at":"2025-09-24 02:48:56","pegawai_nama_pegawai":"Viviani Octaria Parhusip, S.IP","nama_pegawai":"Viviani Octaria Parhusip, S.IP"}
+[07-Oct-2025 08:09:41 UTC] Processing jenis_perlindungan IDs: 24, 25, 21, 8, 2, 15, 16
+[07-Oct-2025 08:09:41 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?,?,?,?,?,?) ORDER BY kategori, sub_pilihan
+[07-Oct-2025 08:09:41 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Psikologis"},{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"},{"kategori":"Pemenuhan Hak Prosedural","sub_pilihan":"Pendampingan"},{"kategori":"Perlindungan Fisik","sub_pilihan":"Pengamanan Melekat"},{"kategori":"Perlindungan Hukum","sub_pilihan":"Penundaan Tuntutan Hukum"},{"kategori":"Perlindungan Hukum","sub_pilihan":"Tidak Dapat Dituntut Secara Hukum"}]
+[07-Oct-2025 08:09:41 UTC] Final result: ["Psikologis","Rehabilitasi Psikososial","Restitusi","Pendampingan","Pengamanan Melekat","Penundaan Tuntutan Hukum","Tidak Dapat Dituntut Secara Hukum"]
+[07-Oct-2025 08:14:32 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-MDN-2025-001
+[07-Oct-2025 08:14:32 UTC] Final processed data: {"no_reg_medan":"REG-MDN-2025-001","nama_pemohon":"ERIKSON","jenis_kelamin":"Laki-laki","status_hukum":"Anak Korban","tgl_pengajuan":"2025-09-21","pihak_perwakilan":"KELUARGA","tindak_pidana":"TPPU","id_pegawai":6,"kelengkapan_berkas":"Berkas kurang","media_pengajuan":"MPP","link_berkas_permohonan":"https:\/\/limo.lpsk.go.id\/apps\/files\/files","jenis_perlindungan":"24,25,21,8,2,15,16","kab_kot_locus":"Banda Aceh","provinsi":"Aceh","kab_kota_pemohon":"Banda Aceh selatan","provinsi_pemohon":"Aceh","tempat_permohonan":"MEDAN","created_at":"2025-09-21 23:30:16","updated_at":"2025-09-24 02:48:56","pegawai_nama_pegawai":"Viviani Octaria Parhusip, S.IP","nama_pegawai":"Viviani Octaria Parhusip, S.IP"}
+[07-Oct-2025 08:14:51 UTC] Field no_reg_medan: 'REG-MDN-2025-001'
+[07-Oct-2025 08:14:51 UTC] Field nama_pemohon: 'ERIKSON'
+[07-Oct-2025 08:14:51 UTC] Field jenis_kelamin: 'laki-laki'
+[07-Oct-2025 08:14:51 UTC] Field status_hukum: 'Anak Korban'
+[07-Oct-2025 08:14:51 UTC] Field tgl_pengajuan: '2025-09-21'
+[07-Oct-2025 08:14:51 UTC] Field pihak_perwakilan: 'KELUARGA'
+[07-Oct-2025 08:14:51 UTC] Field tindak_pidana: 'TPPU'
+[07-Oct-2025 08:14:51 UTC] Field id_pegawai: '6'
+[07-Oct-2025 08:14:51 UTC] Field kelengkapan_berkas: 'Berkas kurang'
+[07-Oct-2025 08:14:51 UTC] Field media_pengajuan: 'MPP'
+[07-Oct-2025 08:14:51 UTC] Field link_berkas_permohonan: 'https://limo.lpsk.go.id/apps/files/files'
+[07-Oct-2025 08:14:51 UTC] Field kab_kot_locus: 'Banda Aceh'
+[07-Oct-2025 08:14:51 UTC] Field provinsi: 'Aceh'
+[07-Oct-2025 08:14:51 UTC] Field kab_kota_pemohon: 'Banda Aceh selatan'
+[07-Oct-2025 08:14:51 UTC] Field provinsi_pemohon: 'Aceh'
+[07-Oct-2025 08:14:51 UTC] Field tempat_permohonan: 'MEDAN'
+[07-Oct-2025 08:14:51 UTC] Data to save: Array
+(
+    [no_reg_medan] => REG-MDN-2025-001
+    [nama_pemohon] => ERIKSON
+    [jenis_kelamin] => laki-laki
+    [status_hukum] => Anak Korban
+    [tgl_pengajuan] => 2025-09-21
+    [pihak_perwakilan] => KELUARGA
+    [tindak_pidana] => TPPU
+    [id_pegawai] => 6
+    [kelengkapan_berkas] => Berkas kurang
+    [media_pengajuan] => MPP
+    [link_berkas_permohonan] => https://limo.lpsk.go.id/apps/files/files
+    [jenis_perlindungan] => 25,21,8,2,15,16
+    [kab_kot_locus] => Banda Aceh
+    [provinsi] => Aceh
+    [kab_kota_pemohon] => Banda Aceh selatan
+    [provinsi_pemohon] => Aceh
+    [tempat_permohonan] => MEDAN
+)
+
+[07-Oct-2025 08:14:51 UTC] SQL: UPDATE permohonan SET no_reg_medan=?,nama_pemohon=?,jenis_kelamin=?,status_hukum=?,tgl_pengajuan=?,pihak_perwakilan=?,tindak_pidana=?,id_pegawai=?,kelengkapan_berkas=?,media_pengajuan=?,link_berkas_permohonan=?,jenis_perlindungan=?,kab_kot_locus=?,provinsi=?,kab_kota_pemohon=?,provinsi_pemohon=?,tempat_permohonan=? WHERE no_reg_medan=?
+[07-Oct-2025 08:14:51 UTC] Params: Array
+(
+    [0] => REG-MDN-2025-001
+    [1] => ERIKSON
+    [2] => laki-laki
+    [3] => Anak Korban
+    [4] => 2025-09-21
+    [5] => KELUARGA
+    [6] => TPPU
+    [7] => 6
+    [8] => Berkas kurang
+    [9] => MPP
+    [10] => https://limo.lpsk.go.id/apps/files/files
+    [11] => 25,21,8,2,15,16
+    [12] => Banda Aceh
+    [13] => Aceh
+    [14] => Banda Aceh selatan
+    [15] => Aceh
+    [16] => MEDAN
+    [17] => REG-MDN-2025-001
+)
+
+[07-Oct-2025 08:14:51 UTC] Final per page: 10
+[07-Oct-2025 08:14:51 UTC] Per page value: 10
+[07-Oct-2025 08:14:51 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[07-Oct-2025 08:14:51 UTC] Page: 1, Per Page: 10, Offset: 0
+[07-Oct-2025 08:14:52 UTC] Processing jenis_perlindungan IDs: 25, 21
+[07-Oct-2025 08:14:52 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[07-Oct-2025 08:14:52 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[07-Oct-2025 08:14:52 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[07-Oct-2025 08:14:53 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[07-Oct-2025 08:14:53 UTC] Final processed data: {"jenis_perlindungan":""}
+[07-Oct-2025 08:14:55 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-MDN-2025-001
+[07-Oct-2025 08:14:55 UTC] Final processed data: {"no_reg_medan":"REG-MDN-2025-001","nama_pemohon":"ERIKSON","jenis_kelamin":"Laki-laki","status_hukum":"Anak Korban","tgl_pengajuan":"2025-09-21","pihak_perwakilan":"KELUARGA","tindak_pidana":"TPPU","id_pegawai":6,"kelengkapan_berkas":"Berkas kurang","media_pengajuan":"MPP","link_berkas_permohonan":"https:\/\/limo.lpsk.go.id\/apps\/files\/files","jenis_perlindungan":"25,21,8,2,15,16","kab_kot_locus":"Banda Aceh","provinsi":"Aceh","kab_kota_pemohon":"Banda Aceh selatan","provinsi_pemohon":"Aceh","tempat_permohonan":"MEDAN","created_at":"2025-09-21 23:30:16","updated_at":"2025-10-07 15:14:51","pegawai_nama_pegawai":"Viviani Octaria Parhusip, S.IP","nama_pegawai":"Viviani Octaria Parhusip, S.IP"}
+[07-Oct-2025 08:14:55 UTC] Processing jenis_perlindungan IDs: 25, 21, 8, 2, 15, 16
+[07-Oct-2025 08:14:55 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?,?,?,?,?) ORDER BY kategori, sub_pilihan
+[07-Oct-2025 08:14:55 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"},{"kategori":"Pemenuhan Hak Prosedural","sub_pilihan":"Pendampingan"},{"kategori":"Perlindungan Fisik","sub_pilihan":"Pengamanan Melekat"},{"kategori":"Perlindungan Hukum","sub_pilihan":"Penundaan Tuntutan Hukum"},{"kategori":"Perlindungan Hukum","sub_pilihan":"Tidak Dapat Dituntut Secara Hukum"}]
+[07-Oct-2025 08:14:55 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi","Pendampingan","Pengamanan Melekat","Penundaan Tuntutan Hukum","Tidak Dapat Dituntut Secara Hukum"]
+[07-Oct-2025 08:15:02 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-MDN-2025-001
+[07-Oct-2025 08:15:02 UTC] Final processed data: {"no_reg_medan":"REG-MDN-2025-001","nama_pemohon":"ERIKSON","jenis_kelamin":"Laki-laki","status_hukum":"Anak Korban","tgl_pengajuan":"2025-09-21","pihak_perwakilan":"KELUARGA","tindak_pidana":"TPPU","id_pegawai":6,"kelengkapan_berkas":"Berkas kurang","media_pengajuan":"MPP","link_berkas_permohonan":"https:\/\/limo.lpsk.go.id\/apps\/files\/files","jenis_perlindungan":"25,21,8,2,15,16","kab_kot_locus":"Banda Aceh","provinsi":"Aceh","kab_kota_pemohon":"Banda Aceh selatan","provinsi_pemohon":"Aceh","tempat_permohonan":"MEDAN","created_at":"2025-09-21 23:30:16","updated_at":"2025-10-07 15:14:51","pegawai_nama_pegawai":"Viviani Octaria Parhusip, S.IP","nama_pegawai":"Viviani Octaria Parhusip, S.IP"}
+[07-Oct-2025 08:15:32 UTC] Field no_reg_medan: 'REG-MDN-2025-001'
+[07-Oct-2025 08:15:32 UTC] Field nama_pemohon: 'ERIKSON'
+[07-Oct-2025 08:15:32 UTC] Field jenis_kelamin: 'laki-laki'
+[07-Oct-2025 08:15:32 UTC] Field status_hukum: 'Anak Korban'
+[07-Oct-2025 08:15:32 UTC] Field tgl_pengajuan: '2025-09-21'
+[07-Oct-2025 08:15:32 UTC] Field pihak_perwakilan: 'KELUARGA'
+[07-Oct-2025 08:15:32 UTC] Field tindak_pidana: 'TPPU'
+[07-Oct-2025 08:15:32 UTC] Field id_pegawai: '6'
+[07-Oct-2025 08:15:32 UTC] Field kelengkapan_berkas: 'Berkas kurang'
+[07-Oct-2025 08:15:32 UTC] Field media_pengajuan: 'MPP'
+[07-Oct-2025 08:15:32 UTC] Field link_berkas_permohonan: 'https://limo.lpsk.go.id/apps/files/files'
+[07-Oct-2025 08:15:32 UTC] Field kab_kot_locus: 'Banda Aceh'
+[07-Oct-2025 08:15:32 UTC] Field provinsi: 'Aceh'
+[07-Oct-2025 08:15:32 UTC] Field kab_kota_pemohon: 'Banda Aceh selatan'
+[07-Oct-2025 08:15:32 UTC] Field provinsi_pemohon: 'Aceh'
+[07-Oct-2025 08:15:32 UTC] Field tempat_permohonan: 'MEDAN'
+[07-Oct-2025 08:15:32 UTC] Data to save: Array
+(
+    [no_reg_medan] => REG-MDN-2025-001
+    [nama_pemohon] => ERIKSON
+    [jenis_kelamin] => laki-laki
+    [status_hukum] => Anak Korban
+    [tgl_pengajuan] => 2025-09-21
+    [pihak_perwakilan] => KELUARGA
+    [tindak_pidana] => TPPU
+    [id_pegawai] => 6
+    [kelengkapan_berkas] => Berkas kurang
+    [media_pengajuan] => MPP
+    [link_berkas_permohonan] => https://limo.lpsk.go.id/apps/files/files
+    [jenis_perlindungan] => 22,24,25,21,8,2,15,16
+    [kab_kot_locus] => Banda Aceh
+    [provinsi] => Aceh
+    [kab_kota_pemohon] => Banda Aceh selatan
+    [provinsi_pemohon] => Aceh
+    [tempat_permohonan] => MEDAN
+)
+
+[07-Oct-2025 08:15:32 UTC] SQL: UPDATE permohonan SET no_reg_medan=?,nama_pemohon=?,jenis_kelamin=?,status_hukum=?,tgl_pengajuan=?,pihak_perwakilan=?,tindak_pidana=?,id_pegawai=?,kelengkapan_berkas=?,media_pengajuan=?,link_berkas_permohonan=?,jenis_perlindungan=?,kab_kot_locus=?,provinsi=?,kab_kota_pemohon=?,provinsi_pemohon=?,tempat_permohonan=? WHERE no_reg_medan=?
+[07-Oct-2025 08:15:32 UTC] Params: Array
+(
+    [0] => REG-MDN-2025-001
+    [1] => ERIKSON
+    [2] => laki-laki
+    [3] => Anak Korban
+    [4] => 2025-09-21
+    [5] => KELUARGA
+    [6] => TPPU
+    [7] => 6
+    [8] => Berkas kurang
+    [9] => MPP
+    [10] => https://limo.lpsk.go.id/apps/files/files
+    [11] => 22,24,25,21,8,2,15,16
+    [12] => Banda Aceh
+    [13] => Aceh
+    [14] => Banda Aceh selatan
+    [15] => Aceh
+    [16] => MEDAN
+    [17] => REG-MDN-2025-001
+)
+
+[07-Oct-2025 08:15:32 UTC] Final per page: 10
+[07-Oct-2025 08:15:32 UTC] Per page value: 10
+[07-Oct-2025 08:15:32 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[07-Oct-2025 08:15:32 UTC] Page: 1, Per Page: 10, Offset: 0
+[07-Oct-2025 08:15:33 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[07-Oct-2025 08:15:33 UTC] Final processed data: {"jenis_perlindungan":""}
+[07-Oct-2025 08:15:34 UTC] Processing jenis_perlindungan IDs: 25, 21
+[07-Oct-2025 08:15:34 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[07-Oct-2025 08:15:34 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[07-Oct-2025 08:15:34 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[07-Oct-2025 08:15:41 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-MDN-2025-001
+[07-Oct-2025 08:15:41 UTC] Final processed data: {"no_reg_medan":"REG-MDN-2025-001","nama_pemohon":"ERIKSON","jenis_kelamin":"Laki-laki","status_hukum":"Anak Korban","tgl_pengajuan":"2025-09-21","pihak_perwakilan":"KELUARGA","tindak_pidana":"TPPU","id_pegawai":6,"kelengkapan_berkas":"Berkas kurang","media_pengajuan":"MPP","link_berkas_permohonan":"https:\/\/limo.lpsk.go.id\/apps\/files\/files","jenis_perlindungan":"22,24,25,21,8,2,15,16","kab_kot_locus":"Banda Aceh","provinsi":"Aceh","kab_kota_pemohon":"Banda Aceh selatan","provinsi_pemohon":"Aceh","tempat_permohonan":"MEDAN","created_at":"2025-09-21 23:30:16","updated_at":"2025-10-07 15:15:32","pegawai_nama_pegawai":"Viviani Octaria Parhusip, S.IP","nama_pegawai":"Viviani Octaria Parhusip, S.IP"}
+[07-Oct-2025 08:15:41 UTC] Processing jenis_perlindungan IDs: 22, 24, 25, 21, 8, 2, 15, 16
+[07-Oct-2025 08:15:41 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?,?,?,?,?,?,?) ORDER BY kategori, sub_pilihan
+[07-Oct-2025 08:15:41 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Medis"},{"kategori":"Bantuan","sub_pilihan":"Psikologis"},{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"},{"kategori":"Pemenuhan Hak Prosedural","sub_pilihan":"Pendampingan"},{"kategori":"Perlindungan Fisik","sub_pilihan":"Pengamanan Melekat"},{"kategori":"Perlindungan Hukum","sub_pilihan":"Penundaan Tuntutan Hukum"},{"kategori":"Perlindungan Hukum","sub_pilihan":"Tidak Dapat Dituntut Secara Hukum"}]
+[07-Oct-2025 08:15:41 UTC] Final result: ["Medis","Psikologis","Rehabilitasi Psikososial","Restitusi","Pendampingan","Pengamanan Melekat","Penundaan Tuntutan Hukum","Tidak Dapat Dituntut Secara Hukum"]
+[07-Oct-2025 08:15:51 UTC] Final per page: 10
+[07-Oct-2025 08:15:51 UTC] Per page value: 10
+[07-Oct-2025 08:15:51 UTC] GET parameters: Array
+(
+    [t] => penelaahan
+)
+
+[07-Oct-2025 08:15:51 UTC] Page: 1, Per Page: 10, Offset: 0
+[07-Oct-2025 08:15:51 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-2026-017
+[07-Oct-2025 08:15:51 UTC] Final processed data: false
+[07-Oct-2025 08:15:52 UTC] Processing jenis_perlindungan IDs: 25, 21
+[07-Oct-2025 08:15:52 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[07-Oct-2025 08:15:52 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[07-Oct-2025 08:15:52 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[07-Oct-2025 08:15:55 UTC] Final per page: 10
+[07-Oct-2025 08:15:55 UTC] Per page value: 10
+[07-Oct-2025 08:15:55 UTC] GET parameters: Array
+(
+    [t] => layanan
+)
+
+[07-Oct-2025 08:15:55 UTC] Page: 1, Per Page: 10, Offset: 0
+[07-Oct-2025 08:15:55 UTC] Processing jenis_perlindungan IDs: 25, 21
+[07-Oct-2025 08:15:55 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[07-Oct-2025 08:15:55 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[07-Oct-2025 08:15:55 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[07-Oct-2025 08:15:56 UTC] Executing SQL: SELECT layanan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon FROM layanan LEFT JOIN pegawai ON layanan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON layanan.no_reg_medan = permohonan.no_reg_medan LEFT JOIN penelaahan ON layanan.no_registrasi = penelaahan.no_registrasi WHERE layanan.no_kep_smpl = ? LIMIT 1 with ID: REG-2026-017
+[07-Oct-2025 08:15:56 UTC] Final processed data: {"jenis_perlindungan":""}
+[07-Oct-2025 08:16:44 UTC] Final per page: 10
+[07-Oct-2025 08:16:44 UTC] Per page value: 10
+[07-Oct-2025 08:16:44 UTC] GET parameters: Array
+(
+    [t] => layanan
+)
+
+[07-Oct-2025 08:16:44 UTC] Page: 1, Per Page: 10, Offset: 0
+[07-Oct-2025 08:16:44 UTC] Executing SQL: SELECT layanan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon FROM layanan LEFT JOIN pegawai ON layanan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON layanan.no_reg_medan = permohonan.no_reg_medan LEFT JOIN penelaahan ON layanan.no_registrasi = penelaahan.no_registrasi WHERE layanan.no_kep_smpl = ? LIMIT 1 with ID: REG-2026-017
+[07-Oct-2025 08:16:44 UTC] Final processed data: {"jenis_perlindungan":""}
+[07-Oct-2025 08:16:45 UTC] Processing jenis_perlindungan IDs: 25, 21
+[07-Oct-2025 08:16:45 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[07-Oct-2025 08:16:45 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[07-Oct-2025 08:16:45 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[07-Oct-2025 08:16:50 UTC] Final per page: 10
+[07-Oct-2025 08:16:50 UTC] Per page value: 10
+[07-Oct-2025 08:16:50 UTC] GET parameters: Array
+(
+    [t] => layanan
+)
+
+[07-Oct-2025 08:16:50 UTC] Page: 1, Per Page: 10, Offset: 0
+[07-Oct-2025 08:16:50 UTC] Processing jenis_perlindungan IDs: 25, 21
+[07-Oct-2025 08:16:50 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[07-Oct-2025 08:16:50 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[07-Oct-2025 08:16:50 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[07-Oct-2025 08:16:51 UTC] Executing SQL: SELECT layanan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon FROM layanan LEFT JOIN pegawai ON layanan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON layanan.no_reg_medan = permohonan.no_reg_medan LEFT JOIN penelaahan ON layanan.no_registrasi = penelaahan.no_registrasi WHERE layanan.no_kep_smpl = ? LIMIT 1 with ID: REG-2026-017
+[07-Oct-2025 08:16:51 UTC] Final processed data: {"jenis_perlindungan":""}
+[07-Oct-2025 08:25:34 UTC] Final per page: 10
+[07-Oct-2025 08:25:34 UTC] Per page value: 10
+[07-Oct-2025 08:25:34 UTC] GET parameters: Array
+(
+    [t] => layanan
+)
+
+[07-Oct-2025 08:25:34 UTC] Page: 1, Per Page: 10, Offset: 0
+[07-Oct-2025 08:25:34 UTC] Executing SQL: SELECT layanan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon FROM layanan LEFT JOIN pegawai ON layanan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON layanan.no_reg_medan = permohonan.no_reg_medan LEFT JOIN penelaahan ON layanan.no_registrasi = penelaahan.no_registrasi WHERE layanan.no_kep_smpl = ? LIMIT 1 with ID: REG-2026-017
+[07-Oct-2025 08:25:34 UTC] Final processed data: {"jenis_perlindungan":""}
+[07-Oct-2025 08:25:35 UTC] Processing jenis_perlindungan IDs: 25, 21
+[07-Oct-2025 08:25:35 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[07-Oct-2025 08:25:35 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[07-Oct-2025 08:25:35 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[07-Oct-2025 08:25:42 UTC] Executing SQL: SELECT layanan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon FROM layanan LEFT JOIN pegawai ON layanan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON layanan.no_reg_medan = permohonan.no_reg_medan LEFT JOIN penelaahan ON layanan.no_registrasi = penelaahan.no_registrasi WHERE layanan.no_kep_smpl = ? LIMIT 1 with ID: SMPL-2025-020
+[07-Oct-2025 08:25:42 UTC] Final processed data: {"no_kep_smpl":"SMPL-2025-020","no_reg_medan":"020\/P.MDN-LPSK\/01\/2025","no_registrasi":"REG-PNL-2025-020","no_spk":"SPK-2025-020","tgl_no_kep_smpl":"2025-05-10","status_spk":"Sudah TTD","nama_terlindung":"Suryanto","jenis_tindak_pidana":"PHB","tanggal_disposisi":"2025-05-15","id_pegawai":4,"tgl_mulai_layanan":"2025-05-10","masa_layanan":"3 BULAN","tambahan_masa_layanan":null,"tgl_berakhir_layanan":"2025-08-10","jenis_perlindungan":"25","wilayah_hukum":"Pengadilan Negeri Deli Serdang","nama_ta_layanan":"SMW","status":"BERJALAN","created_at":"2025-10-07 15:25:28","updated_at":"2025-10-07 15:25:28","pegawai_nama_pegawai":"Fikri Anugrah, S.H.","permohonan_status_hukum":"Korban","permohonan_kab_kota_pemohon":"Kab_Deli Serdang","permohonan_provinsi_pemohon":"Sumatera Utara","nama_pegawai":"Fikri Anugrah, S.H.","status_hukum":"Korban","kab_kota_pemohon":"Kab_Deli Serdang","provinsi_pemohon":"Sumatera Utara"}
+[07-Oct-2025 08:25:42 UTC] Processing jenis_perlindungan IDs: 25
+[07-Oct-2025 08:25:42 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?) ORDER BY kategori, sub_pilihan
+[07-Oct-2025 08:25:42 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"}]
+[07-Oct-2025 08:25:42 UTC] Final result: ["Rehabilitasi Psikososial"]
+[07-Oct-2025 08:26:07 UTC] Final per page: 10
+[07-Oct-2025 08:26:07 UTC] Per page value: 10
+[07-Oct-2025 08:26:07 UTC] GET parameters: Array
+(
+    [t] => penelaahan
+)
+
+[07-Oct-2025 08:26:07 UTC] Page: 1, Per Page: 10, Offset: 0
+[07-Oct-2025 08:26:07 UTC] Processing jenis_perlindungan IDs: 25, 21
+[07-Oct-2025 08:26:07 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[07-Oct-2025 08:26:07 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[07-Oct-2025 08:26:07 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[07-Oct-2025 08:26:08 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-2026-017
+[07-Oct-2025 08:26:08 UTC] Final processed data: false
+[07-Oct-2025 08:26:09 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-PNL-2025-019
+[07-Oct-2025 08:26:09 UTC] Final processed data: {"no_registrasi":"REG-PNL-2025-019","no_reg_medan":"019\/P.MDN-LPSK\/01\/2025","proses_hukum":"P-21","tanggal_dispo":"2025-04-10","proses_penalaahan":"Dokumen P-21 sudah final","id_pegawai":4,"tgl_berakhir_penelaahan":"2025-07-10","waktu_tambahan":null,"nama_ta_penalaahan":"GPJ","risalah_laporan":"BELUM","created_at":"2025-10-07 15:25:28","updated_at":"2025-10-07 15:25:28","pegawai_nama_pegawai":"Fikri Anugrah, S.H.","permohonan_nama_pemohon":"Suri Uta Hesri","permohonan_jenis_kelamin":"Perempuan","permohonan_kab_kota_pemohon":"Kab_Deli Serdang","permohonan_provinsi_pemohon":"Sumatera Utara","permohonan_tindak_pidana":"PHB","permohonan_status_hukum":"Korban","permohonan_kab_kot_locus":"Kab_Deli Serdang","permohonan_jenis_perlindungan":"Rehabilitasi Psikososial","nama_pegawai":"Fikri Anugrah, S.H.","nama_pemohon":"Suri Uta Hesri","jenis_kelamin":"Perempuan","kab_kota_pemohon":"Kab_Deli Serdang","provinsi_pemohon":"Sumatera Utara","tindak_pidana":"PHB","status_hukum":"Korban","kab_kot_locus":"Kab_Deli Serdang","jenis_perlindungan":"Rehabilitasi Psikososial"}
+[07-Oct-2025 10:23:08 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-PNL-2025-015
+[07-Oct-2025 10:23:08 UTC] Final processed data: {"no_registrasi":"REG-PNL-2025-015","no_reg_medan":"015\/P.MDN-LPSK\/01\/2025","proses_hukum":"Penuntutan","tanggal_dispo":"2025-03-20","proses_penalaahan":"Kasus dalam tahap penuntutan","id_pegawai":4,"tgl_berakhir_penelaahan":"2025-06-20","waktu_tambahan":null,"nama_ta_penalaahan":"GPJ","risalah_laporan":"BELUM","created_at":"2025-10-07 15:25:28","updated_at":"2025-10-07 15:25:28","pegawai_nama_pegawai":"Fikri Anugrah, S.H.","permohonan_nama_pemohon":"Lindawati Siregar","permohonan_jenis_kelamin":"Perempuan","permohonan_kab_kota_pemohon":"Kota_Binjai","permohonan_provinsi_pemohon":"Sumatera Utara","permohonan_tindak_pidana":"PHB","permohonan_status_hukum":"Korban","permohonan_kab_kot_locus":"Kota_Binjai","permohonan_jenis_perlindungan":"Rehabilitasi Psikososial","nama_pegawai":"Fikri Anugrah, S.H.","nama_pemohon":"Lindawati Siregar","jenis_kelamin":"Perempuan","kab_kota_pemohon":"Kota_Binjai","provinsi_pemohon":"Sumatera Utara","tindak_pidana":"PHB","status_hukum":"Korban","kab_kot_locus":"Kota_Binjai","jenis_perlindungan":"Rehabilitasi Psikososial"}

@@ -12,7 +12,7 @@
   <!-- <link rel="icon" type="image/png" href="/assets/images/favicon.png"> -->
 <link rel="stylesheet" href="<?= base_url('assets/css/build.css') ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/custom.css') ?>">
-
+<!-- <link rel="stylesheet" href="<?= base_url('assets/css/output.css') ?>"> -->
    <!-- <link rel="stylesheet" href="/assets/css/build.css"> -->
 <!-- <link rel="stylesheet" href="/assets/css/custom.css"> -->
   

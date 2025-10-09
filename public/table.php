@@ -1485,8 +1485,8 @@ function openViewModal(id) {
 
 
 // Fungsi untuk merender data di modal view
-// Fungsi untuk merender data di modal view
-function renderViewData(data) {
+// Fungsi untuk merender data di modal view - YANG DIPERBAIKI
+async function renderViewData(data) {
     const viewContent = document.getElementById('viewContent');
     viewContent.innerHTML = '';
     
@@ -1498,11 +1498,11 @@ function renderViewData(data) {
         'jenis_perlindungan': 'Jenis Perlindungan'
     };
 
-    // Format dan tampilkan data
-    Object.keys(data).forEach(col => {
+    // Format dan tampilkan data - GUNAKAN ASYNC/AWAIT
+    for (const col of Object.keys(data)) {
         // Skip kolom yang tidak perlu ditampilkan
         if (col.includes('_at') || data[col] === null || data[col] === '' || 
-            col === 'created_at' || col === 'updated_at' || col === 'pegawai_nama_pegawai') return;
+            col === 'created_at' || col === 'updated_at' || col === 'pegawai_nama_pegawai') continue;
         
         const label = specialLabels[col] || <?= json_encode($colLabels) ?>[col] || col.replace(/_/g, ' ').toUpperCase();
         let value = data[col];
@@ -1515,19 +1515,16 @@ function renderViewData(data) {
         else if (col === 'id_pegawai' && data['pegawai_nama_pegawai']) {
             value = data['pegawai_nama_pegawai'];
         }
-        // Khusus untuk jenis_perlindungan, ambil nama jenisnya
+        // Khusus untuk jenis_perlindungan, ambil nama jenisnya - GUNAKAN AWAIT
         else if (col === 'jenis_perlindungan') {
-            // Jika ada data jenis_perlindungan, fetch nama-namanya
             if (value && value !== '') {
-                fetchJenisPerlindunganNames(value).then(names => {
-                    const jenisElement = document.querySelector(`[data-field="${col}"] dd`);
-                    if (jenisElement) {
-                        jenisElement.innerHTML = names.join(', ') || '<span class="text-gray-400">-</span>';
-                    }
-                }).catch(error => {
+                try {
+                    const names = await fetchJenisPerlindunganNames(value);
+                    value = names.length > 0 ? names.join(', ') : '<span class="text-gray-400">-</span>';
+                } catch (error) {
                     console.error('Error fetching jenis perlindungan:', error);
-                });
-                value = '<i class="fas fa-spinner fa-spin text-blue-500"></i> Memuat...';
+                    value = '<span class="text-red-400">Error loading data</span>';
+                }
             } else {
                 value = '<span class="text-gray-400">-</span>';
             }
@@ -1549,10 +1546,27 @@ function renderViewData(data) {
             <dd class="text-sm text-gray-900 dark:text-white break-words" data-field="${col}">${value}</dd>
         `;
         viewContent.appendChild(row);
-    });
+    }
     
     if (viewContent.children.length === 0) {
         viewContent.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">Tidak ada data untuk ditampilkan</div>';
+    }
+}
+
+// Fungsi untuk mengambil nama jenis perlindungan - YANG DIPERBAIKI
+async function fetchJenisPerlindunganNames(ids) {
+    try {
+        const response = await fetch(`get_jenis_perlindungan.php?ids=${encodeURIComponent(ids)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            return data.names || data.data || []; // Support both formats
+        } else {
+            throw new Error(data.message || 'Gagal memuat nama jenis perlindungan');
+        }
+    } catch (error) {
+        console.error('Error fetching jenis perlindungan names:', error);
+        return ['Error loading data'];
     }
 }
 
