@@ -75,7 +75,7 @@ if (!isset($_GET['fmt'])) {
                             <div class="flex-1">
                                 <label for="format_xlsx" class="text-gray-700 dark:text-gray-300 font-medium cursor-pointer">Excel (XLSX)</label>
                                 <p class="text-xs text-gray-500 mt-1">Optimal untuk data besar, dengan formatting yang baik </p>
-                                <span class="text-red-500 font-medium">MASIH DALAM PERBAIKAN</span>
+                                <!-- <span class="text-red-500 font-medium">MASIH DALAM PERBAIKAN</span> -->
                             </div>
                             <i class="fas fa-file-excel text-green-600"></i>
                         </div>
@@ -92,7 +92,7 @@ if (!isset($_GET['fmt'])) {
                             <div class="flex-1">
                                 <label for="format_ods" class="text-gray-700 dark:text-gray-300 font-medium cursor-pointer">OpenDocument (ODS)</label>
                                 <p class="text-xs text-gray-500 mt-1">Format terbuka, kompatibel dengan LibreOffice</p>
-                                <span class="text-red-500 font-medium">MASIH DALAM PERBAIKAN</span>
+                                <!-- <span class="text-red-500 font-medium">MASIH DALAM PERBAIKAN</span> -->
                             </div>
                             <i class="fas fa-file-alt text-orange-600"></i>
                         </div>

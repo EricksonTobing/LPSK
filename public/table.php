@@ -280,7 +280,11 @@ function get_input_type($column, $value = '')
             'Ahli' => 'Ahli', 
             'Pelapor' => 'Pelapor', 
             'Saksi Pelaku' => 'Saksi Pelaku',
-            'Anak Korban' => 'Anak Korban'
+            'Anak Korban' => 'Anak Korban',
+            'Terlapor' => 'Terlapor',
+            'Terdakwa' => 'Terdakwa',
+            'Tersangka' => 'Tersangka',
+            'Tidak ada status hukum' => 'Tidak ada status hukum'
         ],
         'pihak_perwakilan'      => [
             'KELUARGA' => 'Keluarga', 
@@ -450,7 +454,7 @@ function get_field_help($column) {
         'no_reg_medan' => 'Nomor registrasi unik dari Medan',
         'nama_pemohon' => 'Nama lengkap pemohon perlindungan',
         'jenis_kelamin' => 'Jenis kelamin pemohon',
-        'status_hukum' => 'Status hukum pemohon (Saksi, Korban, Ahli, Pelapor, Saksi Pelaku)',
+        'status_hukum' => 'Status hukum pemohon (Saksi, Korban, Ahli, Pelapor, Saksi Pelaku, Anak Korban, Terlapor, Terdakwa, Tersangka, Tidak ada status hukum)',
         'tgl_pengajuan' => 'Tanggal pengajuan permohonan',
         'pihak_perwakilan' => 'Pihak yang mewakili pemohon',
         'tindak_pidana' => 'Jenis tindak pidana yang dilaporkan',
