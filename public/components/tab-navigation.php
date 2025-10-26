@@ -5,7 +5,7 @@
 <!-- Tab Navigation -->
 <div class="mb-8">
     <div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-2 border border-white/20 dark:border-gray-700/50 shadow-xl">
-        <div class="flex flex-wrap gap-2 origin-center" id="dashboard-tabs">
+        <div class="flex flex-wrap justify-center items-center gap-2 origin-center" id="dashboard-tabs">
             <!-- Tab Overview (Default Active) -->
             <button class="tab-button px-6 py-3 rounded-2xl font-medium transition-all duration-300 bg-gradient-to-r from-primary-blue to-primary-red text-white shadow-lg" data-tab="overview">
                 <i class="fas fa-chart-pie mr-2"></i>Overview

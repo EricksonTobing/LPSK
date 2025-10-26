@@ -3534,3 +3534,8 @@ Stack trace:
 [26-Oct-2025 18:00:38 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
 [26-Oct-2025 18:00:38 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
 [26-Oct-2025 18:00:47 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 18:04:16 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 18:04:38 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 18:05:59 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 18:08:44 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 18:08:47 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
