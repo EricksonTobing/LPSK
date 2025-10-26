@@ -916,6 +916,11 @@ video {
   height: 100vh;
 }
 
+.h-fit {
+  height: -moz-fit-content;
+  height: fit-content;
+}
+
 .max-h-48 {
   max-height: 12rem;
 }
@@ -1000,6 +1005,11 @@ video {
   width: 100vw;
 }
 
+.w-fit {
+  width: -moz-fit-content;
+  width: fit-content;
+}
+
 .min-w-0 {
   min-width: 0px;
 }
@@ -1010,6 +1020,10 @@ video {
 
 .max-w-2xl {
   max-width: 42rem;
+}
+
+.max-w-32 {
+  max-width: 8rem;
 }
 
 .max-w-4xl {
@@ -1038,6 +1052,10 @@ video {
 
 .flex-grow {
   flex-grow: 1;
+}
+
+.origin-center {
+  transform-origin: center;
 }
 
 .origin-left {
@@ -2521,6 +2539,11 @@ video {
   background-color: rgb(55 65 81 / var(--tw-bg-opacity, 1));
 }
 
+.hover\:bg-green-200:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(187 247 208 / var(--tw-bg-opacity, 1));
+}
+
 .hover\:bg-green-50:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(240 253 244 / var(--tw-bg-opacity, 1));
@@ -3214,6 +3237,10 @@ video {
   background-color: rgb(20 83 45 / 0.2);
 }
 
+.dark\:hover\:bg-green-900\/50:hover:is(.dark *) {
+  background-color: rgb(20 83 45 / 0.5);
+}
+
 .dark\:hover\:bg-red-900\/20:hover:is(.dark *) {
   background-color: rgb(127 29 29 / 0.2);
 }
@@ -3441,10 +3468,6 @@ video {
 @media (min-width: 1280px) {
   .xl\:col-span-2 {
     grid-column: span 2 / span 2;
-  }
-
-  .xl\:grid-cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .xl\:grid-cols-4 {

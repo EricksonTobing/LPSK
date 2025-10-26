@@ -2502,3 +2502,1035 @@ Stack trace:
 [18-Oct-2025 08:18:11 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
 [18-Oct-2025 08:18:12 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
 [18-Oct-2025 08:18:12 UTC] Final processed data: {"jenis_perlindungan":""}
+[18-Oct-2025 18:40:23 UTC] PHP Warning:  require(C:\laragon\www\LPSK\public/inc/layout_footer.php): Failed to open stream: No such file or directory in C:\laragon\www\LPSK\public\dashboard.php on line 119
+[18-Oct-2025 18:40:23 UTC] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\laragon\www\LPSK\public/inc/layout_footer.php' (include_path='.;C:/laragon/etc/php/pear') in C:\laragon\www\LPSK\public\dashboard.php:119
+Stack trace:
+#0 {main}
+  thrown in C:\laragon\www\LPSK\public\dashboard.php on line 119
+[18-Oct-2025 18:41:40 UTC] PHP Warning:  require(C:\laragon\www\LPSK\public/inc/layout_footer.php): Failed to open stream: No such file or directory in C:\laragon\www\LPSK\public\dashboard.php on line 119
+[18-Oct-2025 18:41:40 UTC] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\laragon\www\LPSK\public/inc/layout_footer.php' (include_path='.;C:/laragon/etc/php/pear') in C:\laragon\www\LPSK\public\dashboard.php:119
+Stack trace:
+#0 {main}
+  thrown in C:\laragon\www\LPSK\public\dashboard.php on line 119
+[18-Oct-2025 18:48:53 UTC] PHP Warning:  require(C:\laragon\www\LPSK\public/inc/layout_footer.php): Failed to open stream: No such file or directory in C:\laragon\www\LPSK\public\dashboard.php on line 128
+[18-Oct-2025 18:48:53 UTC] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\laragon\www\LPSK\public/inc/layout_footer.php' (include_path='.;C:/laragon/etc/php/pear') in C:\laragon\www\LPSK\public\dashboard.php:128
+Stack trace:
+#0 {main}
+  thrown in C:\laragon\www\LPSK\public\dashboard.php on line 128
+[20-Oct-2025 04:46:54 UTC] Final per page: 10
+[20-Oct-2025 04:46:54 UTC] Per page value: 10
+[20-Oct-2025 04:46:54 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[20-Oct-2025 04:46:54 UTC] Page: 1, Per Page: 10, Offset: 0
+[20-Oct-2025 04:46:54 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[20-Oct-2025 04:46:54 UTC] Final processed data: {"jenis_perlindungan":""}
+[20-Oct-2025 04:46:55 UTC] Processing jenis_perlindungan IDs: 25, 21
+[20-Oct-2025 04:46:55 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[20-Oct-2025 04:46:55 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[20-Oct-2025 04:46:55 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[20-Oct-2025 04:47:04 UTC] Final per page: 10
+[20-Oct-2025 04:47:04 UTC] Per page value: 10
+[20-Oct-2025 04:47:04 UTC] GET parameters: Array
+(
+    [t] => penelaahan
+)
+
+[20-Oct-2025 04:47:04 UTC] Page: 1, Per Page: 10, Offset: 0
+[20-Oct-2025 04:47:04 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-2026-017
+[20-Oct-2025 04:47:04 UTC] Final processed data: false
+[20-Oct-2025 04:47:05 UTC] Processing jenis_perlindungan IDs: 25, 21
+[20-Oct-2025 04:47:05 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[20-Oct-2025 04:47:05 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[20-Oct-2025 04:47:05 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[20-Oct-2025 04:48:22 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-PNL-2025-011
+[20-Oct-2025 04:48:22 UTC] Final processed data: {"no_registrasi":"REG-PNL-2025-011","no_reg_medan":"011\/P.MDN-LPSK\/01\/2025","proses_hukum":"P-21","tanggal_dispo":"2025-03-01","proses_penalaahan":"Dokumen P-21 sudah lengkap","id_pegawai":4,"tgl_berakhir_penelaahan":"2025-06-01","waktu_tambahan":null,"nama_ta_penalaahan":"GPJ","risalah_laporan":"BELUM","created_at":"2025-10-07 15:25:28","updated_at":"2025-10-07 15:25:28","pegawai_nama_pegawai":"Fikri Anugrah, S.H.","permohonan_nama_pemohon":"Suparnadi","permohonan_jenis_kelamin":"Laki-laki","permohonan_kab_kota_pemohon":"Kab_Deli Serdang","permohonan_provinsi_pemohon":"Sumatera Utara","permohonan_tindak_pidana":"PHB","permohonan_status_hukum":"Korban","permohonan_kab_kot_locus":"Kab_Deli Serdang","permohonan_jenis_perlindungan":"Rehabilitasi Psikososial","nama_pegawai":"Fikri Anugrah, S.H.","nama_pemohon":"Suparnadi","jenis_kelamin":"Laki-laki","kab_kota_pemohon":"Kab_Deli Serdang","provinsi_pemohon":"Sumatera Utara","tindak_pidana":"PHB","status_hukum":"Korban","kab_kot_locus":"Kab_Deli Serdang","jenis_perlindungan":"Rehabilitasi Psikososial"}
+[20-Oct-2025 04:48:32 UTC] Field no_registrasi: 'REG-PNL-2025-011'
+[20-Oct-2025 04:48:32 UTC] Field no_reg_medan: '011/P.MDN-LPSK/01/2025'
+[20-Oct-2025 04:48:32 UTC] Field proses_hukum: 'Tidak Ada Proses Hukum'
+[20-Oct-2025 04:48:32 UTC] Field tanggal_dispo: '2025-03-01'
+[20-Oct-2025 04:48:32 UTC] Field proses_penalaahan: 'Dokumen P-21 sudah lengkap'
+[20-Oct-2025 04:48:32 UTC] Field id_pegawai: '4'
+[20-Oct-2025 04:48:32 UTC] Field tgl_berakhir_penelaahan: '2025-06-01'
+[20-Oct-2025 04:48:32 UTC] Field waktu_tambahan: ''
+[20-Oct-2025 04:48:32 UTC] Field nama_ta_penalaahan: 'GPJ'
+[20-Oct-2025 04:48:32 UTC] Field risalah_laporan: 'BELUM'
+[20-Oct-2025 04:48:32 UTC] Data to save: Array
+(
+    [no_registrasi] => REG-PNL-2025-011
+    [no_reg_medan] => 011/P.MDN-LPSK/01/2025
+    [proses_hukum] => Tidak Ada Proses Hukum
+    [tanggal_dispo] => 2025-03-01
+    [proses_penalaahan] => Dokumen P-21 sudah lengkap
+    [id_pegawai] => 4
+    [tgl_berakhir_penelaahan] => 2025-06-01
+    [waktu_tambahan] => 
+    [nama_ta_penalaahan] => GPJ
+    [risalah_laporan] => BELUM
+)
+
+[20-Oct-2025 04:48:32 UTC] SQL: UPDATE penelaahan SET no_registrasi=?,no_reg_medan=?,proses_hukum=?,tanggal_dispo=?,proses_penalaahan=?,id_pegawai=?,tgl_berakhir_penelaahan=?,waktu_tambahan=?,nama_ta_penalaahan=?,risalah_laporan=? WHERE no_registrasi=?
+[20-Oct-2025 04:48:32 UTC] Params: Array
+(
+    [0] => REG-PNL-2025-011
+    [1] => 011/P.MDN-LPSK/01/2025
+    [2] => Tidak Ada Proses Hukum
+    [3] => 2025-03-01
+    [4] => Dokumen P-21 sudah lengkap
+    [5] => 4
+    [6] => 2025-06-01
+    [7] => 
+    [8] => GPJ
+    [9] => BELUM
+    [10] => REG-PNL-2025-011
+)
+
+[20-Oct-2025 04:48:32 UTC] Final per page: 10
+[20-Oct-2025 04:48:32 UTC] Per page value: 10
+[20-Oct-2025 04:48:32 UTC] GET parameters: Array
+(
+    [t] => penelaahan
+)
+
+[20-Oct-2025 04:48:32 UTC] Page: 1, Per Page: 10, Offset: 0
+[20-Oct-2025 04:48:32 UTC] Processing jenis_perlindungan IDs: 25, 21
+[20-Oct-2025 04:48:32 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[20-Oct-2025 04:48:32 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[20-Oct-2025 04:48:32 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[20-Oct-2025 04:48:33 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-2026-017
+[20-Oct-2025 04:48:33 UTC] Final processed data: false
+[22-Oct-2025 05:05:52 UTC] Final per page: 10
+[22-Oct-2025 05:05:52 UTC] Per page value: 10
+[22-Oct-2025 05:05:52 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[22-Oct-2025 05:05:52 UTC] Page: 1, Per Page: 10, Offset: 0
+[22-Oct-2025 05:05:52 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[22-Oct-2025 05:05:52 UTC] Final processed data: {"jenis_perlindungan":""}
+[22-Oct-2025 05:05:53 UTC] Processing jenis_perlindungan IDs: 25, 21
+[22-Oct-2025 05:05:53 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[22-Oct-2025 05:05:53 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[22-Oct-2025 05:05:53 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[22-Oct-2025 05:06:16 UTC] Final per page: 10
+[22-Oct-2025 05:06:16 UTC] Per page value: 10
+[22-Oct-2025 05:06:16 UTC] GET parameters: Array
+(
+    [t] => penelaahan
+)
+
+[22-Oct-2025 05:06:16 UTC] Page: 1, Per Page: 10, Offset: 0
+[22-Oct-2025 05:06:16 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-2026-017
+[22-Oct-2025 05:06:16 UTC] Final processed data: false
+[22-Oct-2025 05:06:17 UTC] Processing jenis_perlindungan IDs: 25, 21
+[22-Oct-2025 05:06:17 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[22-Oct-2025 05:06:17 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[22-Oct-2025 05:06:17 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[22-Oct-2025 05:08:28 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-PNL-2025-020
+[22-Oct-2025 05:08:28 UTC] Final processed data: {"no_registrasi":"REG-PNL-2025-020","no_reg_medan":"020\/P.MDN-LPSK\/01\/2025","proses_hukum":"Penuntutan","tanggal_dispo":"2025-04-15","proses_penalaahan":"Proses penuntutan hampir selesai","id_pegawai":4,"tgl_berakhir_penelaahan":"2025-07-15","waktu_tambahan":null,"nama_ta_penalaahan":"IM","risalah_laporan":"SUDAH","created_at":"2025-10-07 15:25:28","updated_at":"2025-10-07 15:25:28","pegawai_nama_pegawai":"Fikri Anugrah, S.H.","permohonan_nama_pemohon":"Suryanto","permohonan_jenis_kelamin":"Laki-laki","permohonan_kab_kota_pemohon":"Kab_Deli Serdang","permohonan_provinsi_pemohon":"Sumatera Utara","permohonan_tindak_pidana":"PHB","permohonan_status_hukum":"Korban","permohonan_kab_kot_locus":"Kab_Deli Serdang","permohonan_jenis_perlindungan":"Rehabilitasi Psikososial","nama_pegawai":"Fikri Anugrah, S.H.","nama_pemohon":"Suryanto","jenis_kelamin":"Laki-laki","kab_kota_pemohon":"Kab_Deli Serdang","provinsi_pemohon":"Sumatera Utara","tindak_pidana":"PHB","status_hukum":"Korban","kab_kot_locus":"Kab_Deli Serdang","jenis_perlindungan":"Rehabilitasi Psikososial"}
+[22-Oct-2025 05:08:36 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-PNL-2025-020
+[22-Oct-2025 05:08:36 UTC] Final processed data: {"no_registrasi":"REG-PNL-2025-020","no_reg_medan":"020\/P.MDN-LPSK\/01\/2025","proses_hukum":"Penuntutan","tanggal_dispo":"2025-04-15","proses_penalaahan":"Proses penuntutan hampir selesai","id_pegawai":4,"tgl_berakhir_penelaahan":"2025-07-15","waktu_tambahan":null,"nama_ta_penalaahan":"IM","risalah_laporan":"SUDAH","created_at":"2025-10-07 15:25:28","updated_at":"2025-10-07 15:25:28","pegawai_nama_pegawai":"Fikri Anugrah, S.H.","permohonan_nama_pemohon":"Suryanto","permohonan_jenis_kelamin":"Laki-laki","permohonan_kab_kota_pemohon":"Kab_Deli Serdang","permohonan_provinsi_pemohon":"Sumatera Utara","permohonan_tindak_pidana":"PHB","permohonan_status_hukum":"Korban","permohonan_kab_kot_locus":"Kab_Deli Serdang","permohonan_jenis_perlindungan":"Rehabilitasi Psikososial","nama_pegawai":"Fikri Anugrah, S.H.","nama_pemohon":"Suryanto","jenis_kelamin":"Laki-laki","kab_kota_pemohon":"Kab_Deli Serdang","provinsi_pemohon":"Sumatera Utara","tindak_pidana":"PHB","status_hukum":"Korban","kab_kot_locus":"Kab_Deli Serdang","jenis_perlindungan":"Rehabilitasi Psikososial"}
+[22-Oct-2025 05:08:40 UTC] Final per page: 10
+[22-Oct-2025 05:08:40 UTC] Per page value: 10
+[22-Oct-2025 05:08:40 UTC] GET parameters: Array
+(
+    [t] => penelaahan
+)
+
+[22-Oct-2025 05:08:40 UTC] Page: 1, Per Page: 10, Offset: 0
+[22-Oct-2025 05:08:41 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-2026-017
+[22-Oct-2025 05:08:41 UTC] Final processed data: false
+[22-Oct-2025 05:08:42 UTC] Processing jenis_perlindungan IDs: 25, 21
+[22-Oct-2025 05:08:42 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[22-Oct-2025 05:08:42 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[22-Oct-2025 05:08:42 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[22-Oct-2025 05:11:06 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-PNL-2025-020
+[22-Oct-2025 05:11:06 UTC] Final processed data: {"no_registrasi":"REG-PNL-2025-020","no_reg_medan":"020\/P.MDN-LPSK\/01\/2025","proses_hukum":"Penuntutan","tanggal_dispo":"2025-04-15","proses_penalaahan":"Proses penuntutan hampir selesai","id_pegawai":4,"tgl_berakhir_penelaahan":"2025-07-15","waktu_tambahan":null,"nama_ta_penalaahan":"IM","risalah_laporan":"SUDAH","created_at":"2025-10-07 15:25:28","updated_at":"2025-10-07 15:25:28","pegawai_nama_pegawai":"Fikri Anugrah, S.H.","permohonan_nama_pemohon":"Suryanto","permohonan_jenis_kelamin":"Laki-laki","permohonan_kab_kota_pemohon":"Kab_Deli Serdang","permohonan_provinsi_pemohon":"Sumatera Utara","permohonan_tindak_pidana":"PHB","permohonan_status_hukum":"Korban","permohonan_kab_kot_locus":"Kab_Deli Serdang","permohonan_jenis_perlindungan":"Rehabilitasi Psikososial","nama_pegawai":"Fikri Anugrah, S.H.","nama_pemohon":"Suryanto","jenis_kelamin":"Laki-laki","kab_kota_pemohon":"Kab_Deli Serdang","provinsi_pemohon":"Sumatera Utara","tindak_pidana":"PHB","status_hukum":"Korban","kab_kot_locus":"Kab_Deli Serdang","jenis_perlindungan":"Rehabilitasi Psikososial"}
+[22-Oct-2025 05:12:40 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-PNL-2025-020
+[22-Oct-2025 05:12:40 UTC] Final processed data: {"no_registrasi":"REG-PNL-2025-020","no_reg_medan":"020\/P.MDN-LPSK\/01\/2025","proses_hukum":"Penuntutan","tanggal_dispo":"2025-04-15","proses_penalaahan":"Proses penuntutan hampir selesai","id_pegawai":4,"tgl_berakhir_penelaahan":"2025-07-15","waktu_tambahan":null,"nama_ta_penalaahan":"IM","risalah_laporan":"SUDAH","created_at":"2025-10-07 15:25:28","updated_at":"2025-10-07 15:25:28","pegawai_nama_pegawai":"Fikri Anugrah, S.H.","permohonan_nama_pemohon":"Suryanto","permohonan_jenis_kelamin":"Laki-laki","permohonan_kab_kota_pemohon":"Kab_Deli Serdang","permohonan_provinsi_pemohon":"Sumatera Utara","permohonan_tindak_pidana":"PHB","permohonan_status_hukum":"Korban","permohonan_kab_kot_locus":"Kab_Deli Serdang","permohonan_jenis_perlindungan":"Rehabilitasi Psikososial","nama_pegawai":"Fikri Anugrah, S.H.","nama_pemohon":"Suryanto","jenis_kelamin":"Laki-laki","kab_kota_pemohon":"Kab_Deli Serdang","provinsi_pemohon":"Sumatera Utara","tindak_pidana":"PHB","status_hukum":"Korban","kab_kot_locus":"Kab_Deli Serdang","jenis_perlindungan":"Rehabilitasi Psikososial"}
+[22-Oct-2025 05:12:51 UTC] Field no_registrasi: 'REG-PNL-2025-020'
+[22-Oct-2025 05:12:51 UTC] Field no_reg_medan: '020/P.MDN-LPSK/01/2025'
+[22-Oct-2025 05:12:51 UTC] Field proses_hukum: 'Pemeriksaan Saksi'
+[22-Oct-2025 05:12:51 UTC] Field tanggal_dispo: '2025-04-15'
+[22-Oct-2025 05:12:51 UTC] Field proses_penalaahan: 'Proses penuntutan hampir selesai'
+[22-Oct-2025 05:12:51 UTC] Field id_pegawai: '4'
+[22-Oct-2025 05:12:51 UTC] Field tgl_berakhir_penelaahan: '2025-07-15'
+[22-Oct-2025 05:12:51 UTC] Field waktu_tambahan: ''
+[22-Oct-2025 05:12:51 UTC] Field nama_ta_penalaahan: 'IM'
+[22-Oct-2025 05:12:51 UTC] Field risalah_laporan: 'SUDAH'
+[22-Oct-2025 05:12:51 UTC] Data to save: Array
+(
+    [no_registrasi] => REG-PNL-2025-020
+    [no_reg_medan] => 020/P.MDN-LPSK/01/2025
+    [proses_hukum] => Pemeriksaan Saksi
+    [tanggal_dispo] => 2025-04-15
+    [proses_penalaahan] => Proses penuntutan hampir selesai
+    [id_pegawai] => 4
+    [tgl_berakhir_penelaahan] => 2025-07-15
+    [waktu_tambahan] => 
+    [nama_ta_penalaahan] => IM
+    [risalah_laporan] => SUDAH
+)
+
+[22-Oct-2025 05:12:51 UTC] SQL: UPDATE penelaahan SET no_registrasi=?,no_reg_medan=?,proses_hukum=?,tanggal_dispo=?,proses_penalaahan=?,id_pegawai=?,tgl_berakhir_penelaahan=?,waktu_tambahan=?,nama_ta_penalaahan=?,risalah_laporan=? WHERE no_registrasi=?
+[22-Oct-2025 05:12:51 UTC] Params: Array
+(
+    [0] => REG-PNL-2025-020
+    [1] => 020/P.MDN-LPSK/01/2025
+    [2] => Pemeriksaan Saksi
+    [3] => 2025-04-15
+    [4] => Proses penuntutan hampir selesai
+    [5] => 4
+    [6] => 2025-07-15
+    [7] => 
+    [8] => IM
+    [9] => SUDAH
+    [10] => REG-PNL-2025-020
+)
+
+[22-Oct-2025 05:12:51 UTC] Database error: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'proses_hukum' at row 1
+[22-Oct-2025 05:12:51 UTC] Final per page: 10
+[22-Oct-2025 05:12:51 UTC] Per page value: 10
+[22-Oct-2025 05:12:51 UTC] GET parameters: Array
+(
+    [t] => penelaahan
+)
+
+[22-Oct-2025 05:12:51 UTC] Page: 1, Per Page: 10, Offset: 0
+[22-Oct-2025 05:12:51 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-2026-017
+[22-Oct-2025 05:12:51 UTC] Final processed data: false
+[22-Oct-2025 05:12:52 UTC] Processing jenis_perlindungan IDs: 25, 21
+[22-Oct-2025 05:12:52 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[22-Oct-2025 05:12:52 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[22-Oct-2025 05:12:52 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[22-Oct-2025 05:13:06 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-PNL-2025-020
+[22-Oct-2025 05:13:06 UTC] Final processed data: {"no_registrasi":"REG-PNL-2025-020","no_reg_medan":"020\/P.MDN-LPSK\/01\/2025","proses_hukum":"Penuntutan","tanggal_dispo":"2025-04-15","proses_penalaahan":"Proses penuntutan hampir selesai","id_pegawai":4,"tgl_berakhir_penelaahan":"2025-07-15","waktu_tambahan":null,"nama_ta_penalaahan":"IM","risalah_laporan":"SUDAH","created_at":"2025-10-07 15:25:28","updated_at":"2025-10-07 15:25:28","pegawai_nama_pegawai":"Fikri Anugrah, S.H.","permohonan_nama_pemohon":"Suryanto","permohonan_jenis_kelamin":"Laki-laki","permohonan_kab_kota_pemohon":"Kab_Deli Serdang","permohonan_provinsi_pemohon":"Sumatera Utara","permohonan_tindak_pidana":"PHB","permohonan_status_hukum":"Korban","permohonan_kab_kot_locus":"Kab_Deli Serdang","permohonan_jenis_perlindungan":"Rehabilitasi Psikososial","nama_pegawai":"Fikri Anugrah, S.H.","nama_pemohon":"Suryanto","jenis_kelamin":"Laki-laki","kab_kota_pemohon":"Kab_Deli Serdang","provinsi_pemohon":"Sumatera Utara","tindak_pidana":"PHB","status_hukum":"Korban","kab_kot_locus":"Kab_Deli Serdang","jenis_perlindungan":"Rehabilitasi Psikososial"}
+[22-Oct-2025 05:13:18 UTC] Field no_registrasi: 'REG-PNL-2025-020'
+[22-Oct-2025 05:13:18 UTC] Field no_reg_medan: '020/P.MDN-LPSK/01/2025'
+[22-Oct-2025 05:13:18 UTC] Field proses_hukum: 'Pledoi'
+[22-Oct-2025 05:13:18 UTC] Field tanggal_dispo: '2025-04-15'
+[22-Oct-2025 05:13:18 UTC] Field proses_penalaahan: 'Proses penuntutan hampir selesai'
+[22-Oct-2025 05:13:18 UTC] Field id_pegawai: '4'
+[22-Oct-2025 05:13:18 UTC] Field tgl_berakhir_penelaahan: '2025-07-15'
+[22-Oct-2025 05:13:18 UTC] Field waktu_tambahan: ''
+[22-Oct-2025 05:13:18 UTC] Field nama_ta_penalaahan: 'IM'
+[22-Oct-2025 05:13:18 UTC] Field risalah_laporan: 'SUDAH'
+[22-Oct-2025 05:13:18 UTC] Data to save: Array
+(
+    [no_registrasi] => REG-PNL-2025-020
+    [no_reg_medan] => 020/P.MDN-LPSK/01/2025
+    [proses_hukum] => Pledoi
+    [tanggal_dispo] => 2025-04-15
+    [proses_penalaahan] => Proses penuntutan hampir selesai
+    [id_pegawai] => 4
+    [tgl_berakhir_penelaahan] => 2025-07-15
+    [waktu_tambahan] => 
+    [nama_ta_penalaahan] => IM
+    [risalah_laporan] => SUDAH
+)
+
+[22-Oct-2025 05:13:18 UTC] SQL: UPDATE penelaahan SET no_registrasi=?,no_reg_medan=?,proses_hukum=?,tanggal_dispo=?,proses_penalaahan=?,id_pegawai=?,tgl_berakhir_penelaahan=?,waktu_tambahan=?,nama_ta_penalaahan=?,risalah_laporan=? WHERE no_registrasi=?
+[22-Oct-2025 05:13:18 UTC] Params: Array
+(
+    [0] => REG-PNL-2025-020
+    [1] => 020/P.MDN-LPSK/01/2025
+    [2] => Pledoi
+    [3] => 2025-04-15
+    [4] => Proses penuntutan hampir selesai
+    [5] => 4
+    [6] => 2025-07-15
+    [7] => 
+    [8] => IM
+    [9] => SUDAH
+    [10] => REG-PNL-2025-020
+)
+
+[22-Oct-2025 05:13:18 UTC] Database error: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'proses_hukum' at row 1
+[22-Oct-2025 05:13:19 UTC] Final per page: 10
+[22-Oct-2025 05:13:19 UTC] Per page value: 10
+[22-Oct-2025 05:13:19 UTC] GET parameters: Array
+(
+    [t] => penelaahan
+)
+
+[22-Oct-2025 05:13:19 UTC] Page: 1, Per Page: 10, Offset: 0
+[22-Oct-2025 05:13:19 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-2026-017
+[22-Oct-2025 05:13:19 UTC] Final processed data: false
+[22-Oct-2025 05:13:20 UTC] Processing jenis_perlindungan IDs: 25, 21
+[22-Oct-2025 05:13:20 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[22-Oct-2025 05:13:20 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[22-Oct-2025 05:13:20 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[22-Oct-2025 05:18:54 UTC] Final per page: 10
+[22-Oct-2025 05:18:54 UTC] Per page value: 10
+[22-Oct-2025 05:18:54 UTC] GET parameters: Array
+(
+    [t] => penelaahan
+)
+
+[22-Oct-2025 05:18:54 UTC] Page: 1, Per Page: 10, Offset: 0
+[22-Oct-2025 05:18:54 UTC] Processing jenis_perlindungan IDs: 25, 21
+[22-Oct-2025 05:18:54 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[22-Oct-2025 05:18:54 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[22-Oct-2025 05:18:54 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[22-Oct-2025 05:18:55 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-2026-017
+[22-Oct-2025 05:18:55 UTC] Final processed data: false
+[22-Oct-2025 05:18:57 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-PNL-2025-020
+[22-Oct-2025 05:18:58 UTC] Final processed data: {"no_registrasi":"REG-PNL-2025-020","no_reg_medan":"020\/P.MDN-LPSK\/01\/2025","proses_hukum":"Penuntutan","tanggal_dispo":"2025-04-15","proses_penalaahan":"Proses penuntutan hampir selesai","id_pegawai":4,"tgl_berakhir_penelaahan":"2025-07-15","waktu_tambahan":null,"nama_ta_penalaahan":"IM","risalah_laporan":"SUDAH","created_at":"2025-10-07 15:25:28","updated_at":"2025-10-07 15:25:28","pegawai_nama_pegawai":"Fikri Anugrah, S.H.","permohonan_nama_pemohon":"Suryanto","permohonan_jenis_kelamin":"Laki-laki","permohonan_kab_kota_pemohon":"Kab_Deli Serdang","permohonan_provinsi_pemohon":"Sumatera Utara","permohonan_tindak_pidana":"PHB","permohonan_status_hukum":"Korban","permohonan_kab_kot_locus":"Kab_Deli Serdang","permohonan_jenis_perlindungan":"Rehabilitasi Psikososial","nama_pegawai":"Fikri Anugrah, S.H.","nama_pemohon":"Suryanto","jenis_kelamin":"Laki-laki","kab_kota_pemohon":"Kab_Deli Serdang","provinsi_pemohon":"Sumatera Utara","tindak_pidana":"PHB","status_hukum":"Korban","kab_kot_locus":"Kab_Deli Serdang","jenis_perlindungan":"Rehabilitasi Psikososial"}
+[22-Oct-2025 05:19:02 UTC] Field no_registrasi: 'REG-PNL-2025-020'
+[22-Oct-2025 05:19:02 UTC] Field no_reg_medan: '020/P.MDN-LPSK/01/2025'
+[22-Oct-2025 05:19:02 UTC] Field proses_hukum: 'Dakwaan'
+[22-Oct-2025 05:19:02 UTC] Field tanggal_dispo: '2025-04-15'
+[22-Oct-2025 05:19:02 UTC] Field proses_penalaahan: 'Proses penuntutan hampir selesai'
+[22-Oct-2025 05:19:02 UTC] Field id_pegawai: '4'
+[22-Oct-2025 05:19:02 UTC] Field tgl_berakhir_penelaahan: '2025-07-15'
+[22-Oct-2025 05:19:02 UTC] Field waktu_tambahan: ''
+[22-Oct-2025 05:19:02 UTC] Field nama_ta_penalaahan: 'IM'
+[22-Oct-2025 05:19:02 UTC] Field risalah_laporan: 'SUDAH'
+[22-Oct-2025 05:19:02 UTC] Data to save: Array
+(
+    [no_registrasi] => REG-PNL-2025-020
+    [no_reg_medan] => 020/P.MDN-LPSK/01/2025
+    [proses_hukum] => Dakwaan
+    [tanggal_dispo] => 2025-04-15
+    [proses_penalaahan] => Proses penuntutan hampir selesai
+    [id_pegawai] => 4
+    [tgl_berakhir_penelaahan] => 2025-07-15
+    [waktu_tambahan] => 
+    [nama_ta_penalaahan] => IM
+    [risalah_laporan] => SUDAH
+)
+
+[22-Oct-2025 05:19:02 UTC] SQL: UPDATE penelaahan SET no_registrasi=?,no_reg_medan=?,proses_hukum=?,tanggal_dispo=?,proses_penalaahan=?,id_pegawai=?,tgl_berakhir_penelaahan=?,waktu_tambahan=?,nama_ta_penalaahan=?,risalah_laporan=? WHERE no_registrasi=?
+[22-Oct-2025 05:19:02 UTC] Params: Array
+(
+    [0] => REG-PNL-2025-020
+    [1] => 020/P.MDN-LPSK/01/2025
+    [2] => Dakwaan
+    [3] => 2025-04-15
+    [4] => Proses penuntutan hampir selesai
+    [5] => 4
+    [6] => 2025-07-15
+    [7] => 
+    [8] => IM
+    [9] => SUDAH
+    [10] => REG-PNL-2025-020
+)
+
+[22-Oct-2025 05:19:02 UTC] Final per page: 10
+[22-Oct-2025 05:19:02 UTC] Per page value: 10
+[22-Oct-2025 05:19:02 UTC] GET parameters: Array
+(
+    [t] => penelaahan
+)
+
+[22-Oct-2025 05:19:02 UTC] Page: 1, Per Page: 10, Offset: 0
+[22-Oct-2025 05:19:03 UTC] Processing jenis_perlindungan IDs: 25, 21
+[22-Oct-2025 05:19:03 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[22-Oct-2025 05:19:03 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[22-Oct-2025 05:19:03 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[22-Oct-2025 05:19:04 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-2026-017
+[22-Oct-2025 05:19:04 UTC] Final processed data: false
+[22-Oct-2025 05:19:11 UTC] Final per page: 10
+[22-Oct-2025 05:19:11 UTC] Per page value: 10
+[22-Oct-2025 05:19:11 UTC] GET parameters: Array
+(
+    [t] => penelaahan
+    [page] => 2
+    [per_page] => 10
+    [sort] => no_registrasi
+    [order] => DESC
+)
+
+[22-Oct-2025 05:19:11 UTC] Page: 2, Per Page: 10, Offset: 10
+[22-Oct-2025 05:19:11 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-2026-017
+[22-Oct-2025 05:19:11 UTC] Final processed data: false
+[22-Oct-2025 05:19:12 UTC] Processing jenis_perlindungan IDs: 25, 21
+[22-Oct-2025 05:19:12 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[22-Oct-2025 05:19:12 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[22-Oct-2025 05:19:12 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[22-Oct-2025 05:19:18 UTC] Final per page: 10
+[22-Oct-2025 05:19:18 UTC] Per page value: 10
+[22-Oct-2025 05:19:18 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[22-Oct-2025 05:19:18 UTC] Page: 1, Per Page: 10, Offset: 0
+[22-Oct-2025 05:19:18 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[22-Oct-2025 05:19:18 UTC] Final processed data: {"jenis_perlindungan":""}
+[22-Oct-2025 05:19:19 UTC] Processing jenis_perlindungan IDs: 25, 21
+[22-Oct-2025 05:19:19 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[22-Oct-2025 05:19:19 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[22-Oct-2025 05:19:19 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[22-Oct-2025 05:19:20 UTC] Final per page: 10
+[22-Oct-2025 05:19:20 UTC] Per page value: 10
+[22-Oct-2025 05:19:20 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[22-Oct-2025 05:19:20 UTC] Page: 1, Per Page: 10, Offset: 0
+[22-Oct-2025 05:19:20 UTC] Processing jenis_perlindungan IDs: 25, 21
+[22-Oct-2025 05:19:20 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[22-Oct-2025 05:19:20 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[22-Oct-2025 05:19:20 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[22-Oct-2025 05:19:21 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[22-Oct-2025 05:19:21 UTC] Final processed data: {"jenis_perlindungan":""}
+[22-Oct-2025 05:19:31 UTC] Final per page: 10
+[22-Oct-2025 05:19:31 UTC] Per page value: 10
+[22-Oct-2025 05:19:31 UTC] GET parameters: Array
+(
+    [t] => penelaahan
+)
+
+[22-Oct-2025 05:19:31 UTC] Page: 1, Per Page: 10, Offset: 0
+[22-Oct-2025 05:19:31 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-2026-017
+[22-Oct-2025 05:19:31 UTC] Final processed data: false
+[22-Oct-2025 05:19:32 UTC] Processing jenis_perlindungan IDs: 25, 21
+[22-Oct-2025 05:19:32 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[22-Oct-2025 05:19:32 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[22-Oct-2025 05:19:32 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[22-Oct-2025 05:19:52 UTC] Field no_registrasi: 'PEN-2026-24'
+[22-Oct-2025 05:19:52 UTC] Field no_reg_medan: 'REG-MDN-2025-001'
+[22-Oct-2025 05:19:52 UTC] Field proses_hukum: 'Putusan Mahkamah Agung'
+[22-Oct-2025 05:19:52 UTC] Field tanggal_dispo: '2025-09-05'
+[22-Oct-2025 05:19:52 UTC] Field proses_penalaahan: 'BERLANGSUNG tidak'
+[22-Oct-2025 05:19:52 UTC] Field id_pegawai: '6'
+[22-Oct-2025 05:19:52 UTC] Field tgl_berakhir_penelaahan: '2025-09-05'
+[22-Oct-2025 05:19:52 UTC] Field waktu_tambahan: ''
+[22-Oct-2025 05:19:52 UTC] Field nama_ta_penalaahan: 'MBF'
+[22-Oct-2025 05:19:52 UTC] Field risalah_laporan: ''
+[22-Oct-2025 05:19:52 UTC] Data to save: Array
+(
+    [no_registrasi] => PEN-2026-24
+    [no_reg_medan] => REG-MDN-2025-001
+    [proses_hukum] => Putusan Mahkamah Agung
+    [tanggal_dispo] => 2025-09-05
+    [proses_penalaahan] => BERLANGSUNG tidak
+    [id_pegawai] => 6
+    [tgl_berakhir_penelaahan] => 2025-09-05
+    [waktu_tambahan] => 
+    [nama_ta_penalaahan] => MBF
+    [risalah_laporan] => 
+)
+
+[22-Oct-2025 05:19:52 UTC] SQL: INSERT INTO penelaahan (no_registrasi,no_reg_medan,proses_hukum,tanggal_dispo,proses_penalaahan,id_pegawai,tgl_berakhir_penelaahan,waktu_tambahan,nama_ta_penalaahan,risalah_laporan) VALUES (?,?,?,?,?,?,?,?,?,?)
+[22-Oct-2025 05:19:52 UTC] Params: Array
+(
+    [0] => PEN-2026-24
+    [1] => REG-MDN-2025-001
+    [2] => Putusan Mahkamah Agung
+    [3] => 2025-09-05
+    [4] => BERLANGSUNG tidak
+    [5] => 6
+    [6] => 2025-09-05
+    [7] => 
+    [8] => MBF
+    [9] => 
+)
+
+[22-Oct-2025 05:19:52 UTC] Final per page: 10
+[22-Oct-2025 05:19:52 UTC] Per page value: 10
+[22-Oct-2025 05:19:52 UTC] GET parameters: Array
+(
+    [t] => penelaahan
+)
+
+[22-Oct-2025 05:19:52 UTC] Page: 1, Per Page: 10, Offset: 0
+[22-Oct-2025 05:19:52 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-2026-017
+[22-Oct-2025 05:19:52 UTC] Final processed data: false
+[22-Oct-2025 05:19:53 UTC] Processing jenis_perlindungan IDs: 25, 21
+[22-Oct-2025 05:19:53 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[22-Oct-2025 05:19:53 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[22-Oct-2025 05:19:53 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[22-Oct-2025 05:19:57 UTC] Final per page: 10
+[22-Oct-2025 05:19:57 UTC] Per page value: 10
+[22-Oct-2025 05:19:57 UTC] GET parameters: Array
+(
+    [t] => penelaahan
+    [sort] => no_registrasi
+    [order] => DESC
+    [q] => erikson
+    [proses_hukum] => 
+    [risalah_laporan] => 
+    [nama_ta_penalaahan] => 
+    [tindak_pidana] => 
+)
+
+[22-Oct-2025 05:19:57 UTC] Page: 1, Per Page: 10, Offset: 0
+[22-Oct-2025 05:19:57 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-2026-017
+[22-Oct-2025 05:19:57 UTC] Final processed data: false
+[22-Oct-2025 05:19:58 UTC] Processing jenis_perlindungan IDs: 25, 21
+[22-Oct-2025 05:19:58 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[22-Oct-2025 05:19:58 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[22-Oct-2025 05:19:58 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[22-Oct-2025 05:42:05 UTC] Spout Export Query: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan   ORDER BY tanggal_dispo DESC
+[22-Oct-2025 05:42:05 UTC] Spout Export Params: Array
+(
+)
+
+[22-Oct-2025 05:42:05 UTC] Spout export error: Cannot perform I/O operation outside of the base folder: C:\Windows\Temp
+[22-Oct-2025 05:42:19 UTC] Spout Export Query: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan   ORDER BY tanggal_dispo DESC
+[22-Oct-2025 05:42:19 UTC] Spout Export Params: Array
+(
+)
+
+[25-Oct-2025 21:25:38 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 21:25:38 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 21:25:38 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[25-Oct-2025 21:25:38 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[25-Oct-2025 21:25:40 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 21:25:40 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 21:25:40 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[25-Oct-2025 21:25:40 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[25-Oct-2025 21:26:59 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 21:26:59 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 21:26:59 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[25-Oct-2025 21:26:59 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[25-Oct-2025 21:30:40 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 21:30:40 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 21:30:40 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[25-Oct-2025 21:30:40 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[25-Oct-2025 21:35:40 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 21:35:40 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 21:35:40 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[25-Oct-2025 21:35:40 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[25-Oct-2025 21:40:45 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 21:40:45 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 21:40:45 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[25-Oct-2025 21:40:45 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[25-Oct-2025 21:45:40 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 21:45:40 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 21:45:40 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[25-Oct-2025 21:45:40 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[25-Oct-2025 21:50:40 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 21:50:40 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 21:50:40 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[25-Oct-2025 21:50:40 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[25-Oct-2025 21:55:40 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 21:55:40 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 21:55:40 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[25-Oct-2025 21:55:40 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[25-Oct-2025 22:01:28 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 22:01:28 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[25-Oct-2025 22:01:28 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[25-Oct-2025 22:01:28 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[26-Oct-2025 07:57:38 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:57:38 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:57:38 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:57:38 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:57:38 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:57:38 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:57:53 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:57:53 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:57:53 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:57:53 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:57:53 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:57:53 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:57:57 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:57:57 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:57:57 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:57:57 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:57:57 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:57:57 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:58:07 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:58:07 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:58:07 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:58:07 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:58:07 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:58:07 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:58:09 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:58:09 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:58:09 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:58:09 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:58:09 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:58:09 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:58:11 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:58:11 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:58:11 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:58:11 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:58:11 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:58:11 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:58:14 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:58:14 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:58:14 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:58:14 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 07:58:14 UTC] Database error in executeQuery: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as ym ORDER BY ym' at line 2
+[26-Oct-2025 07:58:14 UTC] Error fetching monthly data: Database query failed
+[26-Oct-2025 10:11:13 UTC] Database error in executeQuery: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'jenis_tindak_pidana' in 'field list'
+[26-Oct-2025 10:11:13 UTC] Error in api_stats.php: Database query failed
+[26-Oct-2025 10:14:56 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:14:56 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:14:56 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[26-Oct-2025 10:14:56 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[26-Oct-2025 10:19:57 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:19:57 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:19:57 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[26-Oct-2025 10:19:57 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[26-Oct-2025 10:24:57 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:24:57 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:24:57 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[26-Oct-2025 10:24:57 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[26-Oct-2025 10:26:37 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:26:37 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:26:37 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[26-Oct-2025 10:26:37 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[26-Oct-2025 10:31:37 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:31:37 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:31:37 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[26-Oct-2025 10:31:37 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[26-Oct-2025 10:31:54 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:31:54 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:31:54 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[26-Oct-2025 10:31:54 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[26-Oct-2025 10:36:55 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:36:55 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:36:55 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[26-Oct-2025 10:36:55 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[26-Oct-2025 10:41:49 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:41:49 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:41:49 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[26-Oct-2025 10:41:49 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[26-Oct-2025 10:46:50 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:46:50 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:46:50 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[26-Oct-2025 10:46:50 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[26-Oct-2025 10:51:50 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:51:50 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:51:50 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[26-Oct-2025 10:51:50 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[26-Oct-2025 10:56:50 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:56:50 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 10:56:50 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[26-Oct-2025 10:56:50 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[26-Oct-2025 11:01:50 UTC] PHP Warning:  Undefined variable $genderLabels in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 11:01:50 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\LPSK\public\api_stats.php on line 721
+[26-Oct-2025 11:01:50 UTC] PHP Warning:  Undefined variable $genderDataPermohonan in C:\laragon\www\LPSK\public\api_stats.php on line 1288
+[26-Oct-2025 11:01:50 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1293
+[26-Oct-2025 11:07:41 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1316
+[26-Oct-2025 11:07:43 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1316
+[26-Oct-2025 11:10:46 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1316
+[26-Oct-2025 11:10:59 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1316
+[26-Oct-2025 11:12:37 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1316
+[26-Oct-2025 11:12:52 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1316
+[26-Oct-2025 11:16:37 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1316
+[26-Oct-2025 11:17:38 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1316
+[26-Oct-2025 11:22:38 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1316
+[26-Oct-2025 15:08:01 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:08:22 UTC] Final per page: 10
+[26-Oct-2025 15:08:22 UTC] Per page value: 10
+[26-Oct-2025 15:08:22 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[26-Oct-2025 15:08:22 UTC] Page: 1, Per Page: 10, Offset: 0
+[26-Oct-2025 15:08:22 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[26-Oct-2025 15:08:22 UTC] Final processed data: {"jenis_perlindungan":""}
+[26-Oct-2025 15:08:23 UTC] Processing jenis_perlindungan IDs: 25, 21
+[26-Oct-2025 15:08:23 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[26-Oct-2025 15:08:23 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[26-Oct-2025 15:08:23 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[26-Oct-2025 15:08:38 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:09:19 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:13:38 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:13:53 UTC] Final per page: 10
+[26-Oct-2025 15:13:53 UTC] Per page value: 10
+[26-Oct-2025 15:13:53 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[26-Oct-2025 15:13:53 UTC] Page: 1, Per Page: 10, Offset: 0
+[26-Oct-2025 15:13:53 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[26-Oct-2025 15:13:53 UTC] Final processed data: {"jenis_perlindungan":""}
+[26-Oct-2025 15:13:54 UTC] Processing jenis_perlindungan IDs: 25, 21
+[26-Oct-2025 15:13:54 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[26-Oct-2025 15:13:54 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[26-Oct-2025 15:13:54 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[26-Oct-2025 15:13:55 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:18:40 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:18:44 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:18:47 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:18:51 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:18:54 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:18:55 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:18:58 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:19:01 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:19:04 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:19:11 UTC] Final per page: 10
+[26-Oct-2025 15:19:11 UTC] Per page value: 10
+[26-Oct-2025 15:19:11 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[26-Oct-2025 15:19:11 UTC] Page: 1, Per Page: 10, Offset: 0
+[26-Oct-2025 15:19:11 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[26-Oct-2025 15:19:11 UTC] Final processed data: {"jenis_perlindungan":""}
+[26-Oct-2025 15:19:12 UTC] Processing jenis_perlindungan IDs: 25, 21
+[26-Oct-2025 15:19:12 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[26-Oct-2025 15:19:12 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[26-Oct-2025 15:19:12 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[26-Oct-2025 15:19:17 UTC] Final per page: 10
+[26-Oct-2025 15:19:17 UTC] Per page value: 10
+[26-Oct-2025 15:19:17 UTC] GET parameters: Array
+(
+    [t] => permohonan
+    [sort] => tgl_pengajuan
+    [order] => DESC
+)
+
+[26-Oct-2025 15:19:17 UTC] Page: 1, Per Page: 10, Offset: 0
+[26-Oct-2025 15:19:17 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[26-Oct-2025 15:19:17 UTC] Final processed data: {"jenis_perlindungan":""}
+[26-Oct-2025 15:19:18 UTC] Processing jenis_perlindungan IDs: 25, 21
+[26-Oct-2025 15:19:18 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[26-Oct-2025 15:19:18 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[26-Oct-2025 15:19:18 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[26-Oct-2025 15:19:28 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-MDN-2025-001
+[26-Oct-2025 15:19:28 UTC] Final processed data: {"no_reg_medan":"REG-MDN-2025-001","nama_pemohon":"ERIKSON","jenis_kelamin":"Laki-laki","status_hukum":"Tidak Ada Status Hukum","tgl_pengajuan":"2025-09-21","pihak_perwakilan":"KELUARGA","tindak_pidana":"TPPU","id_pegawai":6,"kelengkapan_berkas":"Berkas kurang","media_pengajuan":"MPP","link_berkas_permohonan":"https:\/\/limo.lpsk.go.id\/apps\/files\/files","jenis_perlindungan":"22,24,25,21,8,2,15,16","kab_kot_locus":"Banda Aceh","provinsi":"Aceh","kab_kota_pemohon":"Banda Aceh selatan","provinsi_pemohon":"Aceh","tempat_permohonan":"MEDAN","created_at":"2025-09-21 23:30:16","updated_at":"2025-10-15 13:15:36","pegawai_nama_pegawai":"Viviani Octaria Parhusip, S.IP","nama_pegawai":"Viviani Octaria Parhusip, S.IP"}
+[26-Oct-2025 15:19:28 UTC] Processing jenis_perlindungan IDs: 22, 24, 25, 21, 8, 2, 15, 16
+[26-Oct-2025 15:19:28 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?,?,?,?,?,?,?) ORDER BY kategori, sub_pilihan
+[26-Oct-2025 15:19:28 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Medis"},{"kategori":"Bantuan","sub_pilihan":"Psikologis"},{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"},{"kategori":"Pemenuhan Hak Prosedural","sub_pilihan":"Pendampingan"},{"kategori":"Perlindungan Fisik","sub_pilihan":"Pengamanan Melekat"},{"kategori":"Perlindungan Hukum","sub_pilihan":"Penundaan Tuntutan Hukum"},{"kategori":"Perlindungan Hukum","sub_pilihan":"Tidak Dapat Dituntut Secara Hukum"}]
+[26-Oct-2025 15:19:28 UTC] Final result: ["Medis","Psikologis","Rehabilitasi Psikososial","Restitusi","Pendampingan","Pengamanan Melekat","Penundaan Tuntutan Hukum","Tidak Dapat Dituntut Secara Hukum"]
+[26-Oct-2025 15:19:37 UTC] Final per page: 10
+[26-Oct-2025 15:19:37 UTC] Per page value: 10
+[26-Oct-2025 15:19:37 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[26-Oct-2025 15:19:37 UTC] Page: 1, Per Page: 10, Offset: 0
+[26-Oct-2025 15:19:37 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[26-Oct-2025 15:19:37 UTC] Final processed data: {"jenis_perlindungan":""}
+[26-Oct-2025 15:19:38 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:19:39 UTC] Processing jenis_perlindungan IDs: 25, 21
+[26-Oct-2025 15:19:39 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[26-Oct-2025 15:19:39 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[26-Oct-2025 15:19:39 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[26-Oct-2025 15:26:45 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:26:47 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:28:03 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:28:17 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:28:19 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:28:19 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:28:21 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:28:22 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:28:22 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:28:22 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:28:22 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:33:04 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:33:28 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:36:01 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:37:25 UTC] Final per page: 10
+[26-Oct-2025 15:37:25 UTC] Per page value: 10
+[26-Oct-2025 15:37:25 UTC] GET parameters: Array
+(
+    [t] => penelaahan
+)
+
+[26-Oct-2025 15:37:25 UTC] Page: 1, Per Page: 10, Offset: 0
+[26-Oct-2025 15:37:26 UTC] Executing SQL: SELECT penelaahan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.nama_pemohon AS permohonan_nama_pemohon, permohonan.jenis_kelamin AS permohonan_jenis_kelamin, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon, permohonan.tindak_pidana AS permohonan_tindak_pidana, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kot_locus AS permohonan_kab_kot_locus, permohonan.jenis_perlindungan AS permohonan_jenis_perlindungan FROM penelaahan LEFT JOIN pegawai ON penelaahan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON penelaahan.no_reg_medan = permohonan.no_reg_medan WHERE penelaahan.no_registrasi = ? LIMIT 1 with ID: REG-2026-017
+[26-Oct-2025 15:37:26 UTC] Final processed data: false
+[26-Oct-2025 15:37:26 UTC] Processing jenis_perlindungan IDs: 25, 21
+[26-Oct-2025 15:37:26 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[26-Oct-2025 15:37:26 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[26-Oct-2025 15:37:26 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[26-Oct-2025 15:37:27 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:42:28 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:47:28 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:52:28 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:58:31 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:58:32 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 15:58:40 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:00:08 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:00:28 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:00:39 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:00:57 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:04:01 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:04:15 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:04:29 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:04:39 UTC] Final per page: 10
+[26-Oct-2025 16:04:39 UTC] Per page value: 10
+[26-Oct-2025 16:04:39 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[26-Oct-2025 16:04:39 UTC] Page: 1, Per Page: 10, Offset: 0
+[26-Oct-2025 16:04:39 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[26-Oct-2025 16:04:39 UTC] Final processed data: {"jenis_perlindungan":""}
+[26-Oct-2025 16:04:39 UTC] Processing jenis_perlindungan IDs: 25, 21
+[26-Oct-2025 16:04:39 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[26-Oct-2025 16:04:40 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[26-Oct-2025 16:04:40 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[26-Oct-2025 16:04:41 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:05:44 UTC] Spout Export Query: SELECT pengeluaran.*, anggaran.nama_anggaran AS anggaran_nama_anggaran, mak.nama_mak AS mak_nama_mak FROM pengeluaran LEFT JOIN anggaran ON pengeluaran.kode_anggaran = anggaran.kode_anggaran LEFT JOIN mak ON pengeluaran.kode_mak = mak.kode_mak WHERE tanggal BETWEEN ? AND ?  ORDER BY tanggal DESC
+[26-Oct-2025 16:05:44 UTC] Spout Export Params: Array
+(
+    [0] => 2025-07-01
+    [1] => 2025-12-31
+)
+
+[26-Oct-2025 16:05:45 UTC] Spout export error: Cannot perform I/O operation outside of the base folder: C:\Windows\Temp
+[26-Oct-2025 16:05:56 UTC] Spout Export Query: SELECT pengeluaran.*, anggaran.nama_anggaran AS anggaran_nama_anggaran, mak.nama_mak AS mak_nama_mak FROM pengeluaran LEFT JOIN anggaran ON pengeluaran.kode_anggaran = anggaran.kode_anggaran LEFT JOIN mak ON pengeluaran.kode_mak = mak.kode_mak WHERE tanggal BETWEEN ? AND ?  ORDER BY tanggal DESC
+[26-Oct-2025 16:05:56 UTC] Spout Export Params: Array
+(
+    [0] => 2025-07-01
+    [1] => 2025-12-31
+)
+
+[26-Oct-2025 16:05:56 UTC] Spout export error: Cannot perform I/O operation outside of the base folder: C:\Windows\Temp
+[26-Oct-2025 16:06:08 UTC] Spout Export Query: SELECT pengeluaran.*, anggaran.nama_anggaran AS anggaran_nama_anggaran, mak.nama_mak AS mak_nama_mak FROM pengeluaran LEFT JOIN anggaran ON pengeluaran.kode_anggaran = anggaran.kode_anggaran LEFT JOIN mak ON pengeluaran.kode_mak = mak.kode_mak   ORDER BY tanggal DESC
+[26-Oct-2025 16:06:08 UTC] Spout Export Params: Array
+(
+)
+
+[26-Oct-2025 16:06:42 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:06:47 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:07:31 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:08:23 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:13:23 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:31:25 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:34:55 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:35:00 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:35:43 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:35:57 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:36:25 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:36:33 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:36:49 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:36:49 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:37:44 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:38:09 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:38:11 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:38:50 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:39:01 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:39:11 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:39:33 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:41:42 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:42:58 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:43:14 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:44:16 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:44:34 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:49:16 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:49:34 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:54:16 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:54:34 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:59:16 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 16:59:34 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:01:54 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:02:03 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:02:04 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:02:09 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:04:00 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:04:18 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:04:34 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:04:47 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:05:11 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:05:22 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:05:28 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:06:32 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:06:55 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:07:05 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:07:10 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:07:13 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:07:17 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:07:22 UTC] Final per page: 10
+[26-Oct-2025 17:07:22 UTC] Per page value: 10
+[26-Oct-2025 17:07:22 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[26-Oct-2025 17:07:22 UTC] Page: 1, Per Page: 10, Offset: 0
+[26-Oct-2025 17:07:22 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[26-Oct-2025 17:07:22 UTC] Final processed data: {"jenis_perlindungan":""}
+[26-Oct-2025 17:07:22 UTC] Processing jenis_perlindungan IDs: 25, 21
+[26-Oct-2025 17:07:22 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[26-Oct-2025 17:07:22 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[26-Oct-2025 17:07:22 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[26-Oct-2025 17:07:27 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:07:30 UTC] Final per page: 10
+[26-Oct-2025 17:07:30 UTC] Per page value: 10
+[26-Oct-2025 17:07:30 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[26-Oct-2025 17:07:30 UTC] Page: 1, Per Page: 10, Offset: 0
+[26-Oct-2025 17:07:30 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[26-Oct-2025 17:07:30 UTC] Final processed data: {"jenis_perlindungan":""}
+[26-Oct-2025 17:07:30 UTC] Processing jenis_perlindungan IDs: 25, 21
+[26-Oct-2025 17:07:30 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[26-Oct-2025 17:07:30 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[26-Oct-2025 17:07:30 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[26-Oct-2025 17:07:31 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:09:00 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:09:00 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:09:35 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:09:47 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:10:01 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:10:38 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:11:38 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:11:56 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:12:02 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:12:04 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:12:31 UTC] Final per page: 10
+[26-Oct-2025 17:12:31 UTC] Per page value: 10
+[26-Oct-2025 17:12:31 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[26-Oct-2025 17:12:31 UTC] Page: 1, Per Page: 10, Offset: 0
+[26-Oct-2025 17:12:32 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[26-Oct-2025 17:12:32 UTC] Final processed data: {"jenis_perlindungan":""}
+[26-Oct-2025 17:12:32 UTC] Processing jenis_perlindungan IDs: 25, 21
+[26-Oct-2025 17:12:32 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[26-Oct-2025 17:12:32 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[26-Oct-2025 17:12:32 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[26-Oct-2025 17:12:44 UTC] Final per page: 100
+[26-Oct-2025 17:12:44 UTC] Per page value: 100
+[26-Oct-2025 17:12:44 UTC] GET parameters: Array
+(
+    [t] => permohonan
+    [per_page] => 100
+    [page] => 1
+)
+
+[26-Oct-2025 17:12:44 UTC] Page: 1, Per Page: 100, Offset: 0
+[26-Oct-2025 17:12:44 UTC] Processing jenis_perlindungan IDs: 25, 21
+[26-Oct-2025 17:12:44 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[26-Oct-2025 17:12:44 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[26-Oct-2025 17:12:44 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[26-Oct-2025 17:12:44 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[26-Oct-2025 17:12:44 UTC] Final processed data: {"jenis_perlindungan":""}
+[26-Oct-2025 17:13:03 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:13:22 UTC] Final per page: 10
+[26-Oct-2025 17:13:22 UTC] Per page value: 10
+[26-Oct-2025 17:13:22 UTC] GET parameters: Array
+(
+    [t] => layanan
+)
+
+[26-Oct-2025 17:13:22 UTC] Page: 1, Per Page: 10, Offset: 0
+[26-Oct-2025 17:13:23 UTC] Executing SQL: SELECT layanan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon FROM layanan LEFT JOIN pegawai ON layanan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON layanan.no_reg_medan = permohonan.no_reg_medan LEFT JOIN penelaahan ON layanan.no_registrasi = penelaahan.no_registrasi WHERE layanan.no_kep_smpl = ? LIMIT 1 with ID: REG-2026-017
+[26-Oct-2025 17:13:23 UTC] Final processed data: {"jenis_perlindungan":""}
+[26-Oct-2025 17:13:23 UTC] Processing jenis_perlindungan IDs: 25, 21
+[26-Oct-2025 17:13:23 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[26-Oct-2025 17:13:23 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[26-Oct-2025 17:13:23 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[26-Oct-2025 17:13:31 UTC] Final per page: 10
+[26-Oct-2025 17:13:31 UTC] Per page value: 10
+[26-Oct-2025 17:13:31 UTC] GET parameters: Array
+(
+    [t] => layanan
+    [page] => 2
+    [per_page] => 10
+    [sort] => no_kep_smpl
+    [order] => DESC
+)
+
+[26-Oct-2025 17:13:31 UTC] Page: 2, Per Page: 10, Offset: 10
+[26-Oct-2025 17:13:32 UTC] Executing SQL: SELECT layanan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai, permohonan.status_hukum AS permohonan_status_hukum, permohonan.kab_kota_pemohon AS permohonan_kab_kota_pemohon, permohonan.provinsi_pemohon AS permohonan_provinsi_pemohon FROM layanan LEFT JOIN pegawai ON layanan.id_pegawai = pegawai.id_pegawai LEFT JOIN permohonan ON layanan.no_reg_medan = permohonan.no_reg_medan LEFT JOIN penelaahan ON layanan.no_registrasi = penelaahan.no_registrasi WHERE layanan.no_kep_smpl = ? LIMIT 1 with ID: REG-2026-017
+[26-Oct-2025 17:13:32 UTC] Final processed data: {"jenis_perlindungan":""}
+[26-Oct-2025 17:13:32 UTC] Processing jenis_perlindungan IDs: 25, 21
+[26-Oct-2025 17:13:32 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[26-Oct-2025 17:13:32 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[26-Oct-2025 17:13:32 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[26-Oct-2025 17:13:43 UTC] Final per page: 10
+[26-Oct-2025 17:13:43 UTC] Per page value: 10
+[26-Oct-2025 17:13:43 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[26-Oct-2025 17:13:43 UTC] Page: 1, Per Page: 10, Offset: 0
+[26-Oct-2025 17:13:44 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[26-Oct-2025 17:13:44 UTC] Final processed data: {"jenis_perlindungan":""}
+[26-Oct-2025 17:13:44 UTC] Processing jenis_perlindungan IDs: 25, 21
+[26-Oct-2025 17:13:44 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[26-Oct-2025 17:13:44 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[26-Oct-2025 17:13:44 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[26-Oct-2025 17:13:47 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:16:11 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:17:15 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:19:23 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:20:03 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:24:23 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:24:34 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:29:23 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:34:23 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:38:53 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:39:03 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:39:07 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:39:10 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:39:16 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:39:23 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:39:38 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:40:02 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:40:11 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:40:29 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:40:30 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:40:32 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:40:33 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:41:30 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:42:08 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:42:32 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:42:43 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:43:13 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:43:34 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:43:53 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:44:17 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:44:38 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:44:41 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:44:48 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:44:49 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:45:12 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:46:22 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:47:47 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:49:38 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:50:36 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:51:37 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:54:39 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:55:05 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:55:20 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:58:30 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:58:43 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:58:51 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:58:59 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:59:02 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:59:05 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:59:38 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:59:39 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:59:51 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 17:59:54 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 18:00:01 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 18:00:03 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 18:00:05 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 18:00:07 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 18:00:11 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 18:00:12 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 18:00:15 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 18:00:20 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 18:00:29 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 18:00:29 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382
+[26-Oct-2025 18:00:38 UTC] Final per page: 10
+[26-Oct-2025 18:00:38 UTC] Per page value: 10
+[26-Oct-2025 18:00:38 UTC] GET parameters: Array
+(
+    [t] => permohonan
+)
+
+[26-Oct-2025 18:00:38 UTC] Page: 1, Per Page: 10, Offset: 0
+[26-Oct-2025 18:00:38 UTC] Executing SQL: SELECT permohonan.*, pegawai.nama_pegawai AS pegawai_nama_pegawai FROM permohonan LEFT JOIN pegawai ON permohonan.id_pegawai = pegawai.id_pegawai WHERE permohonan.no_reg_medan = ? LIMIT 1 with ID: REG-2026-017
+[26-Oct-2025 18:00:38 UTC] Final processed data: {"jenis_perlindungan":""}
+[26-Oct-2025 18:00:38 UTC] Processing jenis_perlindungan IDs: 25, 21
+[26-Oct-2025 18:00:38 UTC] Executing SQL: SELECT kategori, sub_pilihan FROM jenis_perlindungan WHERE id IN (?,?) ORDER BY kategori, sub_pilihan
+[26-Oct-2025 18:00:38 UTC] Query result: [{"kategori":"Bantuan","sub_pilihan":"Rehabilitasi Psikososial"},{"kategori":"Fasilitasi Ganti Rugi","sub_pilihan":"Restitusi"}]
+[26-Oct-2025 18:00:38 UTC] Final result: ["Rehabilitasi Psikososial","Restitusi"]
+[26-Oct-2025 18:00:47 UTC] PHP Warning:  Undefined variable $perlindunganPermohonanChart in C:\laragon\www\LPSK\public\api_stats.php on line 1382

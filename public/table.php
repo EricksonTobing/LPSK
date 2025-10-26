@@ -326,7 +326,14 @@ function get_input_type($column, $value = '')
             'P-22' => 'P-22', 
             'Penuntutan' => 'Penuntutan', 
             'Putusan Pengadilan Negeri' => 'Putusan Pengadilan Negeri', 
-            'Putusan Pengadilan Tinggi' => 'Putusan Pengadilan Tinggi'
+            'Putusan Pengadilan Tinggi' => 'Putusan Pengadilan Tinggi',
+            'Tidak Ada Proses Hukum' => 'Tidak Ada Proses Hukum',
+            'SP3 Lidik' => 'SP3 Lidik',
+            'SP3 Sidik' => 'SP3 Sidik',
+            'Dakwaan' => 'Dakwaan',
+            'Pemeriksaan Saksi' => 'Pemeriksaan Saksi',
+            'Pledoi' => 'Pledoi',
+            'Putusan Mahkamah Agung' => 'Putusan Mahkamah Agung'
         ],
         'jenis_tindak_pidana'   => [
             'KSA' => 'KSA', 

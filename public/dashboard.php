@@ -29,114 +29,10 @@ require __DIR__ . '/../inc/layout_nav.php';
             </h1>
             <!-- <p class="text-gray-600 dark:text-gray-300 mt-1">Sistem Monitoring & Pelaporan Terintegrasi</p> -->
           </div>
+          
         </div>
-        
-        <!-- Enhanced Year & Month Filter -->
-<div class="flex items-center space-x-4">
-  <div class="backdrop-blur-sm bg-white/70 dark:bg-gray-800/70 rounded-2xl p-4 border border-white/20 dark:border-gray-700/50 shadow-xl">
-    <div class="flex items-center space-x-3">
-      <div class="w-10 h-10 bg-gradient-to-r from-primary-blue to-primary-red rounded-xl flex items-center justify-center">
-        <i class="fas fa-calendar-alt text-white text-sm"></i>
-      </div>
-      <div class="flex items-center space-x-3">
-        <!-- Filter Tahun -->
-        <div>
-          <label for="yearFilter" class="text-xs text-gray-500 dark:text-gray-400 block">Tahun</label>
-          <select id="yearFilter" class="bg-transparent border-0 text-sm font-bold text-gray-700 dark:text-gray-300 focus:outline-none cursor-pointer">
-            <?php
-            try {
-                $pdo = db();
-                $stmt = $pdo->query("
-                    SELECT DISTINCT tahun 
-                    FROM (
-                        SELECT YEAR(tgl_pengajuan) as tahun FROM permohonan
-                        UNION SELECT YEAR(tanggal_dispo) FROM penelaahan
-                        UNION SELECT YEAR(tanggal) FROM pengeluaran
-                        UNION SELECT YEAR(tgl_mulai_layanan) FROM layanan
-                        UNION SELECT tahun FROM anggaran
-                    ) years 
-                    WHERE tahun IS NOT NULL 
-                    ORDER BY tahun DESC
-                ");
-                $availableYears = $stmt->fetchAll(PDO::FETCH_COLUMN);
-                
-                $currentYear = date('Y');
-                $selectedYear = $_GET['year'] ?? $currentYear;
-                
-                if (empty($availableYears)) {
-                    $availableYears = range($currentYear, $currentYear - 5);
-                }
-                
-                foreach ($availableYears as $year) {
-                    $selected = $year == $selectedYear ? 'selected' : '';
-                    echo "<option value='$year' $selected>$year</option>";
-                }
-            } catch (Exception $e) {
-                $currentYear = date('Y');
-                for ($year = $currentYear; $year >= 2020; $year--) {
-                    $selected = $year == $currentYear ? 'selected' : '';
-                    echo "<option value='$year' $selected>$year</option>";
-                }
-            }
-            ?>
-          </select>
-        </div>
-        
-        <!-- Separator -->
-        <div class="h-8 w-px bg-gray-300 dark:bg-gray-600"></div>
-        
-        <!-- Filter Bulan -->
-        <div>
-          <label for="monthFilter" class="text-xs text-gray-500 dark:text-gray-400 block">Bulan</label>
-          <select id="monthFilter" class="bg-transparent border-0 text-sm font-bold text-gray-700 dark:text-gray-300 focus:outline-none cursor-pointer">
-            <?php
-              $bulanNama = [
-                1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',5=>'Mei',6=>'Juni',
-                7=>'Juli',8=>'Agustus',9=>'September',10=>'Oktober',11=>'November',12=>'Desember'
-              ];
-              $selectedMonth = (isset($_GET['month']) && is_numeric($_GET['month']) && (int)$_GET['month']>=1 && (int)$_GET['month']<=12) ? (int)$_GET['month'] : '';
-              echo "<option value=\"\">Semua bulan</option>";
-              for ($m=1; $m<=12; $m++) {
-                $sel = ($selectedMonth === $m) ? 'selected' : '';
-                echo "<option value=\"$m\" $sel>{$bulanNama[$m]}</option>";
-              }
-            ?>
-          </select>
-        </div>
-        
-        <!-- Quick Filter Buttons -->
-        <div class="flex items-center space-x-2 ml-2">
-          <button id="btnCurrentMonth" class="text-xs px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors" title="Bulan Ini">
-            <i class="fas fa-calendar-day mr-1"></i>Bulan Ini
-          </button>
-          <button id="btnLastMonth" class="text-xs px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="Bulan Lalu">
-            <i class="fas fa-calendar-minus mr-1"></i>Bulan Lalu
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <button id="refreshBtn" class="group relative overflow-hidden bg-gradient-to-r from-primary-blue to-primary-red hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-lg hover:shadow-xl">
-    <div class="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
-    <div class="relative flex items-center space-x-2">
-      <i class="fas fa-sync-alt transition-transform group-hover:rotate-180 duration-500"></i>
-      <span>Refresh</span>
-    </div>
-  </button>
-</div>
-
-<!-- Tambahkan indicator filter aktif -->
-<div class="mt-4 flex items-center space-x-2">
-  <div id="filterIndicator" class="hidden items-center space-x-2 text-sm">
-    <span class="text-gray-600 dark:text-gray-400">Filter aktif:</span>
-    <span id="filterText" class="font-medium text-blue-600 dark:text-blue-400"></span>
-    <button id="clearFilter" class="text-xs text-red-600 dark:text-red-400 hover:underline">
-      <i class="fas fa-times-circle mr-1"></i>Reset
-    </button>
-  </div>
-</div>
-
+         <!-- Include Filter Header Component -->
+    <?php include __DIR__ . '/components/filter-header.php'; ?>
       </div>
 
       <!-- Real-time Status Indicator -->
@@ -150,8 +46,11 @@ require __DIR__ . '/../inc/layout_nav.php';
           <span id="lastUpdate">Terakhir diperbarui: <span class="font-medium text-gray-800 dark:text-gray-200">--</span></span>
         </div>
       </div>
+          
     </div>
 
+
+    
     <!-- Enhanced Alert -->
 <?php include __DIR__ . '/components/alert.php'; ?>
 
@@ -162,492 +61,16 @@ require __DIR__ . '/../inc/layout_nav.php';
 <!-- Tab Navigation -->
 <?php include __DIR__ . '/components/tab-navigation.php'; ?>
 
-<!-- Enhanced KPI Cards (Selalu ditampilkan) -->
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8" id="stats-cards">
-    <!-- ... kode KPI cards yang sudah ada ... -->
-</div>
 
 <!-- Tab Content Container -->
 <div id="tab-content">
+        <?php include __DIR__ . '/components/tab-overview.php'; ?>
+    <?php include __DIR__ . '/components/tab-perlindungan.php'; ?>
+    <?php include __DIR__ . '/components/tab-demografi.php'; ?>
+    <?php include __DIR__ . '/components/tab-geografis.php'; ?>
+    <?php include __DIR__ . '/components/tab-keuangan.php'; ?>
+    <?php include __DIR__ . '/components/tab-aktivitas.php'; ?>
     
-    <!-- Tab Overview -->
-    <div class="tab-panel active" data-tab="overview">
-        <!-- Enhanced Charts Section -->
-        <div class="grid grid-cols-1 2xl:grid-cols-3 gap-8 mb-8">
-            <!-- Enhanced Multi-Line Chart -->
-            <div class="2xl:col-span-2 backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl">
-                 <!-- Enhanced Multi-Line Chart -->
-      <div class="2xl:col-span-2 backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl">
-        <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 gap-4">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Tren Statistik</h2>
-            <p class="text-gray-600 dark:text-gray-400">Perkembangan data sepanjang tahun</p>
-          </div>
-          <div class="flex flex-wrap items-center gap-4 text-sm">
-            <div class="flex items-center space-x-2 bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-xl">
-              <div class="w-3 h-3 rounded-full bg-blue-500"></div>
-              <span class="text-blue-700 dark:text-blue-300 font-medium">Permohonan</span>
-            </div>
-            <div class="flex items-center space-x-2 bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-xl">
-              <div class="w-3 h-3 rounded-full bg-green-500"></div>
-              <span class="text-green-700 dark:text-green-300 font-medium">Penelaahan</span>
-            </div>
-            <div class="flex items-center space-x-2 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-xl">
-              <div class="w-3 h-3 rounded-full bg-amber-500"></div>
-              <span class="text-amber-700 dark:text-amber-300 font-medium">Layanan</span>
-            </div>
-          </div>
-        </div>
-        <div class="relative chart-container">
-          <canvas id="chartPermohonan" class="w-full h-80"></canvas>
-          <div id="loading-chart-permohonan" class="absolute inset-0 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 rounded-3xl backdrop-blur">
-            <div class="text-center">
-              <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
-              <p class="text-gray-600 dark:text-gray-400">Memuat data chart...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-            </div>
-
-            <!-- Enhanced Doughnut Chart -->
-            <div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl">
-                  <!-- Enhanced Doughnut Chart -->
-      <div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl">
-        <div class="text-center mb-8">
-          <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Distribusi Anggaran</h2>
-          <p class="text-gray-600 dark:text-gray-400">Alokasi dan penggunaan dana</p>
-        </div>
-        <div class="relative chart-container">
-          <canvas id="chartAnggaran" class="w-full h-64"></canvas>
-          <div id="anggaran-center-text" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <div class="text-center">
-              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Sisa Anggaran</p>
-              <div class="text-xl lg:text-2xl font-bold text-gray-800 dark:text-white" id="total-anggaran-text">Rp 0</div>
-            </div>
-          </div>
-          <div id="loading-chart-anggaran" class="absolute inset-0 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 rounded-3xl backdrop-blur">
-            <div class="text-center">
-              <div class="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
-              <p class="text-gray-600 dark:text-gray-400">Memuat data anggaran...</p>
-            </div>
-          </div>
-        </div>
-        
-        <div class="mt-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Detail Anggaran</h3>
-            <button class="text-xs text-blue-600 dark:text-blue-400 hover:underline" onclick="window.tabManager.switchTab('keuangan')">Lihat Semua</button>
-          </div>
-          <div id="anggaran-detail" class="space-y-3 max-h-48 overflow-y-auto custom-scrollbar">
-            <div class="text-sm text-gray-500 dark:text-gray-400 text-center py-8">
-              <div class="w-8 h-8 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
-              Memuat detail anggaran...
-            </div>
-          </div>
-        </div>
-      </div>
-            </div>
-        </div>
-
-
-        <!-- Media Pengajuan Chart Section -->
-<div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl mb-8">
-    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 gap-4">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Media Pengajuan Permohonan</h2>
-            <p class="text-gray-600 dark:text-gray-400">Distribusi berdasarkan cara pengajuan permohonan</p>
-        </div>
-        <div class="flex items-center space-x-2 bg-cyan-50 dark:bg-cyan-900/20 px-3 py-2 rounded-xl">
-            <div class="w-3 h-3 rounded-full bg-cyan-500"></div>
-            <span class="text-cyan-700 dark:text-cyan-300 font-medium">Total: <span id="total-media-pengajuan">0</span> permohonan</span>
-        </div>
-    </div>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Chart Area -->
-        <div class="relative chart-container">
-            <canvas id="chartMediaPengajuan" class="w-full h-80"></canvas>
-            <div id="loading-chart-media-pengajuan" class="absolute inset-0 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 rounded-3xl backdrop-blur">
-                <div class="text-center">
-                    <div class="w-12 h-12 border-4 border-cyan-200 border-t-cyan-500 rounded-full animate-spin mx-auto mb-4"></div>
-                    <p class="text-gray-600 dark:text-gray-400">Memuat data media pengajuan...</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Detail Section -->
-        <div class="bg-gray-50 dark:bg-gray-700/30 rounded-2xl p-6">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Detail Media Pengajuan</h3>
-            <div id="media-pengajuan-detail" class="space-y-3 max-h-64 overflow-y-auto custom-scrollbar">
-                <div class="text-sm text-gray-500 dark:text-gray-400 text-center py-8">
-                    <div class="w-6 h-6 border-2 border-gray-300 border-t-cyan-500 rounded-full animate-spin mx-auto mb-2"></div>
-                    Memuat detail media pengajuan...
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-        <!-- Status Hukum Chart Section -->
-        <div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl mb-8">
-             <!-- Status Hukum Chart Section -->
-<div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl mb-8">
-    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 gap-4">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Status Hukum Pemohon</h2>
-            <p class="text-gray-600 dark:text-gray-400">Distribusi berdasarkan status hukum dalam proses</p>
-        </div>
-        <div class="flex items-center space-x-2 bg-indigo-50 dark:bg-indigo-900/20 px-3 py-2 rounded-xl">
-            <div class="w-3 h-3 rounded-full bg-indigo-500"></div>
-            <span class="text-indigo-700 dark:text-indigo-300 font-medium">Total: <span id="total-status-hukum">0</span> pemohon</span>
-        </div>
-    </div>
-    <div class="relative chart-container">
-        <canvas id="chartStatusHukum" class="w-full h-96"></canvas>
-        <div id="loading-chart-status-hukum" class="absolute inset-0 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 rounded-3xl backdrop-blur">
-            <div class="text-center">
-                <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-500 rounded-full animate-spin mx-auto mb-4"></div>
-                <p class="text-gray-600 dark:text-gray-400">Memuat data status hukum...</p>
-            </div>
-        </div>
-    </div>
-</div>
-        </div>
-
-        <!-- Tindak Pidana Chart Section -->
-        <div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl mb-8">
-            <!-- Tindak Pidana Chart Section -->
-<div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl mb-8">
-    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 gap-4">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Jenis Tindak Pidana</h2>
-            <p class="text-gray-600 dark:text-gray-400">Distribusi berdasarkan jenis kejahatan</p>
-        </div>
-        <div class="flex items-center space-x-2 bg-purple-50 dark:bg-purple-900/20 px-3 py-2 rounded-xl">
-            <div class="w-3 h-3 rounded-full bg-purple-500"></div>
-            <span class="text-purple-700 dark:text-purple-300 font-medium">Total: <span id="total-tindak-pidana">0</span> kasus</span>
-        </div>
-    </div>
-    <div class="relative chart-container">
-        <canvas id="chartTindakPidana" class="w-full h-96"></canvas>
-        <div id="loading-chart-tindak-pidana" class="absolute inset-0 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 rounded-3xl backdrop-blur">
-            <div class="text-center">
-                <div class="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
-                <p class="text-gray-600 dark:text-gray-400">Memuat data tindak pidana...</p>
-            </div>
-        </div>
-    </div>
-</div>
-        </div>
-    </div>
-
-    <!-- Tab Perlindungan -->
-    <div class="tab-panel hidden" data-tab="perlindungan">
-        <!-- Jenis Perlindungan Charts -->
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
-            <!-- Chart Perbandingan Jenis Perlindungan -->
-            <div class="xl:col-span-2 backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl">
-                 <!-- Chart Perbandingan Jenis Perlindungan -->
-    <div class="xl:col-span-2 backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl">
-        <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 gap-4">
-            <div>
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Perbandingan Jenis Perlindungan</h2>
-                <p class="text-gray-600 dark:text-gray-400">Permohonan vs Layanan yang Diberikan</p>
-            </div>
-            <div class="flex flex-wrap items-center gap-3 text-sm">
-                <div class="flex items-center space-x-2 bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-xl">
-                    <div class="w-3 h-3 rounded-full bg-blue-500"></div>
-                    <span class="text-blue-700 dark:text-blue-300 font-medium">Permohonan</span>
-                </div>
-                <div class="flex items-center space-x-2 bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-xl">
-                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                    <span class="text-green-700 dark:text-green-300 font-medium">Layanan</span>
-                </div>
-            </div>
-        </div>
-        <div class="relative chart-container">
-            <canvas id="chartPerlindunganComparison" class="w-full h-96"></canvas>
-            <div id="loading-chart-perlindungan-comparison" class="absolute inset-0 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 rounded-3xl backdrop-blur">
-                <div class="text-center">
-                    <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-500 rounded-full animate-spin mx-auto mb-4"></div>
-                    <p class="text-gray-600 dark:text-gray-400">Memuat data perbandingan...</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Ringkasan Rasio -->
-        <div class="mt-6 flex justify-center items-center space-x-6 bg-gray-50 dark:bg-gray-700/30 backdrop-blur-sm rounded-xl p-4 border border-gray-100 dark:border-gray-600/30">
-            <div class="text-center">
-                <div class="text-xs text-gray-500 dark:text-gray-400">Total Permohonan</div>
-                <div class="text-lg font-bold text-blue-600 dark:text-blue-400" id="total-permohonan-comparison">0</div>
-            </div>
-            <div class="text-center">
-                <div class="text-xs text-gray-500 dark:text-gray-400">Total Layanan</div>
-                <div class="text-lg font-bold text-green-600 dark:text-green-400" id="total-layanan-comparison">0</div>
-            </div>
-            <div class="text-center">
-                <div class="text-xs text-gray-500 dark:text-gray-400">Rasio Pemenuhan</div>
-                <div class="text-lg font-bold" id="rasio-pemenuhan">0%</div>
-            </div>
-        </div>
-    </div>
-            </div>
-
-            <!-- Chart Distribusi Jenis Perlindungan Permohonan -->
-            <div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl">
-                <div class="text-center mb-8">
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Jenis Perlindungan - Permohonan</h2>
-        <p class="text-gray-600 dark:text-gray-400">Jenis perlindungan yang diminta</p>
-        <div class="mt-4 flex justify-center">
-            <div class="bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-xl inline-flex items-center space-x-2">
-                <div class="w-3 h-3 rounded-full bg-blue-500"></div>
-                <span class="text-blue-700 dark:text-blue-300 font-medium">
-                    Total: <span id="total-perlindungan-permohonan">0</span> jenis perlindungan diminta
-                </span>
-            </div>
-        </div>
-    </div>
-    <!-- Chart Area -->
-    <div class="relative pie-chart-container">
-        <canvas id="chartPerlindunganPermohonan" class="w-full h-80"></canvas>
-        <div id="loading-chart-perlindungan-permohonan" class="absolute inset-0 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 rounded-3xl backdrop-blur">
-            <div class="text-center">
-                <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
-                <p class="text-gray-600 dark:text-gray-400">Memuat data permohonan...</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Scrollable Detail Section -->
-    <div class="bg-gray-50 dark:bg-gray-700/30 rounded-2xl p-4 mt-6">
-        <div class="flex items-center justify-between mb-3">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Detail Kategori</h3>
-            <span class="text-xs text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-600 px-2 py-1 rounded-full">
-                <i class="fas fa-arrows-up-down mr-1"></i>Scroll untuk melihat lebih banyak
-            </span>
-        </div>
-        
-        <div id="perlindungan-permohonan-detail" class="max-h-48 overflow-y-auto custom-scrollbar space-y-3">
-            <div class="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-                <div class="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
-                Memuat detail kategori...
-            </div>
-        </div>
-    </div>
-            </div>
-
-            <!-- Chart Distribusi Jenis Perlindungan Layanan -->
-            <div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl">
-                 <div class="text-center mb-8">
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Jenis Perlindungan - Layanan</h2>
-        <p class="text-gray-600 dark:text-gray-400">Jenis perlindungan yang diberikan</p>
-        <div class="mt-4 flex justify-center">
-            <div class="bg-green-50 dark:bg-green-900/20 px-4 py-2 rounded-xl inline-flex items-center space-x-2">
-                <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                <span class="text-green-700 dark:text-green-300 font-medium">
-                    Total: <span id="total-perlindungan-layanan">0</span> jenis perlindungan diberikan
-                </span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Chart Area -->
-    <div class="relative pie-chart-container">
-        <canvas id="chartPerlindunganLayanan" class="w-full h-80"></canvas>
-        <div id="loading-chart-perlindungan-layanan" class="absolute inset-0 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 rounded-3xl backdrop-blur">
-            <div class="text-center">
-                <div class="w-12 h-12 border-4 border-green-200 border-t-green-500 rounded-full animate-spin mx-auto mb-4"></div>
-                <p class="text-gray-600 dark:text-gray-400">Memuat data layanan...</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Scrollable Detail Section -->
-    <div class="bg-gray-50 dark:bg-gray-700/30 rounded-2xl p-4 mt-6">
-        <div class="flex items-center justify-between mb-3">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Detail Kategori</h3>
-            <span class="text-xs text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-600 px-2 py-1 rounded-full">
-                <i class="fas fa-arrows-up-down mr-1"></i>Scroll untuk melihat lebih banyak
-            </span>
-        </div>
-        
-        <div id="perlindungan-layanan-detail" class="max-h-48 overflow-y-auto custom-scrollbar space-y-3">
-            <div class="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-                <div class="w-6 h-6 border-2 border-gray-300 border-t-green-500 rounded-full animate-spin mx-auto mb-2"></div>
-                Memuat detail kategori...
-            </div>
-        </div>
-    </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tab Demografi -->
-    <div class="tab-panel hidden" data-tab="demografi">
-        <!-- Gender Distribution Chart -->
-        <div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl mb-8">
-<div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl mb-8">
-    <div class="text-center mb-8">
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Distribusi Jenis Kelamin</h2>
-        <p class="text-gray-600 dark:text-gray-400">Perbandingan data pemohon dan penerima layanan</p>
-        <div class="mt-4 flex justify-center space-x-4">
-            <div class="bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-xl inline-flex items-center space-x-2">
-                <div class="w-3 h-3 rounded-full bg-blue-500"></div>
-                <span class="text-blue-700 dark:text-blue-300 font-medium">
-                    Permohonan: <span id="total-gender-permohonan-text">0</span>
-                </span>
-            </div>
-            <div class="bg-green-50 dark:bg-green-900/20 px-4 py-2 rounded-xl inline-flex items-center space-x-2">
-                <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                <span class="text-green-700 dark:text-green-300 font-medium">
-                    Layanan: <span id="total-gender-layanan-text">0</span>
-                </span>
-            </div>
-        </div>
-    </div>
-    
-    <div class="relative chart-container">
-        <canvas id="chartGenderCombined" class="w-full h-80"></canvas>
-        <div id="loading-chart-gender-combined" class="absolute inset-0 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 rounded-3xl backdrop-blur">
-            <div class="text-center">
-                <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-500 rounded-full animate-spin mx-auto mb-4"></div>
-                <p class="text-gray-600 dark:text-gray-400">Memuat data jenis kelamin...</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Detail Section -->
-    <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Detail Permohonan -->
-        <div class="bg-gray-50 dark:bg-gray-700/30 rounded-2xl p-4">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3 text-center">Detail Permohonan</h3>
-            <div id="gender-permohonan-detail" class="max-h-48 overflow-y-auto custom-scrollbar space-y-3">
-                <div class="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-                    <div class="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
-                    Memuat detail permohonan...
-                </div>
-            </div>
-        </div>
-        
-        <!-- Detail Layanan -->
-        <div class="bg-gray-50 dark:bg-gray-700/30 rounded-2xl p-4">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3 text-center">Detail Layanan</h3>
-            <div id="gender-layanan-detail" class="max-h-48 overflow-y-auto custom-scrollbar space-y-3">
-                <div class="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-                    <div class="w-6 h-6 border-2 border-gray-300 border-t-green-500 rounded-full animate-spin mx-auto mb-2"></div>
-                    Memuat detail layanan...
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-        </div>
-
-        <!-- Workload Chart (Opsional) -->
-        <div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl mb-8">
-    <div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl mb-8">
-      <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 gap-4">
-        <div>
-          <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Beban Kerja Pegawai</h2>
-          <p class="text-gray-600 dark:text-gray-400">Distribusi tugas dan tanggung jawab</p>
-        </div>
-        <div class="flex flex-wrap items-center gap-3 text-sm">
-          <div class="flex items-center space-x-2 bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-xl">
-            <div class="w-3 h-3 rounded-full bg-blue-500"></div>
-            <span class="text-blue-700 dark:text-blue-300 font-medium">Penerima Permohonan</span>
-          </div>
-          <div class="flex items-center space-x-2 bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-xl">
-            <div class="w-3 h-3 rounded-full bg-green-500"></div>
-            <span class="text-green-700 dark:text-green-300 font-medium">CM Penelaahan</span>
-          </div>
-          <div class="flex items-center space-x-2 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-xl">
-            <div class="w-3 h-3 rounded-full bg-amber-500"></div>
-            <span class="text-amber-700 dark:text-amber-300 font-medium">CM Layanan</span>
-          </div>
-        </div>
-      </div>
-      <div class="relative chart-container">
-        <canvas id="chartBebanKerja" class="w-full h-96"></canvas>
-        <div id="loading-chart-beban-kerja" class="absolute inset-0 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 rounded-3xl backdrop-blur">
-          <div class="text-center">
-            <div class="w-12 h-12 border-4 border-green-200 border-t-green-500 rounded-full animate-spin mx-auto mb-4"></div>
-            <p class="text-gray-600 dark:text-gray-400">Memuat data beban kerja...</p>
-          </div>
-        </div>
-      </div>
-    </div> 
-        </div>
-        
-    </div>
-
-    <!-- Tab Geografis -->
-<div class="tab-panel hidden" data-tab="geografis">
-    <!-- Enhanced Map Section -->
-    <div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl mb-8">
-        <div class="text-center mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Sebaran Geografis</h2>
-            <p class="text-gray-600 dark:text-gray-400">Distribusi permohonan berdasarkan provinsi</p>
-        </div>
-        
-        <!-- Container untuk peta yang dipusatkan -->
-        <div class="map-center-wrapper">
-            <div class="relative max-w-4xl w-full">
-                <div id="map-container" class="h-96 rounded-2xl overflow-visible bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-700 dark:to-gray-600 border border-gray-200 dark:border-gray-600 mx-auto"></div>
-                <div id="map-loading" class="absolute inset-0 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 rounded-2xl backdrop-blur">
-                    <div class="text-center">
-                        <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-500 rounded-full animate-spin mx-auto mb-4"></div>
-                        <p class="text-gray-600 dark:text-gray-400">Memuat peta interaktif...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div id="map-legend" class="flex flex-wrap justify-center gap-6 mt-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl"></div>
-    </div>
-</div>
-
-    <!-- Tab Keuangan -->
-    <div class="tab-panel hidden" data-tab="keuangan">
-        <!-- Anggaran Detail Section -->
-        <div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl mb-8">
-            <div class="text-center mb-8">
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Detail Anggaran</h2>
-                <p class="text-gray-600 dark:text-gray-400">Rincian penggunaan anggaran per kode</p>
-            </div>
-            
-            <div id="anggaran-detail-full" class="space-y-4">
-                <!-- Detail anggaran akan diisi oleh JavaScript -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Tab Aktivitas -->
-    <div class="tab-panel hidden" data-tab="aktivitas">
-        <!-- Enhanced Recent Activities -->
-        <div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl">
-             <!-- Enhanced Recent Activities -->
-    <div class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 rounded-3xl p-8 border border-white/20 dark:border-gray-700/50 shadow-xl">
-      <div class="flex items-center justify-between mb-8">
-        <div>
-          <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Aktivitas Terbaru</h2>
-          <p class="text-gray-600 dark:text-gray-400">Update terkini dari sistem</p>
-        </div>
-        <!-- <button class="flex items-center space-x-2 px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors">
-          <i class="fas fa-external-link-alt"></i>
-          <span>Lihat Semua</span>
-        </button> -->
-      </div>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="aktivitas-container">
-        <div class="col-span-3 text-center py-12">
-          <div class="w-16 h-16 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <p class="text-gray-500 dark:text-gray-400">Memuat aktivitas terbaru...</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-        </div>
     </div>
 </div>
 
@@ -660,7 +83,7 @@ require __DIR__ . '/../inc/layout_nav.php';
 // Load datamaps with error handling
 (function() {
   const script = document.createElement('script');
-  script.src = 'datamaps.indonesia.min.js'; // Pastikan path ini benar
+  script.src = 'datamaps.indonesia.min.js';
   script.onerror = function() {
     console.warn('Datamaps Indonesia library not found. Map will not be displayed.');
     const mapLoadingElement = document.getElementById('map-loading');
@@ -679,7 +102,6 @@ require __DIR__ . '/../inc/layout_nav.php';
 })();
 </script>
 
-<!-- Enhanced JavaScript with additional features -->
 <script>
 
 
@@ -695,6 +117,40 @@ class TabManager {
     }
 
     setupEventListeners() {
+      // Event listener untuk filter rentang waktu
+    const dateRangeFilter = document.getElementById('dateRangeFilter');
+    if (dateRangeFilter) {
+        dateRangeFilter.addEventListener('change', () => {
+            this.updateFilterVisibility();
+            this.loadDashboardData();
+            this.updateFilterIndicator();
+        });
+    }
+
+    // Event listener untuk tanggal kustom
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
+    
+    if (startDate) {
+        startDate.addEventListener('change', () => {
+            if (document.getElementById('dateRangeFilter').value === 'custom') {
+                this.loadDashboardData();
+                this.updateFilterIndicator();
+            }
+        });
+    }
+    
+    if (endDate) {
+        endDate.addEventListener('change', () => {
+            if (document.getElementById('dateRangeFilter').value === 'custom') {
+                this.loadDashboardData();
+                this.updateFilterIndicator();
+            }
+        });
+    }
+
+
+
         // Event listener untuk tab buttons
         document.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', (e) => {
@@ -1026,33 +482,78 @@ class DashboardManager {
     }
   }
 
+
+//   updateFilterVisibility() {
+//     const dateRangeFilter = document.getElementById('dateRangeFilter');
+//     const yearFilterContainer = document.getElementById('yearFilterContainer');
+//     const monthFilterContainer = document.getElementById('monthFilterContainer');
+//     const customRangeContainer = document.getElementById('customRangeContainer');
+    
+//     if (!dateRangeFilter) return;
+    
+//     const value = dateRangeFilter.value;
+    
+    // Hide all containers first
+    // yearFilterContainer.classList.add('hidden');
+    // monthFilterContainer.classList.add('hidden');
+    // customRangeContainer.classList.add('hidden');
+    
+    // Show relevant containers
+//     if (value === 'year') {
+//         yearFilterContainer.classList.remove('hidden');
+//     } else if (value === 'month') {
+//         yearFilterContainer.classList.remove('hidden');
+//         monthFilterContainer.classList.remove('hidden');
+//     } else if (value === 'custom') {
+//         customRangeContainer.classList.remove('hidden');
+//     }
+// }
+
+
+
   // Method untuk update indicator filter
   updateFilterIndicator() {
+    const dateRangeFilter = document.getElementById('dateRangeFilter');
     const yearFilter = document.getElementById('yearFilter');
     const monthFilter = document.getElementById('monthFilter');
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
     const filterIndicator = document.getElementById('filterIndicator');
     const filterText = document.getElementById('filterText');
     
-    if (!yearFilter || !monthFilter || !filterIndicator || !filterText) return;
+    if (!dateRangeFilter || !filterIndicator || !filterText) return;
     
-    const selectedYear = yearFilter.value;
-    const selectedMonth = monthFilter.value;
+    const filterType = dateRangeFilter.value;
+    let displayText = '';
     
-    if (selectedMonth) {
-      const monthNames = [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-      ];
-      const monthName = monthNames[parseInt(selectedMonth) - 1];
-      filterText.textContent = `${monthName} ${selectedYear}`;
-      filterIndicator.classList.remove('hidden');
-      filterIndicator.classList.add('flex');
+    if (filterType === 'year' && yearFilter) {
+        displayText = `Tahun ${yearFilter.value}`;
+    } else if (filterType === 'month' && yearFilter && monthFilter) {
+        const monthNames = [
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+        const monthName = monthNames[parseInt(monthFilter.value) - 1];
+        displayText = `${monthName} ${yearFilter.value}`;
+    } else if (filterType === 'custom' && startDate && endDate) {
+        const start = new Date(startDate.value);
+        const end = new Date(endDate.value);
+        const formatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+        displayText = `${start.toLocaleDateString('id-ID', formatOptions)} - ${end.toLocaleDateString('id-ID', formatOptions)}`;
     } else {
-      filterText.textContent = `Tahun ${selectedYear}`;
-      filterIndicator.classList.add('hidden');
-      filterIndicator.classList.remove('flex');
+        displayText = 'Semua waktu';
     }
-  }
+    
+    filterText.textContent = displayText;
+    
+    if (filterType !== 'year' || (monthFilter && monthFilter.value)) {
+        filterIndicator.classList.remove('hidden');
+        filterIndicator.classList.add('flex');
+    } else {
+        filterIndicator.classList.add('hidden');
+        filterIndicator.classList.remove('flex');
+    }
+}
   
 
   updateTimestamp() {
@@ -1174,16 +675,23 @@ class DashboardManager {
     try {
         this.hideError();
         this.showLoadingState();
-        // Cleanup charts sebelum memuat yang baru
         this.cleanupCharts();
 
+        const dateRangeType = document.getElementById('dateRangeFilter')?.value || 'year';
         const selectedYear = document.getElementById('yearFilter')?.value || new Date().getFullYear();
         const selectedMonth = document.getElementById('monthFilter')?.value || '';
+        const startDate = document.getElementById('startDate')?.value || '';
+        const endDate = document.getElementById('endDate')?.value || '';
         
-        // Build query string
-        let queryString = `year=${selectedYear}`;
-        if (selectedMonth) {
-            queryString += `&month=${selectedMonth}`;
+        // Build query string berdasarkan tipe filter
+        let queryString = `date_range_type=${dateRangeType}`;
+        
+        if (dateRangeType === 'year') {
+            queryString += `&year=${selectedYear}`;
+        } else if (dateRangeType === 'month') {
+            queryString += `&year=${selectedYear}&month=${selectedMonth}`;
+        } else if (dateRangeType === 'custom') {
+            queryString += `&start_date=${startDate}&end_date=${endDate}`;
         }
         
         const response = await fetch(`api_stats.php?${queryString}`);
@@ -1369,20 +877,28 @@ class DashboardManager {
   }
 
   renderCharts(data) {
-    if (!data.charts) return;
+    if (!data || !data.charts) {
+        console.warn('No chart data available');
+        return;
+    }
 
     try {
-        this.renderPermohonanChart(data.charts.permohonan_line);
-        this.renderAnggaranChart(data.anggaran);
-        this.renderBebanKerjaChart(data.charts.beban_kerja);
-        this.renderGenderCharts(data.charts);
         
-        this.renderStatusHukumChart(data.charts.status_hukum);
-        this.renderTindakPidanaChart(data.charts.tindak_pidana);
-        this.renderMediaPengajuanChart(data.charts.media_pengajuan); // TAMBAH INI
-        this.renderPerlindunganComparisonChart(data.charts.perlindungan_comparison);
-        this.renderPerlindunganPermohonanChart(data.charts.perlindungan_permohonan);
-        this.renderPerlindunganLayananChart(data.charts.perlindungan_layanan);
+        const chartsData = data.charts;
+        
+        this.renderPermohonanChart(chartsData.permohonan_line || {});
+        this.renderAnggaranChart(data.anggaran || {});
+        this.renderBebanKerjaChart(chartsData.beban_kerja || {});
+        this.renderGenderCharts(chartsData);
+        
+        this.renderStatusHukumChart(chartsData.status_hukum || {});
+        this.renderTindakPidanaChart(chartsData.tindak_pidana || {});
+        this.renderMediaPengajuanChart(chartsData.media_pengajuan || {});
+        
+        // PERBAIKAN: Pastikan data perlindungan tidak null
+        this.renderPerlindunganComparisonChart(chartsData.perlindungan_comparison || {});
+        this.renderPerlindunganPermohonanChart(chartsData.perlindungan_permohonan || {});
+        this.renderPerlindunganLayananChart(chartsData.perlindungan_layanan || {});
     } catch (error) {
         console.error('Error rendering charts:', error);
         this.showError('Gagal memuat beberapa chart: ' + error.message);
@@ -1595,15 +1111,19 @@ renderMediaPengajuanDetail(chartData) {
         return;
     }
     
+    // Pastikan data tidak null
+    const safePermohonanData = permohonanData || { labels: [], data: [], total: 0 };
+    const safeLayananData = layananData || { labels: [], data: [], total: 0 };
+    
     // Update total counters
     const totalPermohonanElement = document.getElementById('total-gender-permohonan-text');
     const totalLayananElement = document.getElementById('total-gender-layanan-text');
     
     if (totalPermohonanElement) {
-        totalPermohonanElement.textContent = permohonanData.total ? permohonanData.total.toLocaleString('id-ID') : '0';
+        totalPermohonanElement.textContent = safePermohonanData.total ? safePermohonanData.total.toLocaleString('id-ID') : '0';
     }
     if (totalLayananElement) {
-        totalLayananElement.textContent = layananData.total ? layananData.total.toLocaleString('id-ID') : '0';
+        totalLayananElement.textContent = safeLayananData.total ? safeLayananData.total.toLocaleString('id-ID') : '0';
     }
     
     // Destroy existing chart
@@ -1618,14 +1138,18 @@ renderMediaPengajuanDetail(chartData) {
     }
     
     // Check if data is available
-    if (!permohonanData || !permohonanData.labels || permohonanData.labels.length === 0) {
+    if (!safePermohonanData.labels || safePermohonanData.labels.length === 0) {
         console.warn('No gender data available');
-        this.renderEmptyChart(ctx, 'Tidak ada data jenis kelamin');
+        this.renderEmptyCombinedChart(ctx);
         return;
     }
     
-    // Prepare data for combined chart
-    const labels = permohonanData.labels || ['Laki-laki', 'Perempuan'];
+    // Prepare data for combined chart - gunakan labels dari permohonan sebagai default
+    const labels = safePermohonanData.labels || ['Laki-laki', 'Perempuan'];
+    
+    // Pastikan data arrays ada
+    const permohonanDataArray = safePermohonanData.data || [0, 0];
+    const layananDataArray = safeLayananData.data || [0, 0];
     
     this.charts.genderCombined = new Chart(ctx, {
         type: 'bar',
@@ -1634,7 +1158,7 @@ renderMediaPengajuanDetail(chartData) {
             datasets: [
                 {
                     label: 'Permohonan',
-                    data: permohonanData.data || [0, 0],
+                    data: permohonanDataArray,
                     backgroundColor: 'rgba(59, 130, 246, 0.7)',
                     borderColor: 'rgba(59, 130, 246, 1)',
                     borderWidth: 2,
@@ -1644,7 +1168,7 @@ renderMediaPengajuanDetail(chartData) {
                 },
                 {
                     label: 'Layanan',
-                    data: layananData.data || [0, 0],
+                    data: layananDataArray,
                     backgroundColor: 'rgba(16, 185, 129, 0.7)',
                     borderColor: 'rgba(16, 185, 129, 1)',
                     borderWidth: 2,
@@ -1731,54 +1255,88 @@ renderMediaPengajuanDetail(chartData) {
             }
         }
     });
-  }
+}
+
+// Method helper untuk chart gabungan kosong
+renderEmptyCombinedChart(ctx) {
+    this.charts.genderCombined = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Tidak ada data'],
+            datasets: [
+                {
+                    label: 'Permohonan',
+                    data: [0],
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)'
+                },
+                {
+                    label: 'Layanan',
+                    data: [0],
+                    backgroundColor: 'rgba(16, 185, 129, 0.7)'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true },
+                tooltip: { enabled: false }
+            }
+        }
+    });
+}
+
 
   // Method untuk merender detail jenis kelamin
-  renderGenderDetail(containerId, chartData, color) {
-      const container = document.getElementById(containerId);
-      if (!container) return;
-      
-      let html = '';
-      
-      if (!chartData || !chartData.labels || chartData.labels.length === 0) {
-          html = '<div class="text-sm text-gray-500 dark:text-gray-400 text-center py-8">Tidak ada data</div>';
-      } else {
-          const total = chartData.total || 0;
-          const colorClass = color === 'blue' ? 
-              'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
-              'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300';
-          
-          chartData.labels.forEach((label, index) => {
-              const value = chartData.data[index] || 0;
-              const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-              
-              html += `
-                  <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800/50 rounded-xl">
-                      <div class="flex items-center space-x-3">
-                          <div class="w-3 h-3 rounded-full bg-${color}-500"></div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">${label}</span>
-                      </div>
-                      <div class="text-right">
-                          <div class="text-sm font-bold text-gray-800 dark:text-white">${value}</div>
-                          <div class="text-xs ${colorClass} px-2 py-1 rounded-full font-medium">${percentage}%</div>
-                      </div>
-                  </div>
-              `;
-          });
-          
-          // Summary
-          html += `
-              <div class="mt-3 p-3 bg-gradient-to-r from-${color}-50 to-${color}-100 dark:from-${color}-900/20 dark:to-${color}-800/20 rounded-xl">
-                  <div class="text-center">
-                      <div class="text-xs text-gray-500 dark:text-gray-400">Total</div>
-                      <div class="text-lg font-bold text-${color}-600 dark:text-${color}-400">${total.toLocaleString('id-ID')}</div>
-                  </div>
-              </div>
-          `;
-      }
-      
-      container.innerHTML = html;
-  }
+ renderGenderDetail(containerId, chartData, color) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    let html = '';
+    
+    // Pastikan data tidak null
+    const safeChartData = chartData || { labels: [], data: [], total: 0 };
+    
+    if (!safeChartData.labels || safeChartData.labels.length === 0) {
+        html = '<div class="text-sm text-gray-500 dark:text-gray-400 text-center py-8">Tidak ada data</div>';
+    } else {
+        const total = safeChartData.total || 0;
+        const colorClass = color === 'blue' ? 
+            'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
+            'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300';
+        
+        safeChartData.labels.forEach((label, index) => {
+            const value = safeChartData.data[index] || 0;
+            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+            
+            html += `
+                <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800/50 rounded-xl">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 rounded-full bg-${color}-500"></div>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">${label}</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-bold text-gray-800 dark:text-white">${value}</div>
+                        <div class="text-xs ${colorClass} px-2 py-1 rounded-full font-medium">${percentage}%</div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        // Summary
+        html += `
+            <div class="mt-3 p-3 bg-gradient-to-r from-${color}-50 to-${color}-100 dark:from-${color}-900/20 dark:to-${color}-800/20 rounded-xl">
+                <div class="text-center">
+                    <div class="text-xs text-gray-500 dark:text-gray-400">Total</div>
+                    <div class="text-lg font-bold text-${color}-600 dark:text-${color}-400">${total.toLocaleString('id-ID')}</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    container.innerHTML = html;
+}
 
 
   renderTindakPidanaChart(chartData) {
@@ -2228,7 +1786,8 @@ renderMediaPengajuanDetail(chartData) {
 
 
   // Method untuk merender chart jenis perlindungan permohonan sebagai PIE CHART
-  renderPerlindunganPermohonanChart(chartData) {
+  // Perbaiki method renderPerlindunganPermohonanChart
+renderPerlindunganPermohonanChart(chartData) {
     const ctx = document.getElementById('chartPerlindunganPermohonan');
     if (!ctx) return;
 
@@ -2244,136 +1803,151 @@ renderMediaPengajuanDetail(chartData) {
         loadingElement.style.display = 'none';
     }
 
+    // PERBAIKAN: Pastikan chartData tidak null dan memiliki struktur yang benar
+    const safeChartData = chartData || { 
+        sub_pilihan: [], 
+        kategori: [], 
+        data: [], 
+        total: 0 
+    };
+
     // Update total counter di header
     const totalHeaderElement = document.getElementById('total-perlindungan-permohonan');
     if (totalHeaderElement) {
-        totalHeaderElement.textContent = chartData.total ? chartData.total.toLocaleString('id-ID') : '0';
+        totalHeaderElement.textContent = safeChartData.total ? safeChartData.total.toLocaleString('id-ID') : '0';
     }
 
     // Check if data is available
-    if (!chartData || !chartData.sub_pilihan || chartData.sub_pilihan.length === 0) {
+    if (!safeChartData.sub_pilihan || safeChartData.sub_pilihan.length === 0) {
         this.renderEmptyPieChart(ctx, 'Tidak ada data permohonan');
-        this.renderPerlindunganPermohonanDetail([]);
+        this.renderPerlindunganPermohonanDetail(safeChartData);
         return;
     }
 
     try {
-
-    // Create PIE chart untuk permohonan
-    this.charts.perlindunganPermohonan = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: chartData.sub_pilihan || [],
-            datasets: [{
-                data: chartData.data || [],
-                backgroundColor: chartData.sub_pilihan.map((_, index) => 
-                    this.colors.primary[index % this.colors.primary.length]
-                ),
-                borderColor: '#ffffff',
-                borderWidth: 3,
-                hoverBorderWidth: 4,
-                hoverOffset: 15
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        usePointStyle: true,
-                        padding: 15,
-                        color: '#6B7280',
-                        font: {
-                            size: 11,
-                            weight: '600'
-                        },
-                        generateLabels: function(chart) {
-                            const data = chart.data;
-                            if (data.labels.length && data.datasets.length) {
-                                return data.labels.map((label, i) => {
-                                    const value = data.datasets[0].data[i];
-                                    const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                    
-                                    return {
-                                        text: `${label}: ${value}`,
-                                        fillStyle: data.datasets[0].backgroundColor[i],
-                                        strokeStyle: data.datasets[0].borderColor,
-                                        lineWidth: data.datasets[0].borderWidth,
-                                        pointStyle: 'circle',
-                                        hidden: false,
-                                        index: i
-                                    };
-                                });
+        // Create PIE chart untuk permohonan
+        this.charts.perlindunganPermohonan = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: safeChartData.sub_pilihan || [],
+                datasets: [{
+                    data: safeChartData.data || [],
+                    backgroundColor: (safeChartData.sub_pilihan || []).map((_, index) => 
+                        this.colors.primary[index % this.colors.primary.length]
+                    ),
+                    borderColor: '#ffffff',
+                    borderWidth: 3,
+                    hoverBorderWidth: 4,
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            color: '#6B7280',
+                            font: {
+                                size: 11,
+                                weight: '600'
+                            },
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => {
+                                        const value = data.datasets[0].data[i];
+                                        const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                        
+                                        return {
+                                            text: `${label}: ${value}`,
+                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                            strokeStyle: data.datasets[0].borderColor,
+                                            lineWidth: data.datasets[0].borderWidth,
+                                            pointStyle: 'circle',
+                                            hidden: false,
+                                            index: i
+                                        };
+                                    });
+                                }
+                                return [];
                             }
-                            return [];
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#374151',
+                        borderWidth: 2,
+                        cornerRadius: 12,
+                        displayColors: true,
+                        usePointStyle: true,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        padding: 12,
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return `${context.label}: ${value} permohonan (${percentage}%)`;
+                            }
                         }
                     }
                 },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                    titleColor: '#ffffff',
-                    bodyColor: '#ffffff',
-                    borderColor: '#374151',
-                    borderWidth: 2,
-                    cornerRadius: 12,
-                    displayColors: true,
-                    usePointStyle: true,
-                    titleFont: {
-                        size: 14,
-                        weight: 'bold'
-                    },
-                    bodyFont: {
-                        size: 13
-                    },
-                    padding: 12,
-                    callbacks: {
-                        label: function(context) {
-                            const value = context.raw || 0;
-                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                            return `${context.label}: ${value} permohonan (${percentage}%)`;
-                        }
-                    }
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 2000,
+                    easing: 'easeInOutQuart'
                 }
-            },
-            animation: {
-                animateRotate: true,
-                animateScale: true,
-                duration: 2000,
-                easing: 'easeInOutQuart'
             }
-        }
-    });
+        });
     } catch (error) {
         console.error('Error creating perlindunganPermohonan chart:', error);
         this.renderEmptyPieChart(ctx, 'Error loading chart');
     }
 
     // Render detail permohonan
-    this.renderPerlindunganPermohonanDetail(chartData);
-  }
+    this.renderPerlindunganPermohonanDetail(safeChartData);
+}
 
 
   // Method untuk merender detail jenis perlindungan permohonan
-  renderPerlindunganPermohonanDetail(chartData) {
+ renderPerlindunganPermohonanDetail(chartData) {
     const container = document.getElementById('perlindungan-permohonan-detail');
     if (!container) return;
 
     let html = '';
 
-    if (!chartData.sub_pilihan || chartData.sub_pilihan.length === 0) {
+    // PERBAIKAN: Pastikan data tidak null
+    const safeChartData = chartData || { 
+        sub_pilihan: [], 
+        kategori: [], 
+        data: [], 
+        total: 0 
+    };
+
+    if (!safeChartData.sub_pilihan || safeChartData.sub_pilihan.length === 0) {
         html = '<div class="text-sm text-gray-500 dark:text-gray-400 text-center py-8">Tidak ada data jenis perlindungan</div>';
     } else {
-        const total = chartData.data.reduce((sum, val) => sum + val, 0);
+        const total = safeChartData.data.reduce((sum, val) => sum + (val || 0), 0);
         
         // Group by kategori
         const groupedByKategori = {};
-        chartData.sub_pilihan.forEach((subPilihan, index) => {
-            const kategori = chartData.kategori[index];
-            const jumlah = chartData.data[index];
+        safeChartData.sub_pilihan.forEach((subPilihan, index) => {
+            const kategori = safeChartData.kategori?.[index] || 'Tidak Diketahui';
+            const jumlah = safeChartData.data?.[index] || 0;
             
             if (!groupedByKategori[kategori]) {
                 groupedByKategori[kategori] = [];
@@ -2427,11 +2001,11 @@ renderMediaPengajuanDetail(chartData) {
                     </div>
                     <div>
                         <div class="text-xs text-gray-500 dark:text-gray-400">Jenis Perlindungan</div>
-                        <div class="text-sm font-bold text-blue-600 dark:text-blue-400">${chartData.sub_pilihan.length}</div>
+                        <div class="text-sm font-bold text-blue-600 dark:text-blue-400">${safeChartData.sub_pilihan.length}</div>
                     </div>
                     <div>
                         <div class="text-xs text-gray-500 dark:text-gray-400">Kategori</div>
-                        <div class="text-sm font-bold text-blue-600 dark:text-blue-400">${new Set(chartData.kategori).size}</div>
+                        <div class="text-sm font-bold text-blue-600 dark:text-blue-400">${Object.keys(groupedByKategori).length}</div>
                     </div>
                 </div>
             </div>
@@ -2439,7 +2013,7 @@ renderMediaPengajuanDetail(chartData) {
     }
 
     container.innerHTML = html;
-  }
+}
 
 
 
@@ -2702,7 +2276,7 @@ renderMediaPengajuanDetail(chartData) {
     this.charts.permohonan = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: chartData.labels || [],
+        labels: chartData.labels || [], // Labels dinamis dari API
         datasets: [
           {
             label: 'Permohonan',
@@ -3077,21 +2651,79 @@ renderMediaPengajuanDetail(chartData) {
   renderGenderCharts(chartsData) {
     if (!chartsData || !chartsData.gender_distribution) {
         console.warn('Gender distribution data not available');
+        this.renderEmptyGenderCharts();
         return;
     }
     
     const genderData = chartsData.gender_distribution;
     
+    // Pastikan data tidak null
+    const permohonanData = genderData.permohonan || { labels: [], data: [], total: 0 };
+    const layananData = genderData.layanan || { labels: [], data: [], total: 0 };
+    
     // Render chart gabungan
-    this.renderGenderCombinedChart(
-        genderData.permohonan,
-        genderData.layanan
-    );
+    this.renderGenderCombinedChart(permohonanData, layananData);
     
     // Render detail untuk masing-masing
-    this.renderGenderDetail('gender-permohonan-detail', genderData.permohonan, 'blue');
-    this.renderGenderDetail('gender-layanan-detail', genderData.layanan, 'green');
-  }
+    this.renderGenderDetail('gender-permohonan-detail', permohonanData, 'blue');
+    this.renderGenderDetail('gender-layanan-detail', layananData, 'green');
+}
+
+// Method untuk menangani chart gender kosong
+renderEmptyGenderCharts() {
+    const ctx = document.getElementById('chartGenderCombined');
+    if (!ctx) return;
+    
+    // Destroy existing chart
+    if (this.charts.genderCombined) {
+        this.charts.genderCombined.destroy();
+    }
+    
+    // Hide loading
+    const loadingElement = document.getElementById('loading-chart-gender-combined');
+    if (loadingElement) {
+        loadingElement.style.display = 'none';
+    }
+    
+    // Create empty chart
+    this.charts.genderCombined = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Tidak ada data'],
+            datasets: [
+                {
+                    label: 'Permohonan',
+                    data: [0],
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)'
+                },
+                {
+                    label: 'Layanan', 
+                    data: [0],
+                    backgroundColor: 'rgba(16, 185, 129, 0.7)'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true },
+                tooltip: { enabled: false }
+            }
+        }
+    });
+    
+    // Update total counters ke 0
+    const totalPermohonanElement = document.getElementById('total-gender-permohonan-text');
+    const totalLayananElement = document.getElementById('total-gender-layanan-text');
+    
+    if (totalPermohonanElement) totalPermohonanElement.textContent = '0';
+    if (totalLayananElement) totalLayananElement.textContent = '0';
+    
+    // Render empty details
+    this.renderGenderDetail('gender-permohonan-detail', { labels: [], data: [], total: 0 }, 'blue');
+    this.renderGenderDetail('gender-layanan-detail', { labels: [], data: [], total: 0 }, 'green');
+}
 
   renderBebanKerjaChart(chartData) {
     // Destroy existing chart
@@ -3204,7 +2836,10 @@ renderMediaPengajuanDetail(chartData) {
 
     let html = '';
 
-    if (aktivitasData.length === 0) {
+    // PERBAIKAN: Pastikan aktivitasData adalah array
+    const safeAktivitasData = Array.isArray(aktivitasData) ? aktivitasData : [];
+
+    if (safeAktivitasData.length === 0) {
         html = `
             <div class="col-span-3 text-center py-12 text-gray-500 dark:text-gray-400">
                 <div class="w-20 h-20 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
@@ -3215,7 +2850,7 @@ renderMediaPengajuanDetail(chartData) {
             </div>
         `;
     } else {
-        aktivitasData.forEach((aktivitas, index) => {
+        safeAktivitasData.forEach((aktivitas, index) => {
             const warnaKelas = {
                 'blue': 'from-blue-400 to-blue-600 text-white',
                 'green': 'from-green-400 to-green-600 text-white',
@@ -3256,7 +2891,6 @@ renderMediaPengajuanDetail(chartData) {
                                 <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center">
                                     <i class="fas fa-clock mr-1"></i>${aktivitas.waktu}
                                 </p>
-                                
                             </div>
                         </div>
                     </div>
@@ -3269,7 +2903,7 @@ renderMediaPengajuanDetail(chartData) {
     
     // Animate items
     setTimeout(() => {
-      const items = container.querySelectorAll('> div');
+      const items = container.children;
       items.forEach((item, index) => {
         setTimeout(() => {
           item.classList.add('animate-fade-in');
@@ -4229,8 +3863,8 @@ canvas {
 /* Map Tooltip Styles */
 .datamaps-hoverover {
     position: absolute !important;
-    z-index: 10001 !important; /* Ensure tooltips are on top */
-    pointer-events: none !important; /* Prevent interference */
+    z-index: 10001 !important; 
+    pointer-events: none !important; 
     background: rgba(255, 255, 255, 0.98) !important;
     backdrop-filter: blur(10px) !important;
     -webkit-backdrop-filter: blur(10px) !important;
@@ -4278,6 +3912,87 @@ canvas {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.15);
 }
+
+/* Custom date range styles */
+#customRangeContainer input[type="date"] {
+    border-bottom: 1px solid #d1d5db;
+    padding: 2px 4px;
+}
+
+#customRangeContainer input[type="date"]:focus {
+    outline: none;
+    border-bottom-color: #3b82f6;
+}
+
+.dark #customRangeContainer input[type="date"] {
+    border-bottom-color: #4b5563;
+    color: #e5e7eb;
+}
+
+.dark #customRangeContainer input[type="date"]:focus {
+    border-bottom-color: #60a5fa;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    #customRangeContainer .flex {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    #customRangeContainer .pt-4 {
+        padding-top: 0;
+    }
+}
+
+
+/* Enhanced Filter Styles */
+.filter-container {
+  transition: all 0.3s ease-in-out;
+}
+
+.filter-select {
+  transition: all 0.2s ease;
+}
+
+.filter-select:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+}
+
+.quick-filter-btn {
+  transition: all 0.2s ease;
+}
+
+.quick-filter-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .filter-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  .filter-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Dark mode enhancements */
+.dark .filter-select {
+  background: rgba(55, 65, 81, 0.5);
+  border-color: rgba(75, 85, 99, 0.5);
+}
+
+.dark .filter-select:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+
 </style>
 
 <?php require __DIR__ . '/../inc/layout_footer.php'; ?>
