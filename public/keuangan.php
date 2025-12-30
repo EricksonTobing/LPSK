@@ -92,11 +92,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $jumlah = $_POST['jumlah'] ?? '';
                 $tanggal = $_POST['tanggal'] ?? '';
                 $kode_mak = $_POST['kode_mak'] ?? '';
+                $pembayaran = $_POST['pembayaran'] ?? null;
+                $id_pegawai = $_POST['id_pegawai'] ?? null;
                 $keterangan = trim($_POST['keterangan'] ?? '');
                 
-                if (!empty($nomor_kuintasi) && !empty($kode_anggaran) && !empty($tahun) && !empty($jumlah) && !empty($tanggal) && !empty($kode_mak)) {
-                    $stmt = db()->prepare("INSERT INTO pengeluaran (nomor_kuintasi, kode_anggaran, tahun, jumlah, tanggal, kode_mak, keterangan) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                    $stmt->execute([$nomor_kuintasi, $kode_anggaran, $tahun, $jumlah, $tanggal, $kode_mak, $keterangan]);
+                if (!empty($nomor_kuintasi) && !empty($kode_anggaran) && !empty($tahun) && !empty($jumlah) && !empty($tanggal) && !empty($kode_mak) && !empty($pembayaran) && !empty($id_pegawai)) {
+                    $stmt = db()->prepare("INSERT INTO pengeluaran (nomor_kuintasi, kode_anggaran, tahun, jumlah, tanggal, kode_mak, pembayaran, id_pegawai, keterangan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([$nomor_kuintasi, $kode_anggaran, $tahun, $jumlah, $tanggal, $kode_mak, $pembayaran, $id_pegawai, $keterangan]);
                     $_SESSION['success'] = "Data pengeluaran berhasil ditambahkan";
                 } else {
                     $_SESSION['error'] = "Semua field wajib harus diisi";
@@ -110,11 +112,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $jumlah = $_POST['jumlah'] ?? '';
                 $tanggal = $_POST['tanggal'] ?? '';
                 $kode_mak = $_POST['kode_mak'] ?? '';
+                $pembayaran = $_POST['pembayaran'] ?? null;
+                $id_pegawai = $_POST['id_pegawai'] ?? null;
                 $keterangan = trim($_POST['keterangan'] ?? '');
                 
-                if (!empty($nomor_kuintasi) && !empty($kode_anggaran) && !empty($tahun) && !empty($jumlah) && !empty($tanggal) && !empty($kode_mak)) {
-                    $stmt = db()->prepare("UPDATE pengeluaran SET kode_anggaran = ?, tahun = ?, jumlah = ?, tanggal = ?, kode_mak = ?, keterangan = ? WHERE nomor_kuintasi = ?");
-                    $stmt->execute([$kode_anggaran, $tahun, $jumlah, $tanggal, $kode_mak, $keterangan, $nomor_kuintasi]);
+                if (!empty($nomor_kuintasi) && !empty($kode_anggaran) && !empty($tahun) && !empty($jumlah) && !empty($tanggal) && !empty($kode_mak) && !empty($pembayaran) && !empty($id_pegawai)) {
+                    $stmt = db()->prepare("UPDATE pengeluaran SET kode_anggaran = ?, tahun = ?, jumlah = ?, tanggal = ?, kode_mak = ?, pembayaran = ?, id_pegawai = ?, keterangan = ? WHERE nomor_kuintasi = ?");
+                    $stmt->execute([$kode_anggaran, $tahun, $jumlah, $tanggal, $kode_mak, $pembayaran, $id_pegawai, $keterangan, $nomor_kuintasi]);
                     $_SESSION['success'] = "Data pengeluaran berhasil diperbarui";
                 } else {
                     $_SESSION['error'] = "Semua field wajib harus diisi";
@@ -191,23 +195,25 @@ $params = [];
 // Query berdasarkan tab aktif
 if ($active_tab === 'pengeluaran') {
     // Query untuk pengeluaran - perbaikan sesuai dengan struktur tabel
-    $sql = "SELECT p.*, a.nama_anggaran, m.nama_mak
+    $sql = "SELECT p.*, a.nama_anggaran, m.nama_mak, pg.nama_pegawai
             FROM pengeluaran p
             LEFT JOIN anggaran a ON a.kode_anggaran = p.kode_anggaran AND a.tahun = p.tahun
-            LEFT JOIN mak m ON m.kode_mak = p.kode_mak";
+            LEFT JOIN mak m ON m.kode_mak = p.kode_mak
+            LEFT JOIN pegawai pg ON pg.id_pegawai = p.id_pegawai";
 
     $count_sql = "SELECT COUNT(*) FROM pengeluaran p 
                   LEFT JOIN anggaran a ON a.kode_anggaran = p.kode_anggaran AND a.tahun = p.tahun
-                  LEFT JOIN mak m ON m.kode_mak = p.kode_mak";
+                  LEFT JOIN mak m ON m.kode_mak = p.kode_mak
+                  LEFT JOIN pegawai pg ON pg.id_pegawai = p.id_pegawai";
     
     $params = [];
     $where_clauses = [];
 
     // Handle pencarian untuk pengeluaran
     if ($q) {
-        $where_clauses[] = "(p.nomor_kuintasi LIKE ? OR p.kode_anggaran LIKE ? OR a.nama_anggaran LIKE ? OR p.keterangan LIKE ? OR m.nama_mak LIKE ?)";
+        $where_clauses[] = "(p.nomor_kuintasi LIKE ? OR p.kode_anggaran LIKE ? OR a.nama_anggaran LIKE ? OR p.keterangan LIKE ? OR m.nama_mak LIKE ? OR pg.nama_pegawai LIKE ?)";
         $search_param = "%$q%";
-        $params = array_fill(0, 5, $search_param);
+        $params = array_fill(0, 6, $search_param);
     }
 
     // Filter tahun untuk pengeluaran
@@ -239,22 +245,24 @@ if ($active_tab === 'pengeluaran') {
 
 } else {
     // Query default (keuangan) - tetap menggunakan pengeluaran untuk ringkasan
-    $sql = "SELECT p.*, a.nama_anggaran, m.nama_mak
+    $sql = "SELECT p.*, a.nama_anggaran, m.nama_mak, pg.nama_pegawai
             FROM pengeluaran p
             LEFT JOIN anggaran a ON a.kode_anggaran = p.kode_anggaran AND a.tahun = p.tahun
-            LEFT JOIN mak m ON m.kode_mak = p.kode_mak";
+            LEFT JOIN mak m ON m.kode_mak = p.kode_mak
+            LEFT JOIN pegawai pg ON pg.id_pegawai = p.id_pegawai";
 
     $count_sql = "SELECT COUNT(*) FROM pengeluaran p 
                   LEFT JOIN anggaran a ON a.kode_anggaran = p.kode_anggaran AND a.tahun = p.tahun
-                  LEFT JOIN mak m ON m.kode_mak = p.kode_mak";
+                  LEFT JOIN mak m ON m.kode_mak = p.kode_mak
+                  LEFT JOIN pegawai pg ON pg.id_pegawai = p.id_pegawai";
     
     $params = [];
     $where_clauses = [];
 
     if ($q) {
-        $where_clauses[] = "(p.nomor_kuintasi LIKE ? OR p.kode_anggaran LIKE ? OR a.nama_anggaran LIKE ? OR p.keterangan LIKE ? OR m.nama_mak LIKE ?)";
+        $where_clauses[] = "(p.nomor_kuintasi LIKE ? OR p.kode_anggaran LIKE ? OR a.nama_anggaran LIKE ? OR p.keterangan LIKE ? OR m.nama_mak LIKE ? OR pg.nama_pegawai LIKE ?)";
         $search_param = "%$q%";
-        $params = array_fill(0, 5, $search_param);
+        $params = array_fill(0, 6, $search_param);
     }
 
     // Filter tahun untuk ringkasan keuangan
@@ -342,6 +350,10 @@ if ($active_tab === 'pengeluaran' || (auth_user()['role'] ?? '') === 'admin') {
     
     $mak_stmt = db()->query("SELECT kode_mak, nama_mak FROM mak ORDER BY nama_mak");
     $mak_options = $mak_stmt->fetchAll();
+
+    // Ambil data pegawai untuk dropdown
+    $pegawai_stmt = db()->query("SELECT id_pegawai, nama_pegawai FROM pegawai WHERE aktif = 1 ORDER BY nama_pegawai");
+    $pegawai_options = $pegawai_stmt->fetchAll();
 }
 
 // Ambil daftar tahun untuk filter - hanya tahun yang ada data di database
@@ -526,6 +538,8 @@ if (isset($_GET['edit']) && $_GET['edit']) {
                             <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Tahun</th>
                             <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Kode MAK</th>
                             <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Nama MAK</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Pengaju</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Pembayaran</th>
                             <th class="p-3 text-right font-semibold text-gray-900 dark:text-gray-100">Jumlah</th>
                             <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Keterangan</th>
                             <?php if ((auth_user()['role'] ?? '') === 'admin'): ?>
@@ -547,6 +561,8 @@ if (isset($_GET['edit']) && $_GET['edit']) {
                             <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Tahun</th>
                             <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Kode MAK</th>
                             <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Nama MAK</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Pengaju</th>
+                            <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Pembayaran</th>
                             <th class="p-3 text-right font-semibold text-gray-900 dark:text-gray-100">Jumlah</th>
                             <th class="p-3 text-left font-semibold text-gray-900 dark:text-gray-100">Keterangan</th>
                         <?php endif; ?>
@@ -556,15 +572,24 @@ if (isset($_GET['edit']) && $_GET['edit']) {
                     <?php foreach ($rows as $r): ?>
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                             <?php if ($active_tab === 'pengeluaran'): ?>
-                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['tanggal']) ?></td>
-                                <td class="p-3 font-medium text-gray-900 dark:text-gray-100"><?= e($r['nomor_kuintasi']) ?></td>
-                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['kode_anggaran']) ?></td>
-                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['nama_anggaran']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100 whitespace-nowrap"><?= e($r['tanggal']) ?></td>
+                                <td class="p-3 font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap"><?= e($r['nomor_kuintasi']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100 whitespace-nowrap"><?= e($r['kode_anggaran']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100 max-w-[200px] truncate" title="<?= e($r['nama_anggaran']) ?>"><?= e($r['nama_anggaran']) ?></td>
                                 <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['tahun']) ?></td>
-                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['kode_mak']) ?></td>
-                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['nama_mak'] ?? '') ?></td>
-                                <td class="p-3 text-right font-medium text-gray-900 dark:text-gray-100">Rp <?= number_format((float)$r['jumlah'], 0, ',', '.') ?></td>
-                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['keterangan']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100 whitespace-nowrap"><?= e($r['kode_mak']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100 max-w-[200px] truncate" title="<?= e($r['nama_mak'] ?? '') ?>"><?= e($r['nama_mak'] ?? '') ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100 whitespace-nowrap"><?= e($r['nama_pegawai'] ?? '-') ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                        <?= ($r['pembayaran'] == 'UP' ? 'bg-blue-100 text-blue-800' : 
+                                           ($r['pembayaran'] == 'LS' ? 'bg-green-100 text-green-800' : 
+                                           ($r['pembayaran'] == 'TUP' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'))) ?>">
+                                        <?= e($r['pembayaran'] ?? '-') ?>
+                                    </span>
+                                </td>
+                                <td class="p-3 text-right font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">Rp <?= number_format((float)$r['jumlah'], 0, ',', '.') ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100 max-w-[250px] truncate" title="<?= e($r['keterangan']) ?>"><?= e($r['keterangan']) ?></td>
                                 <?php if ((auth_user()['role'] ?? '') === 'admin'): ?>
                                     <td class="p-3 text-center">
                                         <div class="flex justify-center gap-1">
@@ -612,13 +637,22 @@ if (isset($_GET['edit']) && $_GET['edit']) {
                                     </td>
                                 <?php endif; ?>
                             <?php else: ?>
-                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['tanggal']) ?></td>
-                                <td class="p-3 font-medium text-gray-900 dark:text-gray-100"><?= e($r['nomor_kuintasi']) ?></td>
-                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['kode_anggaran']) ?></td>
-                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['nama_anggaran']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100 whitespace-nowrap"><?= e($r['tanggal']) ?></td>
+                                <td class="p-3 font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap"><?= e($r['nomor_kuintasi']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100 whitespace-nowrap"><?= e($r['kode_anggaran']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100 max-w-[200px] truncate" title="<?= e($r['nama_anggaran']) ?>"><?= e($r['nama_anggaran']) ?></td>
                                 <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['tahun']) ?></td>
-                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['kode_mak']) ?></td>
-                                <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['nama_mak'] ?? '') ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100 whitespace-nowrap"><?= e($r['kode_mak']) ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100 max-w-[200px] truncate" title="<?= e($r['nama_mak'] ?? '') ?>"><?= e($r['nama_mak'] ?? '') ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100 whitespace-nowrap"><?= e($r['nama_pegawai'] ?? '-') ?></td>
+                                <td class="p-3 text-gray-900 dark:text-gray-100">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                        <?= ($r['pembayaran'] == 'UP' ? 'bg-blue-100 text-blue-800' : 
+                                           ($r['pembayaran'] == 'LS' ? 'bg-green-100 text-green-800' : 
+                                           ($r['pembayaran'] == 'TUP' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'))) ?>">
+                                        <?= e($r['pembayaran'] ?? '-') ?>
+                                    </span>
+                                </td>
                                 <td class="p-3 text-right font-medium text-gray-900 dark:text-gray-100">Rp <?= number_format((float)$r['jumlah'], 0, ',', '.') ?></td>
                                 <td class="p-3 text-gray-900 dark:text-gray-100"><?= e($r['keterangan']) ?></td>
                             <?php endif; ?>
@@ -693,7 +727,7 @@ if (isset($_GET['edit']) && $_GET['edit']) {
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <form method="POST" class="p-4 space-y-4">
+        <form method="POST" class="p-6 space-y-6">
             <?= csrf_field() ?>
             <input type="hidden" name="<?= $edit_data ? 'edit_anggaran' : 'tambah_anggaran' ?>" value="1">
             
@@ -701,42 +735,64 @@ if (isset($_GET['edit']) && $_GET['edit']) {
                 <input type="hidden" name="kode_anggaran" value="<?= e($edit_data['kode_anggaran']) ?>">
                 <input type="hidden" name="tahun" value="<?= e($edit_data['tahun']) ?>">
             <?php else: ?>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kode Anggaran</label>
-                    <input type="text" name="kode_anggaran" required 
-                           class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                           value="<?= e($edit_data['kode_anggaran'] ?? '') ?>">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tahun</label>
-                    <input type="number" name="tahun" required min="2000" max="2100" 
-                           class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                           value="<?= e($edit_data['tahun'] ?? date('Y')) ?>">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="relative group">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                            <i class="fas fa-hashtag w-5 text-blue-500"></i> Kode Anggaran
+                            <i class="fas fa-info-circle ml-2 text-gray-400 text-xs cursor-help" title="Masukkan kode unik untuk anggaran ini"></i>
+                        </label>
+                        <input type="text" name="kode_anggaran" required 
+                               class="w-full pl-3 pr-3 text-sm border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all shadow-sm"
+                               placeholder="Contoh: DIPA-001"
+                               value="<?= e($edit_data['kode_anggaran'] ?? '') ?>">
+                    </div>
+                    <div class="relative group">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                            <i class="fas fa-calendar-alt w-5 text-blue-500"></i> Tahun
+                            <i class="fas fa-info-circle ml-2 text-gray-400 text-xs cursor-help" title="Tahun anggaran berlaku"></i>
+                        </label>
+                        <input type="number" name="tahun" required min="2000" max="2100" 
+                               class="w-full text-sm border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all shadow-sm"
+                               value="<?= e($edit_data['tahun'] ?? date('Y')) ?>">
+                    </div>
                 </div>
             <?php endif; ?>
             
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Anggaran</label>
+            <div class="relative group">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                    <i class="fas fa-file-invoice w-5 text-blue-500"></i> Nama Anggaran
+                    <i class="fas fa-info-circle ml-2 text-gray-400 text-xs cursor-help" title="Nama deskriptif untuk anggaran"></i>
+                </label>
                 <input type="text" name="nama_anggaran" required 
-                       class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       class="w-full text-sm border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all shadow-sm"
+                       placeholder="Masukkan nama anggaran"
                        value="<?= e($edit_data['nama_anggaran'] ?? '') ?>">
             </div>
             
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Total Anggaran</label>
-                <input type="number" name="total_anggaran" required step="0.01" 
-                       class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                       value="<?= e($edit_data['total_anggaran'] ?? '') ?>">
+            <div class="relative group">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                    <i class="fas fa-money-bill-wave w-5 text-green-500"></i> Total Anggaran
+                    <i class="fas fa-info-circle ml-2 text-gray-400 text-xs cursor-help" title="Jumlah total pagu anggaran"></i>
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span class="text-gray-500 sm:text-sm">Rp</span>
+                    </div>
+                    <input type="number" name="total_anggaran" required step="0.01" 
+                           class="w-full pl-10 text-sm border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all shadow-sm"
+                           placeholder="0"
+                           value="<?= e($edit_data['total_anggaran'] ?? '') ?>">
+                </div>
             </div>
             
-            <div class="flex justify-end gap-2 pt-4 border-t dark:border-gray-700">
+            <div class="flex justify-end gap-3 pt-6 border-t dark:border-gray-700 mt-6">
                 <button type="button" onclick="hideModal('anggaranModal')" 
-                        class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors">
+                        class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 transition-all">
                     Batal
                 </button>
                 <button type="submit" 
-                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                    <?= $edit_data ? 'Update' : 'Simpan' ?>
+                        class="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 transition-all shadow-md hover:shadow-lg">
+                    <i class="fas fa-save mr-2"></i> <?= $edit_data ? 'Update' : 'Simpan' ?>
                 </button>
             </div>
         </form>
@@ -752,91 +808,159 @@ if (isset($_GET['edit']) && $_GET['edit']) {
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <form method="POST" class="p-4 space-y-3">
+        <form method="POST" class="p-6 space-y-4">
             <?= csrf_field() ?>
             <input type="hidden" name="<?= $edit_data ? 'edit_pengeluaran' : 'tambah_pengeluaran' ?>" value="1">
             
-            <?php if ($edit_data): ?>
-                <input type="hidden" name="nomor_kuintasi" value="<?= e($edit_data['nomor_kuintasi']) ?>">
-            <?php else: ?>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <?php if ($edit_data): ?>
+                    <input type="hidden" name="nomor_kuintasi" value="<?= e($edit_data['nomor_kuintasi']) ?>">
+                    <div class="md:col-span-2 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <span class="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">No. Kuitansi</span>
+                        <p class="text-sm font-mono font-medium text-gray-800 dark:text-gray-200"><?= e($edit_data['nomor_kuintasi']) ?></p>
+                    </div>
+                <?php else: ?>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                            <i class="fas fa-receipt w-5 text-blue-500"></i> Nomor Kuitansi
+                            <i class="fas fa-info-circle ml-2 text-gray-400 text-xs cursor-help" title="Nomor unik untuk bukti pengeluaran"></i>
+                        </label>
+                        <input type="text" name="nomor_kuintasi" required 
+                               class="w-full text-sm border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all shadow-sm"
+                               placeholder="Contoh: K-2023001"
+                               value="<?= e($edit_data['nomor_kuintasi'] ?? '') ?>">
+                    </div>
+                <?php endif; ?>
+                
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nomor Kuitansi</label>
-                    <input type="text" name="nomor_kuintasi" required 
-                           class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                           value="<?= e($edit_data['nomor_kuintasi'] ?? '') ?>">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                        <i class="fas fa-calendar-day w-5 text-blue-500"></i> Tanggal
+                        <i class="fas fa-info-circle ml-2 text-gray-400 text-xs cursor-help" title="Tanggal transaksi dilakukan"></i>
+                    </label>
+                    <input type="date" name="tanggal" required 
+                           class="w-full text-sm border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all shadow-sm"
+                           value="<?= e($edit_data['tanggal'] ?? date('Y-m-d')) ?>">
                 </div>
-            <?php endif; ?>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
                 <div>
-    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kode Anggaran</label>
-    <select name="kode_anggaran" required 
-            class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-            id="kode_anggaran_select">
-        <option value="">Pilih Kode Anggaran</option>
-        <?php foreach ($anggaran_options as $opt): ?>
-            <option value="<?= e($opt['kode_anggaran']) ?>" 
-                    data-tahun="<?= e($opt['tahun']) ?>"
-                    <?= ($edit_data['kode_anggaran'] ?? '') == $opt['kode_anggaran'] && ($edit_data['tahun'] ?? '') == $opt['tahun'] ? 'selected' : '' ?>>
-                <?= e($opt['kode_anggaran']) ?> - <?= e($opt['nama_anggaran']) ?> (<?= e($opt['tahun']) ?>)
-            </option>
-        <?php endforeach; ?>
-    </select>
-</div>          
-                <!-- TAMBAHKAN INPUT HIDDEN UNTUK TAHUN -->
-<input type="hidden" name="tahun" id="tahun_hidden" value="<?= e($edit_data['tahun'] ?? '') ?>">
-<!-- TAMBAHKAN FIELD TAHUN UNTUK DISPLAY SAJA -->
-<div>
-    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tahun</label>
-    <input type="text" id="tahun_display" readonly 
-           class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-gray-100 dark:bg-gray-700 dark:text-white"
-           value="<?= e($edit_data['tahun'] ?? '') ?>">
-</div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                        <i class="fas fa-money-bill-wave w-5 text-green-500"></i> Jumlah
+                        <i class="fas fa-info-circle ml-2 text-gray-400 text-xs cursor-help" title="Nominal pengeluaran"></i>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-xs">Rp</span>
+                        </div>
+                        <input type="number" name="jumlah" required step="0.01" 
+                               class="w-full pl-8 text-sm border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all shadow-sm"
+                               placeholder="0"
+                               value="<?= e($edit_data['jumlah'] ?? '') ?>">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-700/30 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                        <i class="fas fa-project-diagram w-5 text-purple-500"></i> Sumber Anggaran
+                        <i class="fas fa-info-circle ml-2 text-gray-400 text-xs cursor-help" title="Pilih anggaran sumber dana"></i>
+                    </label>
+                    <select name="kode_anggaran" required 
+                            class="w-full text-sm border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all shadow-sm"
+                            id="kode_anggaran_select">
+                        <option value="">Pilih Kode Anggaran</option>
+                        <?php foreach ($anggaran_options as $opt): ?>
+                            <option value="<?= e($opt['kode_anggaran']) ?>" 
+                                    data-tahun="<?= e($opt['tahun']) ?>"
+                                    <?= ($edit_data['kode_anggaran'] ?? '') == $opt['kode_anggaran'] && ($edit_data['tahun'] ?? '') == $opt['tahun'] ? 'selected' : '' ?>>
+                                <?= e($opt['kode_anggaran']) ?> - <?= e($opt['nama_anggaran']) ?> (<?= e($opt['tahun']) ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    
+                    <input type="hidden" name="tahun" id="tahun_hidden" value="<?= e($edit_data['tahun'] ?? '') ?>">
+                </div>
+
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah</label>
-                    <input type="number" name="jumlah" required step="0.01" 
-                           class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                           value="<?= e($edit_data['jumlah'] ?? '') ?>">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                        <i class="fas fa-calendar-check w-5 text-gray-500"></i> Tahun Anggaran
+                    </label>
+                    <input type="text" id="tahun_display" readonly 
+                           class="w-full text-sm border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-600 text-gray-500 cursor-not-allowed"
+                           value="<?= e($edit_data['tahun'] ?? '') ?>"
+                           placeholder="Otomatis">
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tanggal</label>
-                    <input type="date" name="tanggal" required 
-                           class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                           value="<?= e($edit_data['tanggal'] ?? date('Y-m-d')) ?>">
+                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                        <i class="fas fa-wallet w-5 text-yellow-600"></i> Jenis Bayar
+                        <i class="fas fa-info-circle ml-2 text-gray-400 text-xs cursor-help" title="Metode pembayaran"></i>
+                    </label>
+                    <select name="pembayaran" required
+                            class="w-full text-sm border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all shadow-sm">
+                        <option value="">Pilih Jenis</option>
+                        <option value="UP" <?= ($edit_data['pembayaran'] ?? '') == 'UP' ? 'selected' : '' ?>>UP</option>
+                        <option value="LS" <?= ($edit_data['pembayaran'] ?? '') == 'LS' ? 'selected' : '' ?>>LS</option>
+                        <option value="TUP" <?= ($edit_data['pembayaran'] ?? '') == 'TUP' ? 'selected' : '' ?>>TUP</option>
+                        <option value="KKP" <?= ($edit_data['pembayaran'] ?? '') == 'KKP' ? 'selected' : '' ?>>KKP</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                        <i class="fas fa-code-branch w-5 text-indigo-500"></i> Kode MAK
+                        <i class="fas fa-info-circle ml-2 text-gray-400 text-xs cursor-help" title="Mata Anggaran Kegiatan"></i>
+                    </label>
+                    <select name="kode_mak" required 
+                            class="w-full text-sm border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all shadow-sm">
+                        <option value="">Pilih Kode MAK</option>
+                        <?php foreach ($mak_options as $opt): ?>
+                            <option value="<?= e($opt['kode_mak']) ?>" 
+                                    <?= ($edit_data['kode_mak'] ?? '') == $opt['kode_mak'] ? 'selected' : '' ?>>
+                                <?= e($opt['kode_mak']) ?> - <?= e($opt['nama_mak']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                
+                 <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                        <i class="fas fa-user-circle w-5 text-gray-600"></i> Pengaju
+                        <i class="fas fa-info-circle ml-2 text-gray-400 text-xs cursor-help" title="Pegawai yang mengajukan"></i>
+                    </label>
+                    <select name="id_pegawai" required 
+                            class="w-full text-sm border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all shadow-sm">
+                        <option value="">Pilih Pegawai</option>
+                        <?php foreach ($pegawai_options as $pg): ?>
+                            <option value="<?= e($pg['id_pegawai']) ?>" 
+                                    <?= ($edit_data['id_pegawai'] ?? '') == $pg['id_pegawai'] ? 'selected' : '' ?>>
+                                <?= e($pg['nama_pegawai']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
             </div>
             
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kode MAK</label>
-                <select name="kode_mak" required 
-                        class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                    <option value="">Pilih Kode MAK</option>
-                    <?php foreach ($mak_options as $opt): ?>
-                        <option value="<?= e($opt['kode_mak']) ?>" 
-                                <?= ($edit_data['kode_mak'] ?? '') == $opt['kode_mak'] ? 'selected' : '' ?>>
-                            <?= e($opt['kode_mak']) ?> - <?= e($opt['nama_mak']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                    <i class="fas fa-align-left w-5 text-gray-400"></i> Keterangan
+                    <i class="fas fa-info-circle ml-2 text-gray-400 text-xs cursor-help" title="Detail tambahan transaksi"></i>
+                </label>
+                <textarea name="keterangan" rows="3"
+                          class="w-full text-sm border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all shadow-sm"
+                          placeholder="Masukkan keterangan pengeluaran..."><?= e($edit_data['keterangan'] ?? '') ?></textarea>
             </div>
             
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Keterangan</label>
-                <textarea name="keterangan" rows="2"
-                          class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"><?= e($edit_data['keterangan'] ?? '') ?></textarea>
-            </div>
-            
-            <div class="flex justify-end gap-2 pt-4 border-t dark:border-gray-700">
+            <div class="flex justify-end gap-3 pt-6 border-t dark:border-gray-700 mt-6">
                 <button type="button" onclick="hideModal('pengeluaranModal')" 
-                        class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors">
+                        class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 transition-all">
                     Batal
                 </button>
                 <button type="submit" 
-                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                    <?= $edit_data ? 'Update' : 'Simpan' ?>
+                        class="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 transition-all shadow-md hover:shadow-lg">
+                    <i class="fas fa-save mr-2"></i> <?= $edit_data ? 'Update' : 'Simpan' ?>
                 </button>
             </div>
         </form>

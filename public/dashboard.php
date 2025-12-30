@@ -73,6 +73,7 @@ require __DIR__ . '/../inc/layout_nav.php';
     
     </div>
 </div>
+</div>
 
 
 <!-- Load external libraries -->
@@ -480,8 +481,40 @@ class DashboardManager {
             this.updateFilterIndicator();
         });
     }
+    const filterJenisStatus = document.getElementById('filter-jenis-status');
+if (filterJenisStatus) {
+    filterJenisStatus.addEventListener('change', () => {
+        if (this.lastData) {
+            const jenisStatus = filterJenisStatus.value;
+            // Panggil updateStatusHukumUI untuk update judul
+            if (jenisStatus === 'penelaahan') {
+                this.updateStatusHukumUI(this.lastData.charts.status_hukum_penelaahan || {}, 'penelaahan');
+                this.renderStatusHukumChart(this.lastData.charts.status_hukum_penelaahan || {});
+            } else {
+                this.updateStatusHukumUI(this.lastData.charts.status_hukum || {}, 'permohonan');
+                this.renderStatusHukumChart(this.lastData.charts.status_hukum || {});
+            }
+        }
+    });
+}
   }
 
+setupMediaPengajuanFilter() {
+    const filterJenisMedia = document.getElementById('filter-jenis-media');
+    if (filterJenisMedia) {
+        filterJenisMedia.addEventListener('change', () => {
+            if (this.lastData) {
+                const jenisMedia = filterJenisMedia.value;
+                this.updateMediaPengajuanUI(jenisMedia);
+                this.renderMediaPengajuanChart(
+                    jenisMedia === 'penelaahan' 
+                        ? this.lastData.charts.media_pengajuan_penelaahan || {} 
+                        : this.lastData.charts.media_pengajuan || {}
+                );
+            }
+        });
+    }
+}
 
 //   updateFilterVisibility() {
 //     const dateRangeFilter = document.getElementById('dateRangeFilter');
@@ -717,6 +750,15 @@ class DashboardManager {
         
         this.updateStatsCards(data.counts);
         this.renderCharts(data);
+        // Inisialisasi judul status hukum saat pertama kali load
+const initialJenisStatus = document.getElementById('filter-jenis-status')?.value || 'permohonan';
+if (data.charts) {
+    if (initialJenisStatus === 'penelaahan') {
+        this.updateStatusHukumUI(data.charts.status_hukum_penelaahan || {}, 'penelaahan');
+    } else {
+        this.updateStatusHukumUI(data.charts.status_hukum || {}, 'permohonan');
+    }
+}
         this.renderMap(data.map);
         this.renderAktivitasTerbaru(data.aktivitas_terbaru);
         this.updateTimestamp();
@@ -876,14 +918,13 @@ class DashboardManager {
     }
   }
 
-  renderCharts(data) {
+ renderCharts(data) {
     if (!data || !data.charts) {
         console.warn('No chart data available');
         return;
     }
 
     try {
-        
         const chartsData = data.charts;
         
         this.renderPermohonanChart(chartsData.permohonan_line || {});
@@ -891,14 +932,31 @@ class DashboardManager {
         this.renderBebanKerjaChart(chartsData.beban_kerja || {});
         this.renderGenderCharts(chartsData);
         
-        this.renderStatusHukumChart(chartsData.status_hukum || {});
-        this.renderTindakPidanaChart(chartsData.tindak_pidana || {});
-        this.renderMediaPengajuanChart(chartsData.media_pengajuan || {});
         
-        // PERBAIKAN: Pastikan data perlindungan tidak null
+        const jenisStatus = document.getElementById('filter-jenis-status')?.value || 'permohonan';
+        if (jenisStatus === 'penelaahan') {
+            this.renderStatusHukumChart(chartsData.status_hukum_penelaahan || {});
+        } else {
+            this.renderStatusHukumChart(chartsData.status_hukum || {});
+        }
+        
+        this.renderTindakPidanaChart(chartsData.tindak_pidana || {});
+        
+        // PERBAIKAN: Setup filter media pengajuan dan render chart
+        this.setupMediaPengajuanFilter();
+        const jenisMedia = document.getElementById('filter-jenis-media')?.value || 'permohonan';
+        if (jenisMedia === 'penelaahan') {
+            this.updateMediaPengajuanUI('penelaahan');
+            this.renderMediaPengajuanChart(chartsData.media_pengajuan_penelaahan || {});
+        } else {
+            this.updateMediaPengajuanUI('permohonan');
+            this.renderMediaPengajuanChart(chartsData.media_pengajuan || {});
+        }
+        
         this.renderPerlindunganComparisonChart(chartsData.perlindungan_comparison || {});
         this.renderPerlindunganPermohonanChart(chartsData.perlindungan_permohonan || {});
         this.renderPerlindunganLayananChart(chartsData.perlindungan_layanan || {});
+        
     } catch (error) {
         console.error('Error rendering charts:', error);
         this.showError('Gagal memuat beberapa chart: ' + error.message);
@@ -925,10 +983,10 @@ renderMediaPengajuanChart(chartData) {
     }
 
     // Update total count
-    const totalElement = document.getElementById('total-media-pengajuan');
-    if (totalElement && chartData.total) {
-        totalElement.textContent = chartData.total.toLocaleString('id-ID');
-    }
+   const totalElement = document.getElementById('total-media-pengajuan');
+if (totalElement && chartData.total !== undefined) {
+    totalElement.textContent = chartData.total.toLocaleString('id-ID');
+}
 
     // Check if data is available
     if (!chartData || !chartData.labels || chartData.labels.length === 0) {
@@ -954,7 +1012,7 @@ renderMediaPengajuanChart(chartData) {
             }
         });
         
-        this.renderMediaPengajuanDetail([]);
+        this.renderMediaPengajuanDetail(chartData);
         return;
     }
 
@@ -1052,6 +1110,7 @@ renderMediaPengajuanChart(chartData) {
     this.renderMediaPengajuanDetail(chartData);
 }
 
+
 // Method untuk merender detail media pengajuan
 renderMediaPengajuanDetail(chartData) {
     const container = document.getElementById('media-pengajuan-detail');
@@ -1088,7 +1147,7 @@ renderMediaPengajuanDetail(chartData) {
             <div class="mt-4 p-4 bg-gradient-to-r from-cyan-50 to-cyan-100 dark:from-cyan-900/20 dark:to-cyan-800/20 rounded-xl">
                 <div class="grid grid-cols-2 gap-4 text-center">
                     <div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400">Total Permohonan</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">Total</div>
                         <div class="text-lg font-bold text-cyan-600 dark:text-cyan-400">${total.toLocaleString('id-ID')}</div>
                     </div>
                     <div>
@@ -1104,26 +1163,11 @@ renderMediaPengajuanDetail(chartData) {
 }
 
   // Method untuk merender chart gabungan jenis kelamin
-  renderGenderCombinedChart(permohonanData, layananData) {
+ renderGenderCombinedChart(permohonanData, penelaahanData, layananData) {
     const ctx = document.getElementById('chartGenderCombined');
     if (!ctx) {
         console.warn('Canvas chartGenderCombined tidak ditemukan');
         return;
-    }
-    
-    // Pastikan data tidak null
-    const safePermohonanData = permohonanData || { labels: [], data: [], total: 0 };
-    const safeLayananData = layananData || { labels: [], data: [], total: 0 };
-    
-    // Update total counters
-    const totalPermohonanElement = document.getElementById('total-gender-permohonan-text');
-    const totalLayananElement = document.getElementById('total-gender-layanan-text');
-    
-    if (totalPermohonanElement) {
-        totalPermohonanElement.textContent = safePermohonanData.total ? safePermohonanData.total.toLocaleString('id-ID') : '0';
-    }
-    if (totalLayananElement) {
-        totalLayananElement.textContent = safeLayananData.total ? safeLayananData.total.toLocaleString('id-ID') : '0';
     }
     
     // Destroy existing chart
@@ -1137,19 +1181,11 @@ renderMediaPengajuanDetail(chartData) {
         loadingElement.style.display = 'none';
     }
     
-    // Check if data is available
-    if (!safePermohonanData.labels || safePermohonanData.labels.length === 0) {
-        console.warn('No gender data available');
-        this.renderEmptyCombinedChart(ctx);
-        return;
-    }
-    
-    // Prepare data for combined chart - gunakan labels dari permohonan sebagai default
-    const labels = safePermohonanData.labels || ['Laki-laki', 'Perempuan'];
-    
     // Pastikan data arrays ada
-    const permohonanDataArray = safePermohonanData.data || [0, 0];
-    const layananDataArray = safeLayananData.data || [0, 0];
+    const labels = permohonanData.labels || ['Laki-laki', 'Perempuan'];
+    const permohonanArray = permohonanData.data || [0, 0];
+    const penelaahanArray = penelaahanData.data || [0, 0];
+    const layananArray = layananData.data || [0, 0];
     
     this.charts.genderCombined = new Chart(ctx, {
         type: 'bar',
@@ -1158,7 +1194,7 @@ renderMediaPengajuanDetail(chartData) {
             datasets: [
                 {
                     label: 'Permohonan',
-                    data: permohonanDataArray,
+                    data: permohonanArray,
                     backgroundColor: 'rgba(59, 130, 246, 0.7)',
                     borderColor: 'rgba(59, 130, 246, 1)',
                     borderWidth: 2,
@@ -1167,10 +1203,20 @@ renderMediaPengajuanDetail(chartData) {
                     categoryPercentage: 0.8
                 },
                 {
-                    label: 'Layanan',
-                    data: layananDataArray,
+                    label: 'Penelaahan',
+                    data: penelaahanArray,
                     backgroundColor: 'rgba(16, 185, 129, 0.7)',
                     borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    barPercentage: 0.4,
+                    categoryPercentage: 0.8
+                },
+                {
+                    label: 'Layanan',
+                    data: layananArray,
+                    backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                    borderColor: 'rgba(34, 197, 94, 1)',
                     borderWidth: 2,
                     borderRadius: 6,
                     barPercentage: 0.4,
@@ -1486,6 +1532,63 @@ renderEmptyCombinedChart(ctx) {
     });
   }
 
+  updateMediaPengajuanUI(jenisMedia) {
+    const title = jenisMedia === 'penelaahan' 
+        ? 'Media Pengajuan Pemohon (Penelaahan)' 
+        : 'Media Pengajuan Permohonan';
+    
+    const subtitle = jenisMedia === 'penelaahan'
+        ? 'Distribusi berdasarkan cara pengajuan yang telah melalui proses penelaahan'
+        : 'Distribusi berdasarkan cara pengajuan permohonan';
+    
+    const detailTitle = jenisMedia === 'penelaahan'
+        ? 'Detail Media Pengajuan Penelaahan'
+        : 'Detail Media Pengajuan Permohonan';
+    
+    const totalLabel = jenisMedia === 'penelaahan' ? 'permohonan' : 'permohonan';
+
+    // Update judul dan subtitle
+    const titleElement = document.getElementById('media-pengajuan-title');
+    const subtitleElement = document.getElementById('media-pengajuan-subtitle');
+    const detailTitleElement = document.getElementById('detail-media-pengajuan-title');
+    const totalElement = document.getElementById('total-media-pengajuan');
+    
+    if (titleElement) titleElement.textContent = title;
+    if (subtitleElement) subtitleElement.textContent = subtitle;
+    if (detailTitleElement) detailTitleElement.textContent = detailTitle;
+    
+    // Update total label
+    if (totalElement && totalElement.parentElement) {
+        totalElement.parentElement.innerHTML = `Total: <span id="total-media-pengajuan">${totalElement.textContent}</span> ${totalLabel}`;
+    }
+}
+
+
+
+  updateStatusHukumUI(chartData, jenisStatus) {
+    // Update judul berdasarkan jenis status
+    const title = jenisStatus === 'penelaahan' 
+        ? 'Status Hukum Pemohon (Penelaahan)' 
+        : 'Status Hukum Pemohon';
+    const subtitle = jenisStatus === 'penelaahan'
+        ? 'Distribusi status hukum pemohon yang telah melalui proses penelaahan'
+        : 'Distribusi berdasarkan status hukum dalam proses permohonan';
+
+    // PERBAIKAN: Gunakan selector yang tepat dengan ID yang sudah ditambahkan
+    const titleElement = document.getElementById('status-hukum-title');
+    const subtitleElement = document.getElementById('status-hukum-subtitle');
+    
+    if (titleElement) titleElement.textContent = title;
+    if (subtitleElement) subtitleElement.textContent = subtitle;
+
+    // Update total
+    const total = chartData.total || 0;
+    const totalElement = document.getElementById('total-status-hukum');
+    if (totalElement) {
+        totalElement.textContent = total.toLocaleString('id-ID');
+    }
+}
+
 
   renderStatusHukumChart(chartData) {
     const ctx = document.getElementById('chartStatusHukum');
@@ -1493,6 +1596,12 @@ renderEmptyCombinedChart(ctx) {
         console.error('Canvas chartStatusHukum tidak ditemukan');
         return;
     }
+
+    // Dapatkan jenis status dari dropdown
+    const jenisStatus = document.getElementById('filter-jenis-status')?.value || 'permohonan';
+    
+    // Update UI judul dan total SEBELUM membuat chart
+    this.updateStatusHukumUI(chartData, jenisStatus);
 
     // Destroy existing chart
     if (this.charts.statusHukum) {
@@ -1528,19 +1637,7 @@ renderEmptyCombinedChart(ctx) {
                 }
             }
         });
-        
-        // Update total count to 0
-        const totalElement = document.getElementById('total-status-hukum');
-        if (totalElement) {
-            totalElement.textContent = '0';
-        }
         return;
-    }
-
-    // Update total count
-    const totalElement = document.getElementById('total-status-hukum');
-    if (totalElement && chartData.total) {
-        totalElement.textContent = chartData.total.toLocaleString('id-ID');
     }
 
     // Create the chart - menggunakan pie chart untuk variasi
@@ -1632,8 +1729,9 @@ renderEmptyCombinedChart(ctx) {
             }
         }
     });
-  }
+}
 
+  
 
   // Method untuk merender chart perbandingan jenis perlindungan
   renderPerlindunganComparisonChart(chartData) {
@@ -2647,8 +2745,7 @@ renderPerlindunganPermohonanChart(chartData) {
   }
 
 
-  // Gantikan method renderGenderCharts dengan yang baru
-  renderGenderCharts(chartsData) {
+ renderGenderCharts(chartsData) {
     if (!chartsData || !chartsData.gender_distribution) {
         console.warn('Gender distribution data not available');
         this.renderEmptyGenderCharts();
@@ -2659,13 +2756,30 @@ renderPerlindunganPermohonanChart(chartData) {
     
     // Pastikan data tidak null
     const permohonanData = genderData.permohonan || { labels: [], data: [], total: 0 };
+    const penelaahanData = genderData.penelaahan || { labels: [], data: [], total: 0 };
     const layananData = genderData.layanan || { labels: [], data: [], total: 0 };
     
+    // Update total counters
+    const totalPermohonanElement = document.getElementById('total-gender-permohonan-text');
+    const totalPenelaahanElement = document.getElementById('total-gender-penelaahan-text');
+    const totalLayananElement = document.getElementById('total-gender-layanan-text');
+    
+    if (totalPermohonanElement) {
+        totalPermohonanElement.textContent = permohonanData.total ? permohonanData.total.toLocaleString('id-ID') : '0';
+    }
+    if (totalPenelaahanElement) {
+        totalPenelaahanElement.textContent = penelaahanData.total ? penelaahanData.total.toLocaleString('id-ID') : '0';
+    }
+    if (totalLayananElement) {
+        totalLayananElement.textContent = layananData.total ? layananData.total.toLocaleString('id-ID') : '0';
+    }
+    
     // Render chart gabungan
-    this.renderGenderCombinedChart(permohonanData, layananData);
+    this.renderGenderCombinedChart(permohonanData, penelaahanData, layananData);
     
     // Render detail untuk masing-masing
     this.renderGenderDetail('gender-permohonan-detail', permohonanData, 'blue');
+    this.renderGenderDetail('gender-penelaahan-detail', penelaahanData, 'emerald');
     this.renderGenderDetail('gender-layanan-detail', layananData, 'green');
 }
 
@@ -3402,7 +3516,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-/* Enhanced Custom Styles */
+    /* Enhanced Custom Styles */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 * {
@@ -3991,7 +4105,6 @@ canvas {
   border-color: #60a5fa;
   box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
 }
-
 
 </style>
 

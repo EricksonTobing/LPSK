@@ -105,6 +105,29 @@ if ($dateRangeType === 'year') {
     }
 }
 
+// --- Determine Granularity (Monthly vs Daily) ---
+$isDaily = false;
+if ($dateRangeType === 'month' && $selectedMonth) {
+    // If specific month is selected, show daily breakdown
+    $isDaily = true;
+    // Set start and end date for the month iteration
+    $startDate = date('Y-m-01', strtotime("$selectedYear-$selectedMonth-01"));
+    $endDate = date('Y-m-t', strtotime("$selectedYear-$selectedMonth-01"));
+} elseif ($dateRangeType === 'custom' && $startDate && $endDate) {
+    // If custom range is short (<= 60 days for comfortable daily view), show daily breakdown
+    $d1 = new DateTime($startDate);
+    $d2 = new DateTime($endDate);
+    $diff = $d1->diff($d2)->days;
+    if ($diff <= 60) {
+        $isDaily = true;
+    }
+}
+
+// SQL Group Format
+// Monthly: %Y-%m
+// Daily: %Y-%m-%d
+$sqlDateFormat = $isDaily ? '%Y-%m-%d' : '%Y-%m';
+
     // --- Update fungsi ymWhere untuk handle rentang kustom ---
 function ymWhere($field, $selectedYear, $selectedMonth = null, $startDate = null, $endDate = null, $dateRangeType = 'year') {
     if ($dateRangeType === 'custom' && $startDate && $endDate) {
@@ -193,7 +216,8 @@ $pengeluaranCount = getCount(
     ];
 
     // --- Fungsi untuk mengisi data bulanan ---
-   function fillMonthlySeries($rows, $selectedYear, $selectedMonth = null, $startDate = null, $endDate = null, $dateRangeType = 'year') {
+    // --- Fungsi umum untuk mengisi data series (Monthly/Daily) ---
+   function fillChartSeries($rows, $selectedYear, $selectedMonth = null, $startDate = null, $endDate = null, $dateRangeType = 'year', $isDaily = false) {
     $dataMap = [];
     
     // Mapping data dari database
@@ -203,20 +227,35 @@ $pengeluaranCount = getCount(
         }
     }
 
-    // Tentukan rentang bulan yang akan ditampilkan
-    if ($dateRangeType === 'custom' && $startDate && $endDate) {
-        // Untuk rentang kustom, generate bulan dalam rentang tersebut
+    $labels = [];
+    $data = [];
+
+    if ($isDaily && $startDate && $endDate) {
+        // Daily Iteration
+        $current = new DateTime($startDate);
+        $end = new DateTime($endDate);
+        
+        while ($current <= $end) {
+            $dateKey = $current->format('Y-m-d');
+            // Label format: "01 Jan"
+            $label = $current->format('d M');
+            
+            $labels[] = $label;
+            $data[] = $dataMap[$dateKey] ?? 0.0;
+            
+            $current->modify('+1 day');
+        }
+    } elseif ($dateRangeType === 'custom' && $startDate && $endDate) {
+        // Custom Range Monthly (Wide range)
         $start = DateTime::createFromFormat('Y-m-d', $startDate);
         $end = DateTime::createFromFormat('Y-m-d', $endDate);
-        $labels = [];
-        $data = [];
         
         $current = clone $start;
         $current->modify('first day of this month');
         
         while ($current <= $end) {
             $yearMonth = $current->format('Y-m');
-            $monthName = $current->format('M');
+            $monthName = $current->format('M Y');
             
             $labels[] = $monthName;
             $data[] = $dataMap[$yearMonth] ?? 0.0;
@@ -224,10 +263,8 @@ $pengeluaranCount = getCount(
             $current->modify('+1 month');
         }
         
-        return [$labels, $data];
-        
     } elseif (!is_null($selectedMonth)) {
-        // Untuk bulan tertentu, tampilkan hanya bulan tersebut
+        // Single Month view but NOT daily mode (e.g. data anomaly or very short month without dates? unlikely to hit this with current logic)
         $monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
         $yearMonth = $selectedYear . '-' . str_pad($selectedMonth, 2, '0', STR_PAD_LEFT);
         
@@ -237,10 +274,8 @@ $pengeluaranCount = getCount(
         ];
         
     } else {
-        // Untuk tahun, tampilkan 12 bulan seperti sebelumnya
+        // Yearly view (12 months)
         $monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-        $labels = [];
-        $data = [];
 
         for ($month = 1; $month <= 12; $month++) {
             $monthStr = str_pad($month, 2, '0', STR_PAD_LEFT);
@@ -249,80 +284,102 @@ $pengeluaranCount = getCount(
             $labels[] = $monthNames[$month - 1];
             $data[] = $dataMap[$yearMonth] ?? 0.0;
         }
-
-        return [$labels, $data];
     }
+    
+    return [$labels, $data];
 }
 
-    // --- Fungsi untuk mengambil data bulanan untuk chart ---
-    function fetchMonthlyData($pdo, $sqlBase, $selectedYear, $selectedMonth = null, $field = null, $startDate = null, $endDate = null, $dateRangeType = 'year') {
+    // --- Fungsi mengambil data chart (Monthly/Weekly) ---
+    function fetchChartData($pdo, $sqlBase, $selectedYear, $selectedMonth = null, $field = null, $startDate = null, $endDate = null, $dateRangeType = 'year', $sqlDateFormat = '%Y-%m') {
     try {
         if ($dateRangeType === 'custom') {
-            // Untuk rentang kustom, group by bulan dalam rentang tersebut
             $sql = $sqlBase . " WHERE $field BETWEEN ? AND ? 
-                    GROUP BY DATE_FORMAT($field, '%Y-%m') 
-                    ORDER BY DATE_FORMAT($field, '%Y-%m')";
+                    GROUP BY DATE_FORMAT($field, '$sqlDateFormat') 
+                    ORDER BY DATE_FORMAT($field, '$sqlDateFormat')";
             $params = [$startDate, $endDate];
         } elseif (!is_null($selectedMonth)) {
             $sql = $sqlBase . " WHERE YEAR($field) = ? AND MONTH($field) = ? 
-                    GROUP BY DATE_FORMAT($field, '%Y-%m') ORDER BY DATE_FORMAT($field, '%Y-%m')";
+                    GROUP BY DATE_FORMAT($field, '$sqlDateFormat') ORDER BY DATE_FORMAT($field, '$sqlDateFormat')";
             $params = [$selectedYear, $selectedMonth];
         } else {
             $sql = $sqlBase . " WHERE YEAR($field) = ? 
-                    GROUP BY DATE_FORMAT($field, '%Y-%m') ORDER BY DATE_FORMAT($field, '%Y-%m')";
+                    GROUP BY DATE_FORMAT($field, '$sqlDateFormat') ORDER BY DATE_FORMAT($field, '$sqlDateFormat')";
             $params = [$selectedYear];
         }
         
         $stmt = executeQuery($pdo, $sql, $params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
-        error_log("Error fetching monthly data: " . $e->getMessage());
+        error_log("Error fetching chart data: " . $e->getMessage());
         return [];
     }
 }
 
     // Query untuk data bulanan
     // HANYA DATA PERMOHONAN YANG DIFILTER (tambah kondisi tempat_permohonan != 'JAKARTA')
-    $permohonanMonthly = fetchMonthlyData(
-    $pdo,
-    "SELECT DATE_FORMAT(tgl_pengajuan, '%Y-%m') as ym, COUNT(*) as c FROM permohonan",
-    $selectedYear,
-    $selectedMonth,
-    'tgl_pengajuan',
-    $startDate,
-    $endDate,
-    $dateRangeType
-);
+    $permohonanMonthly = (function() use($pdo, $selectedYear, $selectedMonth, $startDate, $endDate, $dateRangeType, $sqlDateFormat) {
+    try {
+        if ($dateRangeType === 'custom') {
+            $sql = "SELECT DATE_FORMAT(tgl_pengajuan, '$sqlDateFormat') as ym, COUNT(*) as c 
+                    FROM permohonan 
+                    WHERE tgl_pengajuan BETWEEN ? AND ? AND tempat_permohonan != 'JAKARTA'
+                    GROUP BY ym ORDER BY ym";
+            $params = [$startDate, $endDate];
+        } elseif (!is_null($selectedMonth)) {
+            $sql = "SELECT DATE_FORMAT(tgl_pengajuan, '$sqlDateFormat') as ym, COUNT(*) as c 
+                    FROM permohonan 
+                    WHERE YEAR(tgl_pengajuan) = ? AND MONTH(tgl_pengajuan) = ? AND tempat_permohonan != 'JAKARTA'
+                    GROUP BY ym ORDER BY ym";
+            $params = [$selectedYear, $selectedMonth];
+        } else {
+            $sql = "SELECT DATE_FORMAT(tgl_pengajuan, '$sqlDateFormat') as ym, COUNT(*) as c 
+                    FROM permohonan 
+                    WHERE YEAR(tgl_pengajuan) = ? AND tempat_permohonan != 'JAKARTA'
+                    GROUP BY ym ORDER BY ym";
+            $params = [$selectedYear];
+        }
+        
+        $stmt = executeQuery($pdo, $sql, $params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        error_log("Error fetching permohonan chart data: " . $e->getMessage());
+        return [];
+    }
+})();
 
-    $penelaahanMonthly = fetchMonthlyData(
+$penelaahanMonthly = fetchChartData(
     $pdo,
-    "SELECT DATE_FORMAT(tanggal_dispo, '%Y-%m') as ym, COUNT(*) as c FROM penelaahan",
+    "SELECT DATE_FORMAT(pn.tanggal_dispo, '$sqlDateFormat') as ym, COUNT(*) as c 
+     FROM penelaahan pn 
+     JOIN permohonan pm ON pn.no_reg_medan = pm.no_reg_medan",
     $selectedYear,
     $selectedMonth,
-    'tanggal_dispo',
+    'pn.tanggal_dispo',
     $startDate,
     $endDate,
-    $dateRangeType
+    $dateRangeType,
+    $sqlDateFormat,
+    " AND pm.tempat_permohonan != 'JAKARTA'"
 );
 
     // Query untuk data bulanan LAYANAN (special handling)
-$layananMonthly = (function() use($pdo, $selectedYear, $selectedMonth, $startDate, $endDate, $dateRangeType) {
+$layananMonthly = (function() use($pdo, $selectedYear, $selectedMonth, $startDate, $endDate, $dateRangeType, $sqlDateFormat) {
     try {
         if ($dateRangeType === 'custom') {
-            $sql = "SELECT DATE_FORMAT(COALESCE(tanggal_disposisi, tgl_mulai_layanan), '%Y-%m') as ym, COUNT(*) as c 
+            $sql = "SELECT DATE_FORMAT(COALESCE(tanggal_disposisi, tgl_mulai_layanan), '$sqlDateFormat') as ym, COUNT(*) as c 
                     FROM layanan 
                     WHERE COALESCE(tanggal_disposisi, tgl_mulai_layanan) BETWEEN ? AND ?
                     GROUP BY ym ORDER BY ym";
             $params = [$startDate, $endDate];
         } elseif (!is_null($selectedMonth)) {
-            $sql = "SELECT DATE_FORMAT(COALESCE(tanggal_disposisi, tgl_mulai_layanan), '%Y-%m') as ym, COUNT(*) as c 
+            $sql = "SELECT DATE_FORMAT(COALESCE(tanggal_disposisi, tgl_mulai_layanan), '$sqlDateFormat') as ym, COUNT(*) as c 
                     FROM layanan 
                     WHERE ( (YEAR(tanggal_disposisi) = ? AND MONTH(tanggal_disposisi) = ?)
                         OR (tanggal_disposisi IS NULL AND YEAR(tgl_mulai_layanan) = ? AND MONTH(tgl_mulai_layanan) = ?) )
                     GROUP BY ym ORDER BY ym";
             $params = [$selectedYear, $selectedMonth, $selectedYear, $selectedMonth];
         } else {
-            $sql = "SELECT DATE_FORMAT(COALESCE(tanggal_disposisi, tgl_mulai_layanan), '%Y-%m') as ym, COUNT(*) as c 
+            $sql = "SELECT DATE_FORMAT(COALESCE(tanggal_disposisi, tgl_mulai_layanan), '$sqlDateFormat') as ym, COUNT(*) as c 
                     FROM layanan 
                     WHERE YEAR(COALESCE(tanggal_disposisi, tgl_mulai_layanan)) = ?
                     GROUP BY ym ORDER BY ym";
@@ -332,53 +389,63 @@ $layananMonthly = (function() use($pdo, $selectedYear, $selectedMonth, $startDat
         $stmt = executeQuery($pdo, $sql, $params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
-        error_log("Error fetching layanan monthly data: " . $e->getMessage());
+        error_log("Error fetching layanan chart data: " . $e->getMessage());
         return [];
     }
 })();
 
     // Query untuk data bulanan PENGELUARAN
-$pengeluaranMonthly = fetchMonthlyData(
+$pengeluaranMonthly = fetchChartData(
     $pdo,
-    "SELECT DATE_FORMAT(tanggal, '%Y-%m') as ym, SUM(jumlah) as c FROM pengeluaran",
+    "SELECT DATE_FORMAT(tanggal, '$sqlDateFormat') as ym, SUM(jumlah) as c FROM pengeluaran",
     $selectedYear,
     $selectedMonth,
     'tanggal',
     $startDate,
     $endDate,
-    $dateRangeType
+    $dateRangeType,
+    $sqlDateFormat
 );
 
     // Isi data series untuk chart
-    list($labelsPermohonan, $dataPermohonan) = fillMonthlySeries($permohonanMonthly, $selectedYear);
-    list(, $dataPenelaahan) = fillMonthlySeries($penelaahanMonthly, $selectedYear);
-    list(, $dataLayanan) = fillMonthlySeries($layananMonthly, $selectedYear);
-    list($labelsPengeluaran, $dataPengeluaran) = fillMonthlySeries($pengeluaranMonthly, $selectedYear);
-    list($labelsPermohonan, $dataPermohonan) = fillMonthlySeries(
+    list($labelsPermohonan, $dataPermohonan) = fillChartSeries(
     $permohonanMonthly, 
     $selectedYear, 
     $selectedMonth, 
     $startDate, 
     $endDate, 
-    $dateRangeType
+    $dateRangeType,
+    $isDaily
 );
 
-list($labelsPenelaahan, $dataPenelaahan) = fillMonthlySeries(
+list($labelsPenelaahan, $dataPenelaahan) = fillChartSeries(
     $penelaahanMonthly, 
     $selectedYear, 
     $selectedMonth, 
     $startDate, 
     $endDate, 
-    $dateRangeType
+    $dateRangeType,
+    $isDaily
 );
 
-list($labelsLayanan, $dataLayanan) = fillMonthlySeries(
+list($labelsLayanan, $dataLayanan) = fillChartSeries(
     $layananMonthly, 
     $selectedYear, 
     $selectedMonth, 
     $startDate, 
     $endDate, 
-    $dateRangeType
+    $dateRangeType,
+    $isDaily
+);
+
+list($labelsPengeluaran, $dataPengeluaran) = fillChartSeries(
+    $pengeluaranMonthly, 
+    $selectedYear, 
+    $selectedMonth, 
+    $startDate, 
+    $endDate, 
+    $dateRangeType,
+    $isDaily
 );
 
 $finalLabels = $labelsPermohonan; // Gunakan labels dari permohonan sebagai referensi
@@ -531,7 +598,6 @@ $anggaranData = $stmt->fetchAll(PDO::FETCH_ASSOC);
         'per_kode' => $anggaranPerKode
     ];
 
-    // --- Data Media Pengajuan Permohonan ---
 // --- Data Media Pengajuan Permohonan ---
 if ($dateRangeType === 'custom') {
     $stmt = executeQuery(
@@ -564,6 +630,8 @@ if ($dateRangeType === 'custom') {
         [$selectedYear]
     );
 }
+
+ 
 $mediaPengajuanData = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 
 // Format data media pengajuan
@@ -581,7 +649,62 @@ if (!empty($mediaPengajuanData)) {
     }
 }
 
-    // --- Data Beban Kerja Pegawai ---
+// --- Data Media Pengajuan Penelaahan ---
+if ($dateRangeType === 'custom') {
+    $stmt = executeQuery(
+        $pdo,
+        "SELECT p.media_pengajuan, COUNT(*) as jumlah
+         FROM penelaahan pn
+         JOIN permohonan p ON pn.no_reg_medan = p.no_reg_medan
+         WHERE pn.tanggal_dispo BETWEEN ? AND ?
+         GROUP BY p.media_pengajuan
+         ORDER BY jumlah DESC",
+        [$startDate, $endDate]
+    );
+} elseif (!is_null($selectedMonth)) {
+    $stmt = executeQuery(
+        $pdo,
+        "SELECT p.media_pengajuan, COUNT(*) as jumlah
+         FROM penelaahan pn
+         JOIN permohonan p ON pn.no_reg_medan = p.no_reg_medan
+         WHERE YEAR(pn.tanggal_dispo) = ? AND MONTH(pn.tanggal_dispo) = ?
+         GROUP BY p.media_pengajuan
+         ORDER BY jumlah DESC",
+        [$selectedYear, $selectedMonth]
+    );
+} else {
+    $stmt = executeQuery(
+        $pdo,
+        "SELECT p.media_pengajuan, COUNT(*) as jumlah
+         FROM penelaahan pn
+         JOIN permohonan p ON pn.no_reg_medan = p.no_reg_medan
+         WHERE YEAR(pn.tanggal_dispo) = ?
+         GROUP BY p.media_pengajuan
+         ORDER BY jumlah DESC",
+        [$selectedYear]
+    );
+}
+
+
+$mediaPengajuanPenelaahanRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$mediaPengajuanPenelaahanData = [];
+$totalPenelaahanMedia = 0;   // ← total khusus penelaahan
+
+foreach ($mediaPengajuanPenelaahanRows as $row) {
+    $media = $row['media_pengajuan'];
+    $jumlah = (int)$row['jumlah'];
+    $mediaPengajuanPenelaahanData[$media] = $jumlah;
+    $totalPenelaahanMedia += $jumlah;
+}
+
+// Format data media pengajuan penelaahan
+$mediaPengajuanPenelaahanChart = [
+    'labels' => array_keys($mediaPengajuanPenelaahanData),
+    'data'   => array_values($mediaPengajuanPenelaahanData),
+    'total'  => $totalPenelaahanMedia,   // ← kirim ke frontend
+];
+
+    
     // --- Data Beban Kerja Pegawai ---
 if ($dateRangeType === 'custom') {
     $stmt = executeQuery(
@@ -593,9 +716,12 @@ if ($dateRangeType === 'custom') {
             COUNT(DISTINCT pn.no_registrasi) as jumlah_penelaahan, 
             COUNT(DISTINCT ly.no_kep_smpl) as jumlah_layanan
         FROM pegawai pg
-        LEFT JOIN permohonan pm ON pg.id_pegawai = pm.id_pegawai AND pm.tgl_pengajuan BETWEEN ? AND ?
+        LEFT JOIN permohonan pm ON pg.id_pegawai = pm.id_pegawai 
+            AND pm.tgl_pengajuan BETWEEN ? AND ? 
+            AND pm.tempat_permohonan != 'JAKARTA'  -- FILTER BARU
         LEFT JOIN penelaahan pn ON pg.id_pegawai = pn.id_pegawai AND pn.tanggal_dispo BETWEEN ? AND ?
-        LEFT JOIN layanan ly ON pg.id_pegawai = ly.id_pegawai AND (COALESCE(ly.tanggal_disposisi, ly.tgl_mulai_layanan) BETWEEN ? AND ?)
+        LEFT JOIN layanan ly ON pg.id_pegawai = ly.id_pegawai 
+            AND (COALESCE(ly.tanggal_disposisi, ly.tgl_mulai_layanan) BETWEEN ? AND ?)
         GROUP BY pg.id_pegawai, pg.nama_pegawai
         ORDER BY pg.nama_pegawai",
         [$startDate, $endDate, $startDate, $endDate, $startDate, $endDate]
@@ -610,8 +736,11 @@ if ($dateRangeType === 'custom') {
             COUNT(DISTINCT pn.no_registrasi) as jumlah_penelaahan, 
             COUNT(DISTINCT ly.no_kep_smpl) as jumlah_layanan
         FROM pegawai pg
-        LEFT JOIN permohonan pm ON pg.id_pegawai = pm.id_pegawai AND YEAR(pm.tgl_pengajuan) = ? AND MONTH(pm.tgl_pengajuan) = ?
-        LEFT JOIN penelaahan pn ON pg.id_pegawai = pn.id_pegawai AND YEAR(pn.tanggal_dispo) = ? AND MONTH(pn.tanggal_dispo) = ?
+        LEFT JOIN permohonan pm ON pg.id_pegawai = pm.id_pegawai 
+            AND YEAR(pm.tgl_pengajuan) = ? AND MONTH(pm.tgl_pengajuan) = ?
+            AND pm.tempat_permohonan != 'JAKARTA'  -- FILTER BARU
+        LEFT JOIN penelaahan pn ON pg.id_pegawai = pn.id_pegawai 
+            AND YEAR(pn.tanggal_dispo) = ? AND MONTH(pn.tanggal_dispo) = ?
         LEFT JOIN layanan ly ON pg.id_pegawai = ly.id_pegawai AND (
             (YEAR(ly.tanggal_disposisi) = ? AND MONTH(ly.tanggal_disposisi) = ?)
             OR (ly.tanggal_disposisi IS NULL AND YEAR(ly.tgl_mulai_layanan) = ? AND MONTH(ly.tgl_mulai_layanan) = ?)
@@ -630,9 +759,12 @@ if ($dateRangeType === 'custom') {
             COUNT(DISTINCT pn.no_registrasi) as jumlah_penelaahan, 
             COUNT(DISTINCT ly.no_kep_smpl) as jumlah_layanan
         FROM pegawai pg
-        LEFT JOIN permohonan pm ON pg.id_pegawai = pm.id_pegawai AND YEAR(pm.tgl_pengajuan) = ?
+        LEFT JOIN permohonan pm ON pg.id_pegawai = pm.id_pegawai 
+            AND YEAR(pm.tgl_pengajuan) = ? 
+            AND pm.tempat_permohonan != 'JAKARTA'  -- FILTER BARU
         LEFT JOIN penelaahan pn ON pg.id_pegawai = pn.id_pegawai AND YEAR(pn.tanggal_dispo) = ?
-        LEFT JOIN layanan ly ON pg.id_pegawai = ly.id_pegawai AND (YEAR(ly.tanggal_disposisi) = ? OR (ly.tanggal_disposisi IS NULL AND YEAR(ly.tgl_mulai_layanan) = ?))
+        LEFT JOIN layanan ly ON pg.id_pegawai = ly.id_pegawai 
+            AND (YEAR(ly.tanggal_disposisi) = ? OR (ly.tanggal_disposisi IS NULL AND YEAR(ly.tgl_mulai_layanan) = ?))
         GROUP BY pg.id_pegawai, pg.nama_pegawai
         ORDER BY pg.nama_pegawai",
         [$selectedYear, $selectedYear, $selectedYear, $selectedYear]
@@ -814,6 +946,33 @@ $genderLayanan = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
         $genderDataLayanan['total'] += $count;
     }
 
+// --- Data Jenis Kelamin Penelaahan ---
+list($wJKPenelaahan, $pJKPenelaahan) = ymWhere('pn.tanggal_dispo', $selectedYear, $selectedMonth, $startDate, $endDate, $dateRangeType);
+$stmt = executeQuery(
+    $pdo,
+    "SELECT p.jenis_kelamin, COUNT(*) as jumlah
+     FROM penelaahan pn
+     JOIN permohonan p ON pn.no_reg_medan = p.no_reg_medan
+     WHERE $wJKPenelaahan
+     GROUP BY p.jenis_kelamin",
+    $pJKPenelaahan
+);
+$genderPenelaahan = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+// Format data gender penelaahan
+$genderDataPenelaahan = [
+    'labels' => [],
+    'data' => [],
+    'total' => 0
+];
+
+foreach ($genderLabels as $code => $label) {
+    $count = $genderPenelaahan[$code] ?? 0;
+    $genderDataPenelaahan['labels'][] = $label;
+    $genderDataPenelaahan['data'][] = $count;
+    $genderDataPenelaahan['total'] += $count;
+}
+
     // --- Data Jenis Tindak Pidana ---
     // Daftar semua nilai enum yang mungkin (hardcode berdasarkan struktur database)
 $allTindakPidana = [
@@ -917,6 +1076,40 @@ $statusHukumData = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
         }
     }
 
+    // --- Data Status Hukum Penelaahan ---
+if ($dateRangeType === 'custom') {
+    $stmt = executeQuery(
+        $pdo,
+        "SELECT p.status_hukum, COUNT(*) as jumlah
+         FROM penelaahan pn
+         JOIN permohonan p ON pn.no_reg_medan = p.no_reg_medan
+         WHERE pn.tanggal_dispo BETWEEN ? AND ? AND p.tempat_permohonan != 'JAKARTA'
+         GROUP BY p.status_hukum",
+        [$startDate, $endDate]
+    );
+} elseif (!is_null($selectedMonth)) {
+    $stmt = executeQuery(
+        $pdo,
+        "SELECT p.status_hukum, COUNT(*) as jumlah
+         FROM penelaahan pn
+         JOIN permohonan p ON pn.no_reg_medan = p.no_reg_medan
+         WHERE YEAR(pn.tanggal_dispo) = ? AND MONTH(pn.tanggal_dispo) = ? AND p.tempat_permohonan != 'JAKARTA'
+         GROUP BY p.status_hukum",
+        [$selectedYear, $selectedMonth]
+    );
+} else {
+    $stmt = executeQuery(
+        $pdo,
+        "SELECT p.status_hukum, COUNT(*) as jumlah
+         FROM penelaahan pn
+         JOIN permohonan p ON pn.no_reg_medan = p.no_reg_medan
+         WHERE YEAR(pn.tanggal_dispo) = ? AND p.tempat_permohonan != 'JAKARTA'
+         GROUP BY p.status_hukum",
+        [$selectedYear]
+    );
+}
+$statusHukumPenelaahan = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
     // --- Data Jenis Perlindungan Permohonan ---
     // Tambah filter bulan (via tgl_pengajuan di tabel permohonan)
     if ($dateRangeType === 'custom') {
@@ -958,8 +1151,23 @@ $statusHukumData = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 }
 $jenisPerlindunganPermohonan = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// --- Data Jenis Perlindungan Layanan ---
-if ($dateRangeType === 'custom') {
+// Format data jenis perlindungan permohonan
+$perlindunganPermohonanChart = [
+    'kategori' => [],
+    'sub_pilihan' => [],
+    'data' => [],
+    'total' => 0
+];
+
+foreach ($jenisPerlindunganPermohonan as $item) {
+    $perlindunganPermohonanChart['kategori'][] = $item['kategori'];
+    $perlindunganPermohonanChart['sub_pilihan'][] = $item['sub_pilihan'];
+    $perlindunganPermohonanChart['data'][] = (int)$item['jumlah'];
+    $perlindunganPermohonanChart['total'] += (int)$item['jumlah'];
+}
+
+    // --- Data Jenis Perlindungan Layanan ---
+    if ($dateRangeType === 'custom') {
     $stmt = executeQuery(
         $pdo,
         "SELECT jp.kategori, jp.sub_pilihan, COUNT(lp.id) as jumlah
@@ -1051,12 +1259,14 @@ $jenisPerlindunganLayanan = $stmt->fetchAll(PDO::FETCH_ASSOC);
     // --- Data untuk Peta Provinsi ---
 // --- Data untuk Peta Provinsi ---
 list($wProv, $pProv) = ymWhere('tgl_pengajuan', $selectedYear, $selectedMonth, $startDate, $endDate, $dateRangeType);
+// Query untuk data provinsi 
 $stmt = executeQuery(
     $pdo,
     "SELECT provinsi, COUNT(*) as jumlah
      FROM permohonan
      WHERE provinsi IN ('ACEH', 'SUMATERA UTARA', 'SUMATERA BARAT') 
      AND $wProv
+     AND (tempat_permohonan IS NULL OR tempat_permohonan != 'JAKARTA')
      GROUP BY provinsi",
     $pProv
 );
@@ -1067,11 +1277,14 @@ $stmt = executeQuery(
     $pdo,
     "SELECT 
         provinsi,
-        kab_kota_pemohon,
+        kab_kot_locus,
         COUNT(*) as jumlah
      FROM permohonan
-     WHERE $wProv AND kab_kota_pemohon IS NOT NULL AND kab_kota_pemohon != ''
-     GROUP BY provinsi, kab_kota_pemohon
+     WHERE $wProv 
+     AND kab_kot_locus IS NOT NULL 
+     AND kab_kot_locus != ''
+     AND (tempat_permohonan IS NULL OR tempat_permohonan != 'JAKARTA')
+     GROUP BY provinsi, kab_kot_locus
      ORDER BY provinsi, jumlah DESC",
     $pProv
 );
@@ -1081,7 +1294,7 @@ $kabupatenData = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $kabupatenByProvinsi = [];
 foreach ($kabupatenData as $row) {
     $provinsi = $row['provinsi'];
-    $kabupaten = $row['kab_kota_pemohon'];
+    $kabupaten = $row['kab_kot_locus'];
     $jumlah = (int)$row['jumlah'];
     
     if (!isset($kabupatenByProvinsi[$provinsi])) {
@@ -1375,14 +1588,22 @@ $totalSemuaProvinsi = array_sum($provinsiData);
             'beban_kerja' => $bebanKerjaChart,
             'gender_distribution' => [ 
                 'permohonan' => $genderDataPermohonan,
+                'penelaahan' => $genderDataPenelaahan,
                 'layanan' => $genderDataLayanan
             ],
             'tindak_pidana' => $tindakPidanaChart,
             'status_hukum' => $statusHukumChart,
+            'status_hukum_penelaahan' => [
+    'labels' => array_keys($statusHukumPenelaahan),
+    'data' => array_values($statusHukumPenelaahan),
+    'total' => array_sum($statusHukumPenelaahan)
+],
             'perlindungan_permohonan' => $perlindunganPermohonanChart,
             'perlindungan_layanan' => $perlindunganLayananChart,
             'perlindungan_comparison' => $perlindunganComparisonChart,
-            'media_pengajuan' => $mediaPengajuanChart
+            'media_pengajuan' => $mediaPengajuanChart,
+            'media_pengajuan_penelaahan' => $mediaPengajuanPenelaahanChart,
+            
         ],
         'map' => [
             'provinsi_counts' => $provinsiCounts,

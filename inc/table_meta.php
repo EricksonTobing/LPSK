@@ -22,7 +22,8 @@ return [
         'provinsi' => 'Provinsi',
         'kab_kota_pemohon' => 'Kab_Kota Pemohon',
         'provinsi_pemohon' => 'Provinsi Pemohon',
-        'tempat_permohonan' => 'Tempat Permohonan'
+        'tempat_permohonan' => 'Tempat Permohonan',
+        'atensi' => 'Atensi'
     ],
     'searchable' => ['no_reg_medan', 'nama_pemohon', 'tindak_pidana', 'media_pengajuan', 'jenis_perlindungan', 'pihak_perwakilan', 'provinsi', 'kab_kota_pemohon', 'provinsi_pemohon'],
     'filters' => ['jenis_kelamin', 'status_hukum', 'media_pengajuan', 'tempat_permohonan'],
@@ -52,7 +53,8 @@ return [
         'tgl_berakhir_penelaahan' => 'Tgl Berakhir Penalaahan',
         'waktu_tambahan' => 'Waktu Tambahan',
         'nama_ta_penalaahan' => 'Nama TA Penalaahan',
-        'risalah_laporan' => 'Risalah_ Laporan'
+        'risalah_laporan' => 'Risalah_ Laporan',
+        'atensi' => 'Atensi'
     ],
     'searchable' => ['no_registrasi', 'no_reg_medan', 'nama_pemohon', 'nama_ta_penalaahan', 'proses_penalaahan', 'tindak_pidana', 'jenis_perlindungan'],
     'filters' => ['proses_hukum', 'risalah_laporan', 'nama_ta_penalaahan', 'tindak_pidana'],
@@ -89,7 +91,8 @@ return [
         'jenis_perlindungan' => 'Jenis Perlindungan',
         'wilayah_hukum' => 'Wilayah Hukum',
         'nama_ta_layanan' => 'Nama TA Layanan',
-        'status' => 'status'
+        'status' => 'status',
+        'atensi' => 'Atensi'
     ],
     'searchable' => ['no_kep_smpl', 'no_spk', 'nama_terlindung', 'wilayah_hukum'],
     'filters' => ['status', 'jenis_tindak_pidana', 'status_spk', 'nama_ta_layanan'],
@@ -146,11 +149,14 @@ return [
       'kode_anggaran' => 'Kode Anggaran',
       'jumlah' => 'Jumlah',
       'tanggal' => 'Tanggal',
+      'tanggal' => 'Tanggal',
       'kode_mak' => 'Kode MAK',
-      'keterangan' => 'Keterangan'
+      'pembayaran' => 'Pembayaran',
+      'keterangan' => 'Keterangan',
+      'id_pegawai' => 'Pengaju'
     ],
     'searchable' => ['nomor_kuintasi', 'kode_anggaran', 'keterangan'],
-    'filters' => ['kode_anggaran', 'kode_mak'],
+    'filters' => ['kode_anggaran', 'kode_mak', 'pembayaran'],
     'joins' => [
       'anggaran' => ['kode_anggaran', 'kode_anggaran', ['nama_anggaran']],
       'mak' => ['kode_mak', 'kode_mak', ['nama_mak']]

@@ -91,6 +91,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $v = $_POST[$c] ?? null;
                 error_log("Field $c: " . var_export($v, true));
                 if (is_string($v)) $v = trim($v);
+                
+                // Handle boolean_checkbox for 'atensi'
+                if ($c === 'atensi') {
+                     // Checkbox checked sends '1', unchecked sends nothing (null in $_POST)
+                     // If unchecked, set to 0 (or null if you prefer, but usually 0 for boolean logic)
+                     // Based on user request: "saat checkbox tidak di centang berarti tidak"
+                     // The DB column is tinyint(1) DEFAULT NULL.
+                     // If we want "TIDAK" to be stored, we might store 0.
+                     // Let's store 1 for YA, 0 for TIDAK.
+                     $data[$c] = isset($_POST[$c]) ? 1 : 0; 
+                     continue; 
+                }
+
                 $data[$c] = $v === '' ? null : $v;
             }
 
@@ -333,7 +346,8 @@ function get_input_type($column, $value = '')
             'Dakwaan' => 'Dakwaan',
             'Pemeriksaan Saksi' => 'Pemeriksaan Saksi',
             'Pledoi' => 'Pledoi',
-            'Putusan Mahkamah Agung' => 'Putusan Mahkamah Agung'
+            'Putusan Mahkamah Agung' => 'Putusan Mahkamah Agung',
+            'INKRACHT' => 'Inkracht'
         ],
         'jenis_tindak_pidana'   => [
             'KSA' => 'KSA', 
@@ -355,12 +369,17 @@ function get_input_type($column, $value = '')
         'masa_layanan'          => ['3 BULAN' => '3 Bulan', '6 BULAN' => '6 Bulan'],
         'tambahan_masa_layanan' => ['3 BULAN' => '3 Bulan', '6 BULAN' => '6 Bulan'],
         'role'                  => ['admin' => 'Admin', 'user' => 'User'],
-        'aktif'                 => [1 => 'Aktif', 0 => 'Tidak Aktif']
+        'aktif'                 => [1 => 'Aktif', 0 => 'Tidak Aktif'],
+        'waktu_tambahan'        => ['15 HARI' => '15 Hari']
     ];
 
-    // Jika kolom enum, kembalikan tipe select beserta opsi
     if (isset($enum_columns[$column])) {
         return ['type' => 'select', 'options' => $enum_columns[$column]];
+    }
+
+    // Kolom atensi: checkbox (boolean)
+    if ($column === 'atensi') {
+        return ['type' => 'boolean_checkbox'];
     }
 
     // Kolom bertipe tanggal
@@ -919,6 +938,13 @@ require __DIR__ . '/../inc/layout_nav.php';
         $jenisList = $stmt->fetchAll(PDO::FETCH_COLUMN);
         ?>
         <?= e(implode(', ', $jenisList)) ?>
+    <?php elseif ($col === 'atensi'): ?>
+         <?php 
+             $val = $r[$col] ?? 0;
+             $display = $val == 1 ? 'YA' : 'TIDAK';
+             $colorClass = $val == 1 ? 'text-green-600 font-bold' : 'text-gray-500';
+         ?>
+         <span class="<?= $colorClass ?>"><?= $display ?></span>
     <?php else: ?>
         <!-- Tampilan normal untuk kolom lainnya -->
         <?php if ($col === 'link_berkas_permohonan' && !empty($r[$col])): ?>
@@ -1096,6 +1122,21 @@ require __DIR__ . '/../inc/layout_nav.php';
             </div>
             <p class="text-xs text-gray-500 dark:text-gray-400"><?= e($help_text) ?></p>
         </div>
+    <?php elseif ($input_type['type'] === 'boolean_checkbox'): ?>
+        <!-- Tampilan untuk boolean checkbox (Atensi) -->
+        <div class="space-y-1">
+            <div class="flex items-center space-x-2 mt-6">
+                <input type="checkbox" 
+                    name="<?= e($col) ?>" 
+                    value="1"
+                    id="create_<?= e($col) ?>"
+                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 h-5 w-5">
+                <label for="create_<?= e($col) ?>" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <?= e($label) ?>
+                </label>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 ml-7"><?= e($help_text) ?></p>
+        </div>
     <?php else: ?>
         <!-- Tampilan normal untuk tipe input lainnya -->
         <div class="space-y-1">
@@ -1194,6 +1235,21 @@ require __DIR__ . '/../inc/layout_nav.php';
                                 <?php endforeach; ?>
                             </div>
                             <p class="text-xs text-gray-500 dark:text-gray-400"><?= e($help_text) ?></p>
+                        </div>
+                    <?php elseif ($input_type['type'] === 'boolean_checkbox'): ?>
+                        <!-- Tampilan untuk boolean checkbox (Atensi) di Edit -->
+                        <div class="space-y-1">
+                            <div class="flex items-center space-x-2 mt-6">
+                                <input type="checkbox" 
+                                    name="<?= e($col) ?>" 
+                                    value="1"
+                                    id="edit_<?= e($col) ?>"
+                                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 h-5 w-5">
+                                <label for="edit_<?= e($col) ?>" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    <?= e($label) ?>
+                                </label>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 ml-7"><?= e($help_text) ?></p>
                         </div>
                     <?php else: ?>
                         <!-- Tampilan normal untuk tipe input lainnya -->
@@ -1409,6 +1465,14 @@ function populateEditForm(id, data) {
             if (inputElement) {
                 inputElement.value = data[col] || '';
             }
+
+            // Handle boolean_checkbox (atensi)
+            if (col === 'atensi') {
+                const checkbox = document.getElementById(`edit_${col}`);
+                if (checkbox) {
+                    checkbox.checked = (data[col] == 1);
+                }
+            }
             
             // Handle jenis_perlindungan checkbox
             if (containerElement && col === 'jenis_perlindungan') {
@@ -1436,6 +1500,31 @@ function populateEditForm(id, data) {
             console.error(`Error setting value for ${col}:`, error);
         }
     });
+    // Re-initialize date logic state for edit form after data population
+    setTimeout(() => {
+        if (window.setupDateLogic) {
+            // Force re-check of state
+            const endDateInput = document.getElementById('edit_tgl_berakhir_penelaahan');
+            const waktuTambahanInput = document.getElementById('edit_waktu_tambahan');
+            if (endDateInput && waktuTambahanInput) {
+                // Ensure logic is attached (idempotent)
+                window.setupDateLogic('edit'); 
+                
+                // Manually trigger state check because programmatic value change doesn't fire events
+                if (!endDateInput.value) {
+                    waktuTambahanInput.value = '';
+                    waktuTambahanInput.disabled = true;
+                } else {
+                    waktuTambahanInput.disabled = false;
+                }
+                
+                // Set the correct value for waktu_tambahan from data
+                if (data['waktu_tambahan']) {
+                    waktuTambahanInput.value = data['waktu_tambahan'];
+                }
+            }
+        }
+    }, 100);
 }
 
 // Fungsi untuk membuka modal view
@@ -1549,6 +1638,11 @@ async function renderViewData(data) {
             value = `<span title="${value.replace(/"/g, '&quot;')}">${value.substring(0, 50)}...</span>`;
         }
         
+        // Khusus untuk atensi
+        else if (col === 'atensi') {
+            value = (value == 1) ? '<span class="text-green-600 font-bold">YA</span>' : '<span class="text-gray-500">TIDAK</span>';
+        }
+
         // Tampilkan data
         const row = document.createElement('div');
         row.className = 'space-y-1';
@@ -1768,7 +1862,73 @@ function initResponsiveTable() {
 // Inisialisasi ketika dokumen siap
 document.addEventListener('DOMContentLoaded', function() {
     initResponsiveTable();
+    initDateCalculationLogic(); // Initialize date logic
 });
+
+// ==========================================
+// Custom Logic for Penelaahan Date Calculation
+// ==========================================
+function initDateCalculationLogic() {
+    // Helper to calculate date + days
+    function addDays(dateStr, days) {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return '';
+        date.setDate(date.getDate() + days);
+        return date.toISOString().split('T')[0];
+    }
+
+    // Function to setup logic for a specific form prefix (create/edit)
+    window.setupDateLogic = function(prefix) {
+        const endDateInput = document.getElementById(prefix + '_tgl_berakhir_penelaahan');
+        const waktuTambahanInput = document.getElementById(prefix + '_waktu_tambahan');
+
+        if (endDateInput && waktuTambahanInput) {
+            
+            // Function to manage state
+            function updateState() {
+                if (!endDateInput.value) {
+                    waktuTambahanInput.value = '';
+                    waktuTambahanInput.disabled = true;
+                } else {
+                    waktuTambahanInput.disabled = false;
+                }
+            }
+
+            // Remove existing listeners to avoid duplicates (naive approach, better to use named functions if possible, 
+            // but for this simple script, we just ensure we don't attach multiple times if called repeatedly.
+            // A simple flag on the element is enough.)
+            if (endDateInput.dataset.logicAttached) return;
+            endDateInput.dataset.logicAttached = 'true';
+
+            // Handler for Waktu Tambahan Change
+            waktuTambahanInput.addEventListener('change', function() {
+                if (this.value === '15 HARI') {
+                    endDateInput.value = addDays(endDateInput.value, 15);
+                } else {
+                    endDateInput.value = addDays(endDateInput.value, -15);
+                }
+            });
+
+            // Handler for Date Change
+            endDateInput.addEventListener('change', function() {
+                updateState();
+                // Reset waktu tambahan if user manually changes date to ensure calculation is fresh
+                if (waktuTambahanInput.value === '15 HARI') {
+                     waktuTambahanInput.value = '';
+                }
+            });
+
+            // Initial check
+            updateState();
+        }
+    };
+
+    // Initialize for Create form immediately
+    setupDateLogic('create');
+    setupDateLogic('edit');
+}
+
 </script>
 
 <?php

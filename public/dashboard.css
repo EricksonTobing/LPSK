@@ -1,0 +1,589 @@
+/* Enhanced Custom Styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+* {
+  font-family: 'Inter', sans-serif;
+}
+
+
+/* Tab System Styles */
+.tab-panel {
+    display: block;
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.tab-panel.hidden {
+    display: none;
+}
+
+.tab-button {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.tab-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.5s;
+}
+
+.tab-button:hover::before {
+    left: 100%;
+}
+
+.tab-button.active {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
+}
+
+/* Keyboard shortcut hint */
+.tab-button::after {
+    content: attr(data-shortcut);
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ef4444;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tab-button:hover::after {
+    opacity: 1;
+}
+
+/* Animation for tab content */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+
+/* Enhanced Animations */
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px) scale(0.95); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(40px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes bounceSubtle {
+  0%, 100% { 
+    transform: translateY(0px); 
+  }
+  50% { 
+    transform: translateY(-3px); 
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.8s ease-out;
+}
+
+.animate-bounce-subtle {
+  animation: bounceSubtle 2s infinite;
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Glass Effect Enhancements */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.dark .glass-effect {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Enhanced Hover Effects */
+.hover-lift {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.dark .hover-lift:hover {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+}
+
+/* Enhanced Chart Container */
+.chart-container {
+  position: relative;
+  height: 400px;
+}
+
+/* Map Enhancements */
+#map-container {
+  position: relative;
+  min-height: 400px;
+  border-radius: 1rem;
+  overflow: visible; /* Important for tooltips */
+}
+
+#map-container svg {
+  width: 100% !important;
+  height: 100% !important;
+  overflow: visible; /* Important for tooltips */
+}
+
+/* Province Path Styles */
+#map-container .province {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+#map-container .province:hover {
+  filter: brightness(1.1);
+}
+
+/* Ensure nothing blocks tooltips */
+.backdrop-blur-sm,
+.bg-white\/80,
+.dark\:bg-gray-800\/80 {
+  z-index: auto !important;
+}
+
+/* Override z-index if needed for blocking elements */
+.rounded-3xl {
+  position: relative;
+  z-index: auto;
+}
+
+/* For map container to allow tooltips */
+.chart-container,
+.map-legend {
+  z-index: auto !important;
+}
+
+/* Map Tooltip Styles */
+.datamaps-hoverover {
+  position: absolute !important;
+  z-index: 10001 !important; /* Ensure tooltips are on top */
+  pointer-events: none !important; /* Prevent interference */
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+  font-family: system-ui, -apple-system, sans-serif !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  max-width: 250px !important;
+  word-wrap: break-word !important;
+}
+
+.dark .datamaps-hoverover {
+  background: rgba(31, 41, 55, 0.98) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #e5e7eb !important;
+}
+
+/* Map Container Styles for Centering */
+#map-container {
+    position: relative;
+    min-height: 400px;
+    border-radius: 1rem;
+    overflow: visible;
+    margin: 0 auto; /* Center horizontally */
+}
+
+/* Responsive centering */
+@media (max-width: 1024px) {
+    #map-container {
+        max-width: 90vw;
+        min-height: 350px;
+    }
+}
+
+@media (max-width: 768px) {
+    #map-container {
+        max-width: 95vw;
+        min-height: 300px;
+    }
+}
+
+@media (max-width: 640px) {
+    #map-container {
+        max-width: 100%;
+        min-height: 250px;
+    }
+}
+
+/* Ensure map stays centered */
+.map-center-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+/* Enhanced Button Styles */
+button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Progress Bar Animation */
+@keyframes progressFill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: var(--progress-width);
+  }
+}
+
+.progress-animated {
+  animation: progressFill 1.5s ease-out;
+}
+
+/* Enhanced Card Shadows */
+.card-shadow {
+  box-shadow: 
+    0 1px 3px 0 rgba(0, 0, 0, 0.1),
+    0 1px 2px 0 rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.dark .card-shadow {
+  box-shadow: 
+    0 1px 3px 0 rgba(0, 0, 0, 0.3),
+    0 1px 2px 0 rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  -webkit-tap-highlight-color: transparent; /* Removes the highlight on tap for mobile */
+}
+
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Enhanced focus states */
+button:focus,
+select:focus,
+input:focus {
+  outline: 2px solid rgba(59, 130, 246, 0.5);
+  outline-offset: 2px;
+}
+
+/* Custom select styling */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1em;
+  padding-right: 2.5rem;
+}
+
+/* Enhanced Pie Chart Styles */
+.pie-chart-container {
+    position: relative;
+    height: 320px;
+}
+
+.pie-chart-legend {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.pie-chart-legend::-webkit-scrollbar {
+    width: 4px;
+}
+
+.pie-chart-legend::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 2px;
+}
+
+.pie-chart-legend::-webkit-scrollbar-thumb {
+    background: rgba(59, 130, 246, 0.5);
+    border-radius: 2px;
+}
+
+/* Responsive adjustments for pie charts */
+@media (max-width: 1024px) {
+    .pie-chart-container {
+        height: 280px;
+    }
+}
+
+@media (max-width: 768px) {
+    .pie-chart-container {
+        height: 250px;
+    }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-break {
+    page-break-before: always;
+  }
+  
+  body {
+    background: white !important;
+  }
+  
+  .backdrop-blur-sm {
+    backdrop-filter: none !important;
+    background: white !important;
+  }
+}
+
+/* Ensure canvas elements are properly handled */
+canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+.chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Enhanced Map Legend Styles */
+#map-legend {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Responsive table styles */
+@media (max-width: 768px) {
+    #map-legend .grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Hover effects for kabupaten items */
+.kabupaten-item {
+    transition: all 0.3s ease;
+}
+
+.kabupaten-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Map Tooltip Styles */
+.datamaps-hoverover {
+    position: absolute !important;
+    z-index: 10001 !important; 
+    pointer-events: none !important; 
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+    font-family: system-ui, -apple-system, sans-serif !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+    max-width: 250px !important;
+    word-wrap: break-word !important;
+}
+
+.dark .datamaps-hoverover {
+    background: rgba(31, 41, 55, 0.98) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #e5e7eb !important;
+}
+
+/* Enhanced Scrollbar for Kabupaten Table */
+.max-h-96::-webkit-scrollbar {
+    width: 8px;
+}
+
+.max-h-96::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+.max-h-96::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px;
+}
+
+.max-h-96::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+/* Hover effects for kabupaten cards */
+.kabupaten-card {
+    transition: all 0.3s ease;
+}
+
+.kabupaten-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.15);
+}
+
+/* Custom date range styles */
+#customRangeContainer input[type="date"] {
+    border-bottom: 1px solid #d1d5db;
+    padding: 2px 4px;
+}
+
+#customRangeContainer input[type="date"]:focus {
+    outline: none;
+    border-bottom-color: #3b82f6;
+}
+
+.dark #customRangeContainer input[type="date"] {
+    border-bottom-color: #4b5563;
+    color: #e5e7eb;
+}
+
+.dark #customRangeContainer input[type="date"]:focus {
+    border-bottom-color: #60a5fa;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    #customRangeContainer .flex {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    #customRangeContainer .pt-4 {
+        padding-top: 0;
+    }
+}
+
+
+/* Enhanced Filter Styles */
+.filter-container {
+  transition: all 0.3s ease-in-out;
+}
+
+.filter-select {
+  transition: all 0.2s ease;
+}
+
+.filter-select:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+}
+
+.quick-filter-btn {
+  transition: all 0.2s ease;
+}
+
+.quick-filter-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .filter-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  .filter-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Dark mode enhancements */
+.dark .filter-select {
+  background: rgba(55, 65, 81, 0.5);
+  border-color: rgba(75, 85, 99, 0.5);
+}
+
+.dark .filter-select:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
