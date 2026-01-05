@@ -25,14 +25,33 @@ try {
         }
     }
 
-    // Cek apakah tahun tersedia di database
-    $stmt = $pdo->prepare("SELECT EXISTS(SELECT 1 FROM permohonan WHERE YEAR(tgl_pengajuan) = ?) as tahun_ada");
+    // Cek apakah tahun tersedia di database (dari semua tabel terkait)
+    $stmt = $pdo->prepare("
+        SELECT EXISTS(
+            SELECT 1 FROM (
+                SELECT YEAR(tgl_pengajuan) as tahun FROM permohonan
+                UNION ALL SELECT YEAR(tanggal_dispo) FROM penelaahan
+                UNION ALL SELECT YEAR(tanggal) FROM pengeluaran
+                UNION ALL SELECT YEAR(tgl_mulai_layanan) FROM layanan
+                UNION ALL SELECT tahun FROM anggaran
+            ) all_years 
+            WHERE tahun = ?
+        ) as tahun_ada
+    ");
     $stmt->execute([$selectedYear]);
     $tahunValid = (bool)$stmt->fetchColumn();
 
     // Jika tahun tidak valid, cari tahun terdekat yang ada data
     if (!$tahunValid) {
-        $stmt = $pdo->query("SELECT MAX(YEAR(tgl_pengajuan)) as max_tahun FROM permohonan");
+        $stmt = $pdo->query("
+            SELECT MAX(tahun) as max_tahun FROM (
+                SELECT YEAR(tgl_pengajuan) as tahun FROM permohonan
+                UNION ALL SELECT YEAR(tanggal_dispo) FROM penelaahan
+                UNION ALL SELECT YEAR(tanggal) FROM pengeluaran
+                UNION ALL SELECT YEAR(tgl_mulai_layanan) FROM layanan
+                UNION ALL SELECT tahun FROM anggaran
+            ) all_years
+        ");
         $selectedYear = $stmt->fetchColumn() ?: (int)date('Y');
     }
 
@@ -1421,7 +1440,7 @@ $totalSemuaProvinsi = array_sum($provinsiData);
                     'blue' as warna,
                     'fa-file-import' as icon
                 FROM permohonan 
-                WHERE YEAR(tgl_pengajuan) = ? AND MONTH(tgl_pengajuan) = ? AND tempat_permohonan != 'JAKARTA'
+                WHERE YEAR(tgl_pengajuan) = ? AND tempat_permohonan != 'JAKARTA'
                 ORDER BY tgl_pengajuan DESC 
                 LIMIT 5
             )
@@ -1436,7 +1455,7 @@ $totalSemuaProvinsi = array_sum($provinsiData);
                     'green' as warna,
                     'fa-check-circle' as icon
                 FROM penelaahan 
-                WHERE YEAR(tanggal_dispo) = ? AND MONTH(tanggal_dispo) = ?
+                WHERE YEAR(tanggal_dispo) = ?
                 ORDER BY tanggal_dispo DESC 
                 LIMIT 5
             )
@@ -1451,13 +1470,13 @@ $totalSemuaProvinsi = array_sum($provinsiData);
                     'amber' as warna,
                     'fa-coins' as icon
                 FROM pengeluaran 
-                WHERE YEAR(tanggal) = ? AND MONTH(tanggal) = ?
+                WHERE YEAR(tanggal) = ?
                 ORDER BY tanggal DESC 
                 LIMIT 5
             )
             ORDER BY tanggal DESC 
             LIMIT 5",
-            [$selectedYear, $selectedMonth, $selectedYear, $selectedMonth, $selectedYear, $selectedMonth]
+            [$selectedYear, $selectedYear, $selectedYear]
         );
     }
     $aktivitasTerbaru = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1562,6 +1581,28 @@ $totalSemuaProvinsi = array_sum($provinsiData);
         $counts['penelaahan_change'] = 0.0;
         $counts['layanan_change'] = 0.0;
         $counts['pengeluaran_change'] = 0.0;
+    }
+
+    // --- Data Aktivitas Terbaru (Audit Logs) ---
+    try {
+        $stmtAktivitas = $pdo->query("
+            SELECT al.*, 
+                   COALESCE(u.nama_lengkap, al.user_name) as display_name,
+                   u.role as user_role
+            FROM audit_logs al
+            LEFT JOIN users u ON al.user_id = u.id_user
+            ORDER BY al.changed_at DESC 
+            LIMIT 50
+        ");
+        $aktivitasTerbaru = $stmtAktivitas->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        // Jika kolom user_id belum ada atau berbeda tipe, fallback
+        try {
+             $stmtAktivitas = $pdo->query("SELECT * FROM audit_logs ORDER BY changed_at DESC LIMIT 50");
+             $aktivitasTerbaru = $stmtAktivitas->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $ex) {
+             $aktivitasTerbaru = [];
+        }
     }
 
     $response = [

@@ -347,7 +347,7 @@ function get_input_type($column, $value = '')
             'Pemeriksaan Saksi' => 'Pemeriksaan Saksi',
             'Pledoi' => 'Pledoi',
             'Putusan Mahkamah Agung' => 'Putusan Mahkamah Agung',
-            'INKRACHT' => 'Inkracht'
+            'Inkracht' => 'Inkracht'
         ],
         'jenis_tindak_pidana'   => [
             'KSA' => 'KSA', 

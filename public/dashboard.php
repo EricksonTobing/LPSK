@@ -367,12 +367,8 @@ class DashboardManager {
   init() {
     this.setupEventListeners();
     
-    // Hanya load filter state jika bukan refresh
-    if (!this.isRefresh()) {
-      this.loadFilterState();
-    } else {
-      this.clearRefreshFlag();
-    }
+    // Load filter state
+    this.loadFilterState();
     
     this.loadDashboardData();
     this.updateTimestamp();
@@ -396,29 +392,7 @@ class DashboardManager {
   }
 
   // Method untuk mendeteksi refresh
-  isRefresh() {
-    return performance.navigation.type === 1 || // TYPE_RELOAD
-           performance.getEntriesByType('navigation')[0]?.type === 'reload';
-  }
 
-  // Method untuk clear refresh flag
-  clearRefreshFlag() {
-    // Clear localStorage filter state pada refresh
-    localStorage.removeItem('dashboardFilterYear');
-    localStorage.removeItem('dashboardFilterMonth');
-    
-    // Reset ke tahun dan bulan saat ini
-    const currentYear = new Date().getFullYear();
-    const yearFilter = document.getElementById('yearFilter');
-    if (yearFilter) {
-      yearFilter.value = currentYear;
-    }
-    
-    const monthFilter = document.getElementById('monthFilter');
-    if (monthFilter) {
-      monthFilter.value = ''; // Reset ke "Semua bulan"
-    }
-  }
 
   setupEventListeners() {
     // Event listener untuk filter tahun
@@ -777,10 +751,7 @@ if (data.charts) {
 
   // method untuk load state filter dari localStorage
   loadFilterState() {
-    // Jangan load filter state jika ini adalah refresh
-    if (this.isRefresh()) {
-      return;
-    }
+
 
     const savedYear = localStorage.getItem('dashboardFilterYear');
     const savedMonth = localStorage.getItem('dashboardFilterMonth');
@@ -3203,7 +3174,165 @@ renderMap(mapData) {
             `;
         }
     }
+
+// DAta BARU: Render Table Kabupaten
+    // ... [existing renderKabupatenTable code] ... 
+    // This is actually replacing the end of renderKabupatenTable to append the new function, 
+    // but better to just insert AFTER it if I can target the closing brace.
+    // However, replace_file_content works on ranges. 
+    // I will append the NEW function after the closing brace of the previous function.
 }
+
+  renderAktivitasTerbaru(aktivitasData) {
+    const container = document.getElementById('aktivitas-container');
+    if (!container) return;
+
+    if (!aktivitasData || aktivitasData.length === 0) {
+        container.innerHTML = `
+            <div class="col-span-3 text-center py-12">
+                <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-history text-2xl text-gray-400"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300">Belum ada aktivitas</h3>
+                <p class="text-gray-500 dark:text-gray-400">Aktivitas sistem akan muncul di sini</p>
+            </div>
+        `;
+        return;
+    }
+
+    let html = '<div class="col-span-3 space-y-0">';
+
+    aktivitasData.forEach(item => {
+        // Format timestamp
+        const date = new Date(item.changed_at);
+        const timeStr = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+        // Badge color based on action
+        let badgeClass = 'bg-gray-100 text-gray-800';
+        let actionLabel = item.action;
+        let icon = 'fa-info';
+        let changeDetails = '';
+
+        // Helper to parse JSON
+        const safeParse = (jsonStr) => {
+            try { return typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr; } catch (e) { return {}; }
+        };
+        
+        const oldVals = safeParse(item.old_values);
+        const newVals = safeParse(item.new_values);
+
+        if (item.action === 'INSERT') {
+            badgeClass = 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800';
+            actionLabel = 'TAMBAH';
+            icon = 'fa-plus';
+            // Show new key details
+            changeDetails = `<div class="mt-2 space-y-1">`;
+            for (const [key, val] of Object.entries(newVals || {})) {
+                if (key !== 'id' && key !== 'created_at' && key !== 'updated_at' && val !== null && val !== '') {
+                     changeDetails += `<div class="text-xs text-gray-600 dark:text-gray-400">
+                        <span class="font-semibold text-green-600 dark:text-green-400">+ ${key}:</span> ${val}
+                     </div>`;
+                }
+            }
+            changeDetails += `</div>`;
+
+        } else if (item.action === 'UPDATE') {
+            badgeClass = 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800';
+            actionLabel = 'UPDATE';
+            icon = 'fa-edit';
+            
+            // Calc diff
+            changeDetails = `<div class="mt-2 space-y-1">`;
+            let hasChanges = false;
+            for (const key in newVals) {
+                if (newVals.hasOwnProperty(key) && oldVals.hasOwnProperty(key)) {
+                    if (newVals[key] != oldVals[key]) { // Loose equality for numbers
+                         hasChanges = true;
+                         changeDetails += `<div class="text-xs text-gray-600 dark:text-gray-400">
+                            <span class="font-medium text-gray-500">${key}:</span> 
+                            <span class="text-red-500 line-through mr-1">${oldVals[key]}</span>
+                            <i class="fas fa-arrow-right text-xs text-gray-400 mx-1"></i>
+                            <span class="text-blue-600 font-medium">${newVals[key]}</span>
+                         </div>`;
+                    }
+                }
+            }
+            if (!hasChanges) changeDetails += `<div class="text-xs italic text-gray-500">Data diperbarui tanpa perubahan nilai</div>`;
+            changeDetails += `</div>`;
+
+        } else if (item.action === 'DELETE') {
+            badgeClass = 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800';
+            actionLabel = 'HAPUS';
+            icon = 'fa-trash';
+            
+            // Show deleted summary
+            changeDetails = `<div class="mt-2 space-y-1">`;
+             // Show first 3 keys as summary
+            let count = 0;
+            for (const [key, val] of Object.entries(oldVals || {})) {
+                if (key !== 'created_at' && key !== 'updated_at' && count < 3) {
+                     changeDetails += `<div class="text-xs text-gray-500 dark:text-gray-400">
+                        <span class="font-semibold text-red-400">- ${key}:</span> ${val}
+                     </div>`;
+                     count++;
+                }
+            }
+            changeDetails += `</div>`;
+        }
+
+        // Determine description
+        let mainDesc = `<span class="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600 uppercase tracking-wide">${item.table_name}</span>`;
+        if (item.record_id) {
+            mainDesc += ` <span class="text-xs text-gray-400 mx-1">#</span><span class="font-mono text-xs text-gray-600 dark:text-gray-300 font-bold">${item.record_id}</span>`;
+        }
+
+        // Use display_name from API (which coalesces users.nama_lengkap and audit_logs.user_name)
+        const displayName = item.display_name || item.user_name || 'System / Unknown';
+        const userAvatar = displayName.charAt(0).toUpperCase();
+
+        html += `
+            <div class="relative pl-8 pb-8 border-l-2 border-gray-200 dark:border-gray-700 last:border-0 last:pb-0 group">
+                <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 group-hover:border-blue-500 transition-colors"></div>
+                
+                <div class="mb-1 text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                    <i class="far fa-clock mr-1"></i> ${timeStr}
+                </div>
+                
+                <div class="bg-white dark:bg-gray-700/50 rounded-xl p-4 border border-gray-100 dark:border-gray-600/50 shadow-sm hover:shadow-md transition-all hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <div class="flex items-start justify-between mb-2">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold text-sm shadow-sm ring-2 ring-white dark:ring-gray-700">
+                                ${userAvatar}
+                            </div>
+                            <div>
+                                <div class="font-semibold text-sm text-gray-800 dark:text-gray-200">${displayName}</div>
+                                <div class="flex items-center gap-2">
+                                     <div class="text-xs text-gray-500 dark:text-gray-400">ID: ${item.user_id || '-'}</div>
+                                     ${item.user_role ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 uppercase tracking-wider font-bold">${item.user_role}</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 text-xs font-bold rounded-full flex items-center gap-1.5 shadow-sm transform group-hover:scale-105 transition-transform ${badgeClass}">
+                            <i class="fas ${icon} text-[10px]"></i> ${actionLabel}
+                        </span>
+                    </div>
+                    
+                    <div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                        <div class="flex items-center justify-between mb-2 border-b border-gray-200 dark:border-gray-700 pb-2">
+                            ${mainDesc} 
+                        </div>
+                        <div class="max-h-40 overflow-y-auto custom-scrollbar pr-1">
+                            ${changeDetails}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    html += '</div>';
+    container.innerHTML = html;
+  }
 
 // DATA BARU: Method untuk merender tabel detail kabupaten - SEMUA DATA
 renderKabupatenTable(mapData) {
@@ -4108,4 +4237,9 @@ canvas {
 
 </style>
 
+
+<?php include __DIR__ . '/components/system-update-modal.php'; ?>
+
+
 <?php require __DIR__ . '/../inc/layout_footer.php'; ?>
+

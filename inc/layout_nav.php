@@ -2,6 +2,10 @@
 require __DIR__ . '/../inc/layout_header.php';
 $u = auth_user(); $role = $u['role'] ?? 'user'; 
 ?>
+
+
+
+
     <!-- Main wrapper dengan shared Alpine.js data -->
     <div x-data="{ sidebarOpen: false, profileOpen: false, notificationsOpen: false }">
         <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
